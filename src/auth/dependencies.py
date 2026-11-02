@@ -120,3 +120,34 @@ def require_role(allowed_roles: List[str]) -> Callable:
         return tenant
 
     return role_checker
+
+
+async def get_workspace_role(
+    org_id: uuid.UUID,
+    workspace_id: uuid.UUID,
+    user_id: uuid.UUID,
+    is_platform_admin: bool = False,
+    org_role: Optional[str] = None,
+) -> str:
+    """
+    Resolve a user's effective role within a workspace.
+    Platform admins and organization admins automatically possess full administrative authority.
+    Ordinary members must have an active workspace_membership.
+    """
+    if is_platform_admin or org_role == "ORGANIZATION_ADMIN":
+        return "ORGANIZATION_ADMIN"
+
+    async with db_manager.pool.acquire() as conn:
+        ws_member = await conn.fetchrow(
+            """
+            SELECT role, is_active FROM workspace_memberships
+            WHERE organization_id = $1 AND workspace_id = $2 AND user_id = $3
+            """,
+            org_id,
+            workspace_id,
+            user_id,
+        )
+        if not ws_member or not ws_member["is_active"]:
+            raise AuthorizationError("User is not an active member of this workspace")
+        return ws_member["role"]
+
