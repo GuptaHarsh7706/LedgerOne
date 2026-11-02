@@ -1,0 +1,144 @@
+{
+  "confidence_bands": {
+    "[0.00, 0.40)": [
+      {
+        "raw_ocr_line": "Invoice total due: $1,420.00",
+        "monetary_span_text": "$1,420.00",
+        "normalized_candidate": null,
+        "parsed_decimal": "None",
+        "currency": null,
+        "validation_status": "NEEDS_REVIEW",
+        "full_line_ocr_confidence": 0.985,
+        "monetary_span_confidence": 0.35,
+        "parsed_candidate_confidence": 1.0,
+        "combined_acceptance_confidence": 0.35,
+        "accepted": false,
+        "exact_match": false,
+        "decision": "REJECTED_ABSTAINED",
+        "confidence_band": "[0.00, 0.40)"
+      }
+    ],
+    "[0.40, 0.60)": [
+      {
+        "raw_ocr_line": "Payment amount: $2,050.00 paid",
+        "monetary_span_text": "$2,050.00 ",
+        "normalized_candidate": null,
+        "parsed_decimal": "None",
+        "currency": null,
+        "validation_status": "NEEDS_REVIEW",
+        "full_line_ocr_confidence": 0.99,
+        "monetary_span_confidence": 0.48,
+        "parsed_candidate_confidence": 1.0,
+        "combined_acceptance_confidence": 0.48,
+        "accepted": false,
+        "exact_match": false,
+        "decision": "REJECTED_ABSTAINED",
+        "confidence_band": "[0.40, 0.60)"
+      },
+      {
+        "raw_ocr_line": "Amount: $11,22000 invalid grouping",
+        "monetary_span_text": "$11,22000 ",
+        "normalized_candidate": null,
+        "parsed_decimal": "None",
+        "currency": null,
+        "validation_status": "AMBIGUOUS",
+        "full_line_ocr_confidence": 0.99,
+        "monetary_span_confidence": 0.95,
+        "parsed_candidate_confidence": 0.4,
+        "combined_acceptance_confidence": 0.4,
+        "accepted": false,
+        "exact_match": false,
+        "decision": "REJECTED_ABSTAINED",
+        "confidence_band": "[0.40, 0.60)"
+      },
+      {
+        "raw_ocr_line": "Amount: $ 10/00000 illegal slash",
+        "monetary_span_text": "$ 10",
+        "normalized_candidate": null,
+        "parsed_decimal": "None",
+        "currency": null,
+        "validation_status": "AMBIGUOUS",
+        "full_line_ocr_confidence": 0.99,
+        "monetary_span_confidence": 0.95,
+        "parsed_candidate_confidence": 0.4,
+        "combined_acceptance_confidence": 0.4,
+        "accepted": false,
+        "exact_match": false,
+        "decision": "REJECTED_ABSTAINED",
+        "confidence_band": "[0.40, 0.60)"
+      }
+    ],
+    "[0.60, 0.75)": [
+      {
+        "raw_ocr_line": "Subtotal net: 450.00-",
+        "monetary_span_text": " 450.00",
+        "normalized_candidate": null,
+        "parsed_decimal": "None",
+        "currency": null,
+        "validation_status": "NEEDS_REVIEW",
+        "full_line_ocr_confidence": 0.96,
+        "monetary_span_confidence": 0.71,
+        "parsed_candidate_confidence": 1.0,
+        "combined_acceptance_confidence": 0.71,
+        "accepted": false,
+        "exact_match": false,
+        "decision": "REJECTED_ABSTAINED",
+        "confidence_band": "[0.60, 0.75)"
+      }
+    ],
+    "[0.75, 0.85)": [
+      {
+        "raw_ocr_line": "Sales tax: 332.50 EUR",
+        "monetary_span_text": " 332.50 ",
+        "normalized_candidate": "332.50 EUR",
+        "parsed_decimal": "332.50",
+        "currency": "EUR",
+        "validation_status": "VALID",
+        "full_line_ocr_confidence": 0.92,
+        "monetary_span_confidence": 0.815,
+        "parsed_candidate_confidence": 1.0,
+        "combined_acceptance_confidence": 0.815,
+        "accepted": true,
+        "exact_match": true,
+        "decision": "ACCEPTED",
+        "confidence_band": "[0.75, 0.85)"
+      }
+    ],
+    "[0.85, 0.95)": [
+      {
+        "raw_ocr_line": "Grand Total: $24,025.00",
+        "monetary_span_text": "$24,025.00",
+        "normalized_candidate": "$24025.00",
+        "parsed_decimal": "24025.00",
+        "currency": "USD",
+        "validation_status": "VALID",
+        "full_line_ocr_confidence": 0.96,
+        "monetary_span_confidence": 0.915,
+        "parsed_candidate_confidence": 1.0,
+        "combined_acceptance_confidence": 0.915,
+        "accepted": true,
+        "exact_match": true,
+        "decision": "ACCEPTED",
+        "confidence_band": "[0.85, 0.95)"
+      }
+    ],
+    "[0.95, 1.00]": [
+      {
+        "raw_ocr_line": "Unit price: $50.00 per unit",
+        "monetary_span_text": "$50.00 ",
+        "normalized_candidate": "$50.00",
+        "parsed_decimal": "50.00",
+        "currency": "USD",
+        "validation_status": "VALID",
+        "full_line_ocr_confidence": 0.995,
+        "monetary_span_confidence": 0.99,
+        "parsed_candidate_confidence": 1.0,
+        "combined_acceptance_confidence": 0.99,
+        "accepted": true,
+        "exact_match": true,
+        "decision": "ACCEPTED",
+        "confidence_band": "[0.95, 1.00]"
+      }
+    ]
+  }
+}

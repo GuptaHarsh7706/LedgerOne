@@ -232,10 +232,44 @@ def test_ground_truth_isolation():
     param_names = list(sig.parameters.keys())
     assert "ground_truth" not in param_names
     assert "gt" not in param_names
-    assert param_names == ["raw_text", "default_currency", "default_locale", "source_confidence"]
+    assert param_names == ["raw_text", "default_currency", "default_locale", "source_confidence", "monetary_span_confidence", "evidence_span"]
 
     # Output remains identical regardless of any hypothetical external reference
     entry1 = parse_monetary_entry("$1,420.00")
     entry2 = parse_monetary_entry("$1,420.00")
     assert entry1.parsed_decimal == entry2.parsed_decimal == Decimal("1420.00")
     assert entry1.validation_status == entry2.validation_status == ValidationStatus.VALID
+
+
+def test_field_aware_confidence_prevents_compensation_from_surrounding_text():
+    """
+    Verify that high-confidence surrounding sentence context CANNOT compensate
+    for an unreliable or low-confidence monetary token.
+    """
+    line_text = "Thank you for your business. Total amount due: $1,420.00 Have a great day!"
+    
+    # High surrounding line confidence (0.99) with low monetary span confidence (0.55)
+    entry = parse_monetary_entry(
+        raw_text=line_text,
+        source_confidence=0.9900,
+        monetary_span_confidence=0.5500,
+    )
+    
+    assert entry.full_line_ocr_confidence == 0.9900
+    assert entry.monetary_span_confidence == 0.5500
+    assert entry.parsed_candidate_confidence == 1.0000
+    assert entry.combined_acceptance_confidence == 0.5500
+    assert entry.confidence == 0.5500
+    
+    # Safe abstention under threshold tau = 0.75 must reject automatic acceptance
+    eval_res = evaluate_field_with_safe_abstention(
+        raw_ocr_field_text=line_text,
+        ground_truth_field_text="$1,420.00",
+        is_monetary_field=True,
+        source_confidence=0.9900,
+        monetary_span_confidence=0.5500,
+        acceptance_threshold=0.75,
+    )
+    
+    assert eval_res["accepted"] is False
+    assert "below threshold 0.75" in eval_res["rejection_reason"]

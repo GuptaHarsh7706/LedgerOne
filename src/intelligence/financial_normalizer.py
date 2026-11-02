@@ -41,6 +41,11 @@ class MonetaryEntry(BaseModel):
     validation_status: ValidationStatus = Field(..., description="Validation outcome")
     rejection_reason: Optional[str] = Field(None, description="Detailed explanation if ambiguous or rejected")
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
+    full_line_ocr_confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Mean OCR confidence of full line")
+    monetary_span_confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Minimum OCR confidence of monetary tokens")
+    parsed_candidate_confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Normalizer syntactic consistency score")
+    combined_acceptance_confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Field-aware acceptance score = min(monetary_span, parsed_candidate)")
+    evidence_location: Optional[Tuple[int, int]] = Field(default=None, description="Character span [start, end) of monetary token")
     provenance: Dict[str, Any] = Field(default_factory=dict)
 
 
@@ -70,7 +75,7 @@ ACCOUNTING_KEYWORDS = {
 }
 
 
-def parse_monetary_entry(
+def _parse_monetary_entry_impl(
     raw_text: str,
     default_currency: Optional[str] = None,
     default_locale: Optional[str] = None,
@@ -468,11 +473,69 @@ def parse_monetary_entry(
     )
 
 
+def parse_monetary_entry(
+    raw_text: str,
+    default_currency: Optional[str] = None,
+    default_locale: Optional[str] = None,
+    source_confidence: float = 1.0,
+    monetary_span_confidence: Optional[float] = None,
+    evidence_span: Optional[Tuple[int, int]] = None,
+) -> MonetaryEntry:
+    """
+    Parse a raw monetary text into a validated MonetaryEntry with field-aware confidence.
+    Enforces the non-negotiable invariant:
+    A high-confidence surrounding sentence CANNOT compensate for an unreliable monetary value.
+    """
+    entry = _parse_monetary_entry_impl(
+        raw_text=raw_text,
+        default_currency=default_currency,
+        default_locale=default_locale,
+        source_confidence=source_confidence,
+    )
+
+    # 1. Locate monetary token span
+    span_loc = evidence_span
+    if span_loc is None:
+        raw_str = raw_text.strip()
+        m_span = re.search(r"([$€£¥₹]?\s*[-+]?\s*\(?\s*\d[\d\s.,\'-]*\d\s*\)?\s*[$€£¥₹]?|\b[A-Z]{3}\s*[-+]?\s*\(?\s*\d[\d\s.,\'-]*\d\s*\)?\b)", raw_str)
+        if m_span:
+            span_loc = m_span.span()
+        else:
+            span_loc = (0, len(raw_text))
+
+    # 2. Field-aware confidences
+    line_conf = max(0.0, min(1.0, float(source_confidence)))
+    span_conf = max(0.0, min(1.0, float(monetary_span_confidence if monetary_span_confidence is not None else source_confidence)))
+
+    # 3. Parsed candidate structural confidence from normalizer validation
+    if entry.validation_status == ValidationStatus.VALID:
+        cand_score = 1.0
+    elif entry.validation_status == ValidationStatus.AMBIGUOUS:
+        cand_score = 0.40
+    else:
+        cand_score = 0.0
+
+    # 4. Acceptance policy: High-confidence surrounding text cannot compensate for unreliable monetary tokens
+    comb_conf = min(span_conf, cand_score)
+
+    entry.full_line_ocr_confidence = round(line_conf, 4)
+    entry.monetary_span_confidence = round(span_conf, 4)
+    entry.parsed_candidate_confidence = round(cand_score, 4)
+    entry.combined_acceptance_confidence = round(comb_conf, 4)
+    entry.confidence = round(comb_conf, 4)
+    entry.evidence_location = span_loc
+
+    return entry
+
+
 def evaluate_field_with_safe_abstention(
     raw_ocr_field_text: str,
     ground_truth_field_text: str,
     is_monetary_field: bool = True,
     source_confidence: float = 1.0,
+    monetary_span_confidence: Optional[float] = None,
+    evidence_span: Optional[Tuple[int, int]] = None,
+    acceptance_threshold: float = 0.75,
 ) -> Dict[str, Any]:
     """
     Evaluate a predicted field against ground truth with safe abstention routing.
@@ -494,24 +557,43 @@ def evaluate_field_with_safe_abstention(
             "status": ValidationStatus.VALID if matched else ValidationStatus.NEEDS_REVIEW,
             "raw_predicted": raw_ocr_field_text,
             "ground_truth": ground_truth_field_text,
+            "full_line_ocr_confidence": source_confidence,
+            "monetary_span_confidence": source_confidence,
+            "parsed_candidate_confidence": 1.0 if matched else 0.0,
+            "combined_acceptance_confidence": source_confidence if matched else 0.0,
             "confidence": source_confidence,
+            "evidence_location": (0, len(raw_ocr_field_text)),
         }
 
-    # Parse candidate via safe monetary engine
-    pred_entry = parse_monetary_entry(raw_ocr_field_text, source_confidence=source_confidence)
+    # Parse candidate via safe monetary engine (strictly ground-truth decoupled)
+    pred_entry = parse_monetary_entry(
+        raw_ocr_field_text,
+        source_confidence=source_confidence,
+        monetary_span_confidence=monetary_span_confidence,
+        evidence_span=evidence_span,
+    )
     gt_entry = parse_monetary_entry(ground_truth_field_text)
 
-    # If predicted entry was marked AMBIGUOUS or INVALID by the normalizer, abstain!
-    if pred_entry.validation_status in (ValidationStatus.AMBIGUOUS, ValidationStatus.INVALID, ValidationStatus.NEEDS_REVIEW):
+    is_valid_format = (pred_entry.validation_status == ValidationStatus.VALID)
+    passes_threshold = (pred_entry.combined_acceptance_confidence >= acceptance_threshold)
+    is_accepted = is_valid_format and passes_threshold
+
+    # If abstained or below threshold
+    if not is_accepted:
         return {
             "accepted": False,
             "exact_match": False,
-            "status": pred_entry.validation_status,
-            "rejection_reason": pred_entry.rejection_reason,
+            "status": pred_entry.validation_status if not is_valid_format else ValidationStatus.NEEDS_REVIEW,
+            "rejection_reason": pred_entry.rejection_reason or f"Combined confidence {pred_entry.combined_acceptance_confidence:.4f} below threshold {acceptance_threshold}",
             "raw_predicted": raw_ocr_field_text,
             "ground_truth": ground_truth_field_text,
             "entry": pred_entry,
-            "confidence": pred_entry.confidence,
+            "full_line_ocr_confidence": pred_entry.full_line_ocr_confidence,
+            "monetary_span_confidence": pred_entry.monetary_span_confidence,
+            "parsed_candidate_confidence": pred_entry.parsed_candidate_confidence,
+            "combined_acceptance_confidence": pred_entry.combined_acceptance_confidence,
+            "confidence": pred_entry.combined_acceptance_confidence,
+            "evidence_location": pred_entry.evidence_location,
         }
 
     # If accepted, compare parsed decimal values and currencies
@@ -533,13 +615,21 @@ def evaluate_field_with_safe_abstention(
     is_exact_match = decimal_match and currency_match
 
     return {
-        "accepted": is_exact_match,
+        "accepted": True,
         "exact_match": is_exact_match,
         "status": ValidationStatus.VALID if is_exact_match else ValidationStatus.NEEDS_REVIEW,
         "raw_predicted": raw_ocr_field_text,
         "ground_truth": ground_truth_field_text,
         "parsed_decimal_predicted": str(pred_entry.parsed_decimal) if pred_entry.parsed_decimal else None,
         "parsed_decimal_gt": str(gt_entry.parsed_decimal) if gt_entry.parsed_decimal else None,
+        "normalized_candidate": pred_entry.normalized_candidate,
+        "parsed_decimal": pred_entry.parsed_decimal,
+        "currency": pred_entry.currency_code,
+        "full_line_ocr_confidence": pred_entry.full_line_ocr_confidence,
+        "monetary_span_confidence": pred_entry.monetary_span_confidence,
+        "parsed_candidate_confidence": pred_entry.parsed_candidate_confidence,
+        "combined_acceptance_confidence": pred_entry.combined_acceptance_confidence,
+        "confidence": pred_entry.combined_acceptance_confidence,
+        "evidence_location": pred_entry.evidence_location,
         "entry": pred_entry,
-        "confidence": pred_entry.confidence,
     }

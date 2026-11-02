@@ -136,9 +136,11 @@ def calculate_reading_order_accuracy(
 
 
 def calculate_reading_order_detailed(
-    predicted_text_lines: List[str],
-    ground_truth_lines: List[str],
+    predicted_text_lines: Any,
+    ground_truth_lines: Any,
     max_norm_dist: float = 0.40,
+    iou_threshold: float = 0.40,
+    is_table_mask: Optional[List[bool]] = None,
 ) -> dict:
     """
     Measure pairwise relative reading-order concordance using strict one-to-one
@@ -147,68 +149,93 @@ def calculate_reading_order_detailed(
     Guarantees:
     - Bipartite Matching: Each predicted line matches at most ONE reference line,
       and each reference line matches at most ONE predicted line.
-    - Decoupled from Character Noise: Normalized Levenshtein edit distance <= max_norm_dist (0.40)
-      allows robust line matching without masking reading-order transposition errors.
+    - Low-Overlap Handling: Assignments with distance > max_norm_dist (0.40) or
+      spatial IoU < iou_threshold (0.40) are strictly rejected and counted as unmatched.
+    - Strict Concordance as Principal Metric: Evaluates concordant pairs against
+      the total possible reference pairs K_ref = N*(N-1)/2, strictly penalizing dropped lines.
     - Full Metric Parity: Reports alignment precision, recall, unmatched predictions,
-      unmatched references, matched pairs, reference pairs, and strict/matched concordance.
-    
-    Returns:
-        - concordant_pairs: Number of correctly ordered matched pairs
-        - discordant_pairs: Number of inverted/transposed pairs
-        - total_annotated_pairs: Number of evaluated matched pairs K = M*(M-1)/2
-        - total_reference_pairs: Total possible reference pairs K_ref = N*(N-1)/2
-        - concordance_ratio: concordant_pairs / max(1, total_annotated_pairs)
-        - strict_concordance_ratio: concordant_pairs / max(1, total_reference_pairs)
-        - alignment_precision: matched_lines / max(1, total_predicted)
-        - alignment_recall: matched_lines / max(1, total_reference)
-        - matched_lines: count of successfully matched line pairs
-        - unmatched_predictions: indices of predicted lines without reference match
-        - unmatched_references: indices of reference lines without predicted match
+      unmatched references, matched pairs, reference pairs, matched/strict concordance,
+      and non-table body-text numerator/denominator.
     """
-    m = len(predicted_text_lines)
-    n = len(ground_truth_lines)
+    # Normalize input representations: string or (BoundingBox, str) or BoundingBox
+    pred_items = list(predicted_text_lines)
+    gt_items = list(ground_truth_lines)
+    m = len(pred_items)
+    n = len(gt_items)
     total_ref_pairs = n * (n - 1) // 2
 
-    if m == 0 or n == 0:
-        return {
+    empty_res = {
+        "concordant_pairs": 0,
+        "discordant_pairs": 0,
+        "total_annotated_pairs": 0,
+        "total_reference_pairs": total_ref_pairs,
+        "concordance_ratio": 1.0 if n <= 1 else 0.0,
+        "strict_concordance_ratio": 1.0 if n <= 1 else 0.0,
+        "alignment_precision": 0.0,
+        "alignment_recall": 0.0,
+        "matched_lines": 0,
+        "total_predicted": m,
+        "total_reference": n,
+        "unmatched_predictions": list(range(m)),
+        "unmatched_references": list(range(n)),
+        "non_table_body": {
             "concordant_pairs": 0,
-            "discordant_pairs": 0,
-            "total_annotated_pairs": 0,
-            "total_reference_pairs": total_ref_pairs,
-            "concordance_ratio": 1.0 if n <= 1 else 0.0,
-            "strict_concordance_ratio": 1.0 if n <= 1 else 0.0,
-            "alignment_precision": 0.0,
-            "alignment_recall": 0.0,
-            "matched_lines": 0,
-            "total_predicted": m,
-            "total_reference": n,
-            "unmatched_predictions": list(range(m)),
-            "unmatched_references": list(range(n)),
-        }
+            "total_reference_pairs": 0,
+            "strict_concordance_ratio": 1.0,
+        },
+    }
+
+    if m == 0 or n == 0:
+        return empty_res
+
+    # Detect if inputs are bounding boxes or strings
+    is_bbox_matching = False
+    if m > 0 and n > 0:
+        p0 = pred_items[0]
+        g0 = gt_items[0]
+        if hasattr(p0, "x0") or (isinstance(p0, (tuple, list)) and hasattr(p0[0], "x0")):
+            is_bbox_matching = True
 
     # Construct cost matrix for Hungarian bipartite matching
     cost_matrix = np.full((m, n), 1e6, dtype=np.float64)
-    for i, p in enumerate(predicted_text_lines):
-        p_clean = p.strip().lower()
-        if not p_clean:
-            continue
-        for j, gt in enumerate(ground_truth_lines):
-            gt_clean = gt.strip().lower()
-            dist = levenshtein_distance(p_clean, gt_clean)
-            norm_dist = dist / max(1, len(gt_clean))
-            if norm_dist <= max_norm_dist:
-                cost_matrix[i, j] = norm_dist
+
+    if is_bbox_matching:
+        for i, p in enumerate(pred_items):
+            box_p = p[0] if isinstance(p, (tuple, list)) else p
+            for j, gt in enumerate(gt_items):
+                box_gt = gt[0] if isinstance(gt, (tuple, list)) else gt
+                iou = calculate_box_iou(box_p, box_gt)
+                if iou >= iou_threshold:
+                    cost_matrix[i, j] = 1.0 - iou
+    else:
+        for i, p in enumerate(pred_items):
+            p_str = p[1] if isinstance(p, (tuple, list)) else str(p)
+            p_clean = p_str.strip().lower()
+            if not p_clean:
+                continue
+            for j, gt in enumerate(gt_items):
+                gt_str = gt[1] if isinstance(gt, (tuple, list)) else str(gt)
+                gt_clean = gt_str.strip().lower()
+                dist = levenshtein_distance(p_clean, gt_clean)
+                norm_dist = dist / max(1, len(gt_clean))
+                if norm_dist <= max_norm_dist:
+                    cost_matrix[i, j] = norm_dist
 
     # Optimal global linear sum assignment
     row_ind, col_ind = linear_sum_assignment(cost_matrix)
 
-    # Filter assignments exceeding max_norm_dist threshold
+    # Filter assignments exceeding distance or IoU thresholds
     pred_to_ref: Dict[int, int] = {}
     ref_to_pred: Dict[int, int] = {}
     for r, c in zip(row_ind, col_ind):
-        if cost_matrix[r, c] <= max_norm_dist:
-            pred_to_ref[int(r)] = int(c)
-            ref_to_pred[int(c)] = int(r)
+        if is_bbox_matching:
+            if cost_matrix[r, c] <= (1.0 - iou_threshold):
+                pred_to_ref[int(r)] = int(c)
+                ref_to_pred[int(c)] = int(r)
+        else:
+            if cost_matrix[r, c] <= max_norm_dist:
+                pred_to_ref[int(r)] = int(c)
+                ref_to_pred[int(c)] = int(r)
 
     matched_count = len(pred_to_ref)
     unmatched_preds = [i for i in range(m) if i not in pred_to_ref]
@@ -232,6 +259,11 @@ def calculate_reading_order_detailed(
             "total_reference": n,
             "unmatched_predictions": unmatched_preds,
             "unmatched_references": unmatched_refs,
+            "non_table_body": {
+                "concordant_pairs": 0,
+                "total_reference_pairs": 0,
+                "strict_concordance_ratio": 1.0,
+            },
         }
 
     # Evaluate pairwise concordance over matched reference lines
@@ -255,6 +287,29 @@ def calculate_reading_order_detailed(
     ratio = round(float(concordant / max(1, evaluated_pairs)), 4)
     strict_ratio = round(float(concordant / max(1, total_ref_pairs)), 4)
 
+    # Separate non-table body text concordance if mask provided
+    non_table_res = {
+        "concordant_pairs": concordant,
+        "total_reference_pairs": total_ref_pairs,
+        "strict_concordance_ratio": strict_ratio,
+    }
+    if is_table_mask and len(is_table_mask) == n:
+        non_table_refs = [j for j in matched_ref_indices if not is_table_mask[j]]
+        nt_ref_total = sum(1 for j in range(n) if not is_table_mask[j])
+        nt_ref_pairs = nt_ref_total * (nt_ref_total - 1) // 2
+        nt_concordant = 0
+        for idx_a in range(len(non_table_refs)):
+            for idx_b in range(idx_a + 1, len(non_table_refs)):
+                j1 = non_table_refs[idx_a]
+                j2 = non_table_refs[idx_b]
+                if ref_to_pred[j1] < ref_to_pred[j2]:
+                    nt_concordant += 1
+        non_table_res = {
+            "concordant_pairs": nt_concordant,
+            "total_reference_pairs": nt_ref_pairs,
+            "strict_concordance_ratio": round(float(nt_concordant / max(1, nt_ref_pairs)), 4) if nt_ref_pairs > 0 else 1.0,
+        }
+
     return {
         "concordant_pairs": concordant,
         "discordant_pairs": discordant,
@@ -269,6 +324,7 @@ def calculate_reading_order_detailed(
         "total_reference": n,
         "unmatched_predictions": unmatched_preds,
         "unmatched_references": unmatched_refs,
+        "non_table_body": non_table_res,
     }
 
 

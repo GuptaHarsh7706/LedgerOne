@@ -495,8 +495,11 @@ def benchmark_multiprocess_rendering(
             "speedup_vs_single_process": warm_speedup,
             "warm_speedup": warm_speedup,
             "wall_clock_speedup": wall_speedup,
+            "per_worker_peak_rss_mb": round(max(r[2] for r in worker_results), 2),
+            "coordinator_rss_mb": round(rss_end, 2),
+            "aggregate_process_memory_mb": round(rss_end + sum(r[2] for r in worker_results), 2),
             "peak_rss_mb": round(max(r[2] for r in worker_results), 2),
-            "parent_rss_mb": round(rss_end, 2),
+            "scaling_efficiency": round(warm_speedup / pc, 4),
             "error_count": 0,
         }
 

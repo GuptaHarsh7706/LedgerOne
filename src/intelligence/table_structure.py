@@ -116,13 +116,20 @@ class TableStructureExtractor:
                 else:
                     final_cols.append((c0, c1))
 
-        # Build TableColumn models
+        # Compute canvas dimensions from input bounding box coordinates
+        canvas_w = 600.0
+        for b, _ in boxes_and_texts:
+            if b.x0 > 0.001 and b.x0_pt > 0:
+                canvas_w = round(b.x0_pt / b.x0, 2)
+                break
+
+        # Build TableColumn models using true canvas coordinate space
         table_columns: List[TableColumn] = []
         for col_idx, (cx0, cx1) in enumerate(final_cols):
             col_bbox = BoundingBox(
-                x0=cx0 / max(1.0, overall_bbox.x1_pt),
+                x0=round(cx0 / canvas_w, 4),
                 y0=overall_bbox.y0,
-                x1=cx1 / max(1.0, overall_bbox.x1_pt),
+                x1=round(cx1 / canvas_w, 4),
                 y1=overall_bbox.y1,
                 x0_pt=cx0,
                 y0_pt=overall_bbox.y0_pt,

@@ -1,0 +1,25 @@
+{
+  "hardware": "CPU FP32",
+  "total_crops": 172,
+  "total_time_seconds": 56.04,
+  "throughput_lines_per_sec": 3.07,
+  "latency_ms_per_line": 325.82,
+  "mean_cer": 0.3772,
+  "corpus_cer": 0.3917,
+  "mean_wer": 0.5867,
+  "corpus_wer": 0.6058,
+  "total_ref_chars": 5749,
+  "total_char_dist": 2252,
+  "sample_preds": [
+    "INVOICE #INV-2026-8801",
+    "INVOICE DATE: 2026-05-12",
+    "TAX ID: VAT-US889912",
+    "ENTERPRISE CLOUD SERVER QTY: 2 UNIT PRICE: $4,500.00",
+    "DATABASE REPLICATION LICENSE QTY 1 UNIT PRICE: $1,200.00",
+    "TAX RATE: 10.00%",
+    "TOTAL DUE: $11,22000 USD",
+    "CAFE METROPOLIS STORE #104",
+    "DATE: 2026-04-18",
+    "EsPRESSO ROAST QTY: 2 UNIT PRICE: $4.50"
+  ]
+}
