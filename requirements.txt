@@ -14,6 +14,7 @@ httpx>=0.27.0
 python-dotenv>=1.0.1
 pyjwt>=2.9.0
 bcrypt>=4.2.0
+argon2-cffi>=23.1.0
 
 # --- Database & Object Storage (PostgreSQL Neon Lakebase & S3) ---
 asyncpg>=0.30.0
@@ -23,6 +24,10 @@ alembic>=1.14.0
 boto3>=1.35.0
 botocore>=1.35.0
 dnspython>=2.7.0
+
+# --- Observability, Logging & Telemetry ---
+structlog>=24.4.0
+prometheus-client>=0.21.0
 
 # --- Cache, Task Queue & State Management ---
 redis>=5.2.0
