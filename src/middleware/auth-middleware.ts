@@ -60,7 +60,7 @@ export async function requireTenantContext(req: Request, res: Response, next: Ne
 
   try {
     const result = await withTenantTransaction(
-      { organizationId: orgId, userId: req.user.userId },
+      { organizationId: orgId, userId: req.user.userId, isPlatformAdmin: req.user.isPlatformAdmin },
       async (client) => {
         // 1. Verify organization membership & determine role
         const orgMemberRes = await client.query(
@@ -82,7 +82,7 @@ export async function requireTenantContext(req: Request, res: Response, next: Ne
         if (workspaceId && role !== "ORGANIZATION_ADMIN") {
           const wsMemberRes = await client.query(
             `SELECT role FROM workspace_memberships
-             WHERE organization_id = $1 AND workspace_id = $2 AND user_id = $3;`,
+             WHERE organization_id = $1 AND workspace_id = $2 AND user_id = $3 AND is_active = true;`,
             [orgId, workspaceId, req.user!.userId]
           );
           if (wsMemberRes.rows.length === 0) {
@@ -104,6 +104,7 @@ export async function requireTenantContext(req: Request, res: Response, next: Ne
       workspaceId: workspaceId || undefined,
       userId: req.user.userId,
       userRole: result.role!,
+      isPlatformAdmin: req.user.isPlatformAdmin,
     };
 
     next();

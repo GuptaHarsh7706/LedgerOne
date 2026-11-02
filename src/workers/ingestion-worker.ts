@@ -43,7 +43,13 @@ export class IngestionWorker {
     // Setup periodic heartbeat extension while processing
     const heartbeatInterval = setInterval(async () => {
       try {
-        const renewed = await this.queue.renewHeartbeat(job.id, this.workerId, 300);
+        const renewed = await this.queue.renewHeartbeat(
+          job.id,
+          this.workerId,
+          job.fencing_token,
+          job.lease_generation,
+          300
+        );
         if (!renewed) {
           console.warn(`[Worker ${this.workerId}] Heartbeat renewal failed for job ${job.id} (lease expired or lost)`);
         }
@@ -74,7 +80,7 @@ export class IngestionWorker {
       );
 
       // Simulation / hook for Phase 4: Document Intelligence (OCR & Extraction)
-      // For now, extract simulated metadata & chunk
+      // Extract simulated text chunk matching parent-child workspace composite key
       await adminPool.query(
         `INSERT INTO document_chunks (
            organization_id, workspace_id, document_id, chunk_index, page_number, content
@@ -88,22 +94,22 @@ export class IngestionWorker {
         ]
       );
 
-      // 3. Mark document as COMPLETED
-      await adminPool.query(
-        `UPDATE documents SET status = 'COMPLETED', updated_at = CURRENT_TIMESTAMP WHERE id = $1;`,
-        [doc.id]
+      // 3. Mark job and document COMPLETED transactionally via queue engine
+      const completed = await this.queue.completeJob(
+        job.id,
+        this.workerId,
+        job.fencing_token,
+        job.lease_generation
       );
 
-      // 4. Mark job COMPLETED
-      await this.queue.completeJob(job.id, this.workerId);
+      if (!completed) {
+        throw new Error("Job completion rejected: worker ownership or lease lost to another worker/reaper");
+      }
+
       console.log(`[Worker ${this.workerId}] Job ${job.id} completed successfully.`);
     } catch (err: any) {
       console.error(`[Worker ${this.workerId}] Job ${job.id} failed:`, err.message);
-      await this.queue.failJob(job.id, this.workerId, err.message);
-      await adminPool.query(
-        `UPDATE documents SET status = 'FAILED', updated_at = CURRENT_TIMESTAMP WHERE id = $1;`,
-        [job.document_id]
-      );
+      await this.queue.failJob(job.id, this.workerId, job.fencing_token, err.message);
     } finally {
       clearInterval(heartbeatInterval);
     }

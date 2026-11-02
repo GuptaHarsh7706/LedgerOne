@@ -67,7 +67,7 @@ export class AuthService {
       throw new Error("Password must be at least 8 characters long");
     }
 
-    const client = await appPool.connect();
+    const client = await adminPool.connect();
     try {
       const existing = await client.query(
         "SELECT id FROM users WHERE email = $1;",
@@ -181,7 +181,7 @@ export class AuthService {
   }
 
   async getUserById(userId: string): Promise<UserRecord | null> {
-    const client = await appPool.connect();
+    const client = await adminPool.connect();
     try {
       const result = await client.query(
         `SELECT id, email, full_name, is_platform_admin, is_active, created_at, updated_at

@@ -1,5 +1,5 @@
 import pg from "pg";
-import "../config.js";
+import { config } from "../config.js";
 
 const { Pool } = pg;
 
@@ -8,27 +8,19 @@ export interface TenantContext {
   workspaceId?: string;
   userId?: string;
   userRole?: string;
+  isPlatformAdmin?: boolean;
 }
 
 // 1. Admin Pool (used for migrations and system setup)
 export const adminPool = new Pool({
-  connectionString: process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL,
+  connectionString: config.neon.databaseUrlUnpooled || config.neon.databaseUrl,
   ssl: { rejectUnauthorized: false },
 });
 
 // 2. Application Unprivileged Pool (used for runtime tenant queries)
-// Derives connection string replacing credentials with ledgerone_app
-function getAppConnectionString(): string {
-  const base = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL || "";
-  // Match standard postgres://user:pass@host/db
-  return base.replace(
-    /postgres(ql)?:\/\/([^:]+):([^@]+)@/,
-    "postgres://ledgerone_app:ledgerone_app_secure_pass_2026@"
-  );
-}
-
+// Connects with role ledgerone_app using secure environment password
 export const appPool = new Pool({
-  connectionString: getAppConnectionString(),
+  connectionString: config.neon.appDatabaseUrl,
   ssl: { rejectUnauthorized: false },
 });
 
@@ -52,12 +44,14 @@ export async function withTenantTransaction<T>(
         set_config('app.current_org_id', $1, true),
         set_config('app.current_ws_id', $2, true),
         set_config('app.current_user_id', $3, true),
-        set_config('app.current_user_role', $4, true);`,
+        set_config('app.current_user_role', $4, true),
+        set_config('app.is_platform_admin', $5, true);`,
       [
         ctx.organizationId,
         ctx.workspaceId || "",
         ctx.userId || "",
         ctx.userRole || "VIEWER",
+        ctx.isPlatformAdmin ? "true" : "false",
       ]
     );
 

@@ -22,6 +22,13 @@ export const config = {
     databaseUrl: process.env.DATABASE_URL || "",
     databaseUrlUnpooled: process.env.DATABASE_URL_UNPOOLED || "",
     branch: process.env.NEON_BRANCH || "production",
+    appPassword: process.env.APP_DB_PASSWORD || "",
+    appDatabaseUrl: process.env.DATABASE_APP_URL || (
+      (process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL || "").replace(
+        /postgres(ql)?:\/\/([^:]+):([^@]+)@/,
+        `postgres://ledgerone_app:${encodeURIComponent(process.env.APP_DB_PASSWORD || "")}@`
+      )
+    ),
   },
   storage: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",

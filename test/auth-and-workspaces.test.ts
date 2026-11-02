@@ -61,6 +61,10 @@ async function runTestSuite() {
       }),
     });
 
+    if (regRes.status !== 201) {
+      const errBody = await regRes.text();
+      console.error("Registration error body:", errBody);
+    }
     assert(regRes.status === 201, `Registration returned status ${regRes.status}`);
     const regData = await regRes.json() as any;
     assert(Boolean(regData.user.id), "Registration must return user ID");
@@ -153,6 +157,9 @@ async function runTestSuite() {
       }),
     });
 
+    if (orgRes.status !== 201) {
+      console.error("Org creation error:", await orgRes.text());
+    }
     assert(orgRes.status === 201, `Organization creation returned ${orgRes.status}`);
     const orgData = await orgRes.json() as any;
     assert(Boolean(orgData.organization.id), "Must return created organization");

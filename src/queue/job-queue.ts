@@ -15,6 +15,8 @@ export interface DocumentJob {
   locked_by?: string | null;
   locked_at?: Date | null;
   lease_expires_at?: Date | null;
+  lease_generation: number;
+  fencing_token: string;
   run_at: Date;
   idempotency_key: string;
 }
@@ -39,7 +41,8 @@ export class TransactionalJobQueue {
   ): Promise<{ job: DocumentJob; isDuplicate: boolean }> {
     return withTenantTransaction(ctx, async (client) => {
       const checkResult = await client.query(
-        `SELECT id, organization_id, workspace_id, document_id, action, status, priority, attempts, max_attempts, run_at, idempotency_key
+        `SELECT id, organization_id, workspace_id, document_id, action, status, priority,
+                attempts, max_attempts, lease_generation, fencing_token, run_at, idempotency_key
          FROM document_jobs
          WHERE idempotency_key = $1;`,
         [idempotencyKey]
@@ -53,7 +56,8 @@ export class TransactionalJobQueue {
         `INSERT INTO document_jobs (
            organization_id, workspace_id, document_id, action, status, priority, idempotency_key
          ) VALUES ($1, $2, $3, $4, 'QUEUED', $5, $6)
-         RETURNING id, organization_id, workspace_id, document_id, action, status, priority, attempts, max_attempts, run_at, idempotency_key;`,
+         RETURNING id, organization_id, workspace_id, document_id, action, status, priority,
+                   attempts, max_attempts, lease_generation, fencing_token, run_at, idempotency_key;`,
         [ctx.organizationId, ctx.workspaceId, documentId, action, priority, idempotencyKey]
       );
 
@@ -63,7 +67,7 @@ export class TransactionalJobQueue {
 
   /**
    * Atomically claims the next available queued job using FOR UPDATE SKIP LOCKED.
-   * Sets lease_expires_at to prevent competing workers from claiming it.
+   * Increments lease_generation and generates a new fencing_token.
    */
   async claimJob(
     workerId: string,
@@ -79,6 +83,8 @@ export class TransactionalJobQueue {
             locked_by = $1,
             locked_at = CURRENT_TIMESTAMP,
             lease_expires_at = CURRENT_TIMESTAMP + ($2 || ' seconds')::interval,
+            lease_generation = lease_generation + 1,
+            fencing_token = uuid_generate_v4(),
             attempts = attempts + 1
         WHERE id = (
           SELECT id FROM document_jobs
@@ -88,7 +94,8 @@ export class TransactionalJobQueue {
           LIMIT 1
           FOR UPDATE SKIP LOCKED
         )
-        RETURNING id, organization_id, workspace_id, document_id, action, status, priority, attempts, max_attempts, locked_by, lease_expires_at, idempotency_key;
+        RETURNING id, organization_id, workspace_id, document_id, action, status, priority,
+                  attempts, max_attempts, locked_by, lease_expires_at, lease_generation, fencing_token, idempotency_key;
       `;
 
       const result = await client.query(claimSql, [workerId, leaseDurationSeconds]);
@@ -109,45 +116,83 @@ export class TransactionalJobQueue {
 
   /**
    * Extends the worker lease (heartbeat).
-   * Verifies that the worker still owns the job and the lease has not already expired.
+   * Verifies worker ownership, matching fencing_token and lease_generation, and active lease.
    */
   async renewHeartbeat(
     jobId: string,
     workerId: string,
+    fencingToken: string,
+    leaseGeneration: number,
     leaseExtensionSeconds: number = 300
   ): Promise<boolean> {
     const result = await this.pool.query(
       `UPDATE document_jobs
-       SET lease_expires_at = CURRENT_TIMESTAMP + ($3 || ' seconds')::interval
+       SET lease_expires_at = CURRENT_TIMESTAMP + ($5 || ' seconds')::interval
        WHERE id = $1
          AND locked_by = $2
+         AND fencing_token = $3
+         AND lease_generation = $4
          AND status = 'PROCESSING'
          AND lease_expires_at > CURRENT_TIMESTAMP;`,
-      [jobId, workerId, leaseExtensionSeconds]
+      [jobId, workerId, fencingToken, leaseGeneration, leaseExtensionSeconds]
     );
 
-    return (result.rowCount ?? 0) > 0;
+    return (result.rowCount ?? 0) === 1;
   }
 
   /**
-   * Mark job completed atomically.
-   * Verifies worker ownership and active lease.
+   * Mark job completed atomically and coordinate document state transition.
+   * Requires exact match on workerId, fencingToken, leaseGeneration, and active lease.
    */
-  async completeJob(jobId: string, workerId: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `UPDATE document_jobs
-       SET status = 'COMPLETED',
-           locked_by = NULL,
-           locked_at = NULL,
-           lease_expires_at = NULL
-       WHERE id = $1
-         AND locked_by = $2
-         AND status = 'PROCESSING'
-         AND lease_expires_at > CURRENT_TIMESTAMP;`,
-      [jobId, workerId]
-    );
+  async completeJob(
+    jobId: string,
+    workerId: string,
+    fencingToken: string,
+    leaseGeneration: number
+  ): Promise<boolean> {
+    const client = await this.pool.connect();
+    try {
+      await client.query("BEGIN;");
 
-    return (result.rowCount ?? 0) > 0;
+      const result = await client.query(
+        `UPDATE document_jobs
+         SET status = 'COMPLETED',
+             locked_by = NULL,
+             locked_at = NULL,
+             lease_expires_at = NULL
+         WHERE id = $1
+           AND locked_by = $2
+           AND fencing_token = $3
+           AND lease_generation = $4
+           AND status = 'PROCESSING'
+           AND lease_expires_at > CURRENT_TIMESTAMP
+         RETURNING document_id;`,
+        [jobId, workerId, fencingToken, leaseGeneration]
+      );
+
+      if ((result.rowCount ?? 0) !== 1) {
+        await client.query("ROLLBACK;");
+        return false;
+      }
+
+      const docId = result.rows[0].document_id;
+
+      // Coordinate document status transition transactionally
+      await client.query(
+        `UPDATE documents
+         SET status = 'COMPLETED', updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1;`,
+        [docId]
+      );
+
+      await client.query("COMMIT;");
+      return true;
+    } catch (err) {
+      await client.query("ROLLBACK;");
+      throw err;
+    } finally {
+      client.release();
+    }
   }
 
   /**
@@ -156,6 +201,7 @@ export class TransactionalJobQueue {
   async failJob(
     jobId: string,
     workerId: string,
+    fencingToken: string,
     errorMessage: string
   ): Promise<{ status: "RETRYING" | "FAILED"; attempts: number }> {
     const client = await this.pool.connect();
@@ -163,16 +209,18 @@ export class TransactionalJobQueue {
       await client.query("BEGIN;");
 
       const check = await client.query(
-        `SELECT attempts, max_attempts FROM document_jobs WHERE id = $1 AND locked_by = $2;`,
-        [jobId, workerId]
+        `SELECT attempts, max_attempts, document_id
+         FROM document_jobs
+         WHERE id = $1 AND locked_by = $2 AND fencing_token = $3;`,
+        [jobId, workerId, fencingToken]
       );
 
       if (check.rows.length === 0) {
         await client.query("ROLLBACK;");
-        throw new Error("Job not found or worker does not own active lease");
+        throw new Error("Job not found or worker fencing token does not match active lease");
       }
 
-      const { attempts, max_attempts } = check.rows[0];
+      const { attempts, max_attempts, document_id } = check.rows[0];
       const isDeadLetter = attempts >= max_attempts;
       const nextStatus = isDeadLetter ? "FAILED" : "QUEUED";
 
@@ -191,6 +239,13 @@ export class TransactionalJobQueue {
         [nextStatus, errorMessage, nextStatus, jobId]
       );
 
+      if (isDeadLetter) {
+        await client.query(
+          `UPDATE documents SET status = 'FAILED', updated_at = CURRENT_TIMESTAMP WHERE id = $1;`,
+          [document_id]
+        );
+      }
+
       await client.query("COMMIT;");
       return { status: isDeadLetter ? "FAILED" : "RETRYING", attempts };
     } catch (err) {
@@ -203,6 +258,7 @@ export class TransactionalJobQueue {
 
   /**
    * Reaper process: Recovers jobs whose worker crashed or lease expired.
+   * Generates new fencing token on reclamation to invalidate zombie workers.
    */
   async reapExpiredLeases(): Promise<{ recoveredCount: number; dlqCount: number }> {
     const client = await this.pool.connect();
@@ -215,6 +271,7 @@ export class TransactionalJobQueue {
             locked_by = NULL,
             locked_at = NULL,
             lease_expires_at = NULL,
+            fencing_token = uuid_generate_v4(),
             last_error = 'Worker lease expired; process crash or network partition assumed',
             run_at = CASE 
               WHEN attempts >= max_attempts THEN CURRENT_TIMESTAMP 
@@ -222,8 +279,17 @@ export class TransactionalJobQueue {
             END
         WHERE status = 'PROCESSING'
           AND lease_expires_at < CURRENT_TIMESTAMP
-        RETURNING status;
+        RETURNING id, status, document_id;
       `);
+
+      for (const row of result.rows) {
+        if (row.status === "FAILED") {
+          await client.query(
+            `UPDATE documents SET status = 'FAILED', updated_at = CURRENT_TIMESTAMP WHERE id = $1;`,
+            [row.document_id]
+          );
+        }
+      }
 
       await client.query("COMMIT;");
 

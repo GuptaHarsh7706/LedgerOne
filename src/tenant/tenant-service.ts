@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { appPool, adminPool, TenantContext, withTenantTransaction } from "../db/tenant-context.js";
 
 export interface OrganizationRecord {
@@ -49,9 +50,18 @@ export class TenantService {
       throw new Error("Organization slug must be at least 2 characters");
     }
 
+    const orgId = crypto.randomUUID();
     const client = await appPool.connect();
     try {
       await client.query("BEGIN;");
+
+      // Set tenant context for initial organization creation and provisioning inside transaction
+      await client.query(
+        `SELECT set_config('app.current_org_id', $1, true),
+                set_config('app.current_user_id', $2, true),
+                set_config('app.current_user_role', 'ORGANIZATION_ADMIN', true);`,
+        [orgId, userId]
+      );
 
       // Check slug uniqueness
       const existing = await client.query(
@@ -64,20 +74,12 @@ export class TenantService {
 
       // 1. Create Organization
       const orgRes = await client.query(
-        `INSERT INTO organizations (name, slug)
-         VALUES ($1, $2)
+        `INSERT INTO organizations (id, name, slug)
+         VALUES ($1, $2, $3)
          RETURNING id, name, slug, is_active, created_at, updated_at;`,
-        [name, slug]
+        [orgId, name, slug]
       );
       const organization: OrganizationRecord = orgRes.rows[0];
-
-      // Set tenant context for remaining provisioning inside transaction
-      await client.query(
-        `SELECT set_config('app.current_org_id', $1, true),
-                set_config('app.current_user_id', $2, true),
-                set_config('app.current_user_role', 'ORGANIZATION_ADMIN', true);`,
-        [organization.id, userId]
-      );
 
       // 2. Add creator as ORGANIZATION_ADMIN
       await client.query(
@@ -224,11 +226,11 @@ export class TenantService {
       }
 
       const res = await client.query(
-        `INSERT INTO workspace_memberships (organization_id, workspace_id, user_id, role)
-         VALUES ($1, $2, $3, $4)
+        `INSERT INTO workspace_memberships (organization_id, workspace_id, user_id, role, is_active)
+         VALUES ($1, $2, $3, $4, true)
          ON CONFLICT (organization_id, workspace_id, user_id)
-         DO UPDATE SET role = EXCLUDED.role
-         RETURNING id, organization_id, workspace_id, user_id, role, created_at;`,
+         DO UPDATE SET role = EXCLUDED.role, is_active = true
+         RETURNING id, organization_id, workspace_id, user_id, role, is_active, created_at;`,
         [ctx.organizationId, input.workspaceId, input.targetUserId, input.role]
       );
 
