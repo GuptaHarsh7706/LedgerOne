@@ -2,7 +2,7 @@
 Test routes supporting exception handler validation.
 """
 from fastapi import APIRouter
-from ledgerone.exceptions import TenantIsolationError, NotFoundError
+from src.exceptions import TenantIsolationError, NotFoundError
 
 error_router = APIRouter(prefix="/test-errors", tags=["Testing"])
 

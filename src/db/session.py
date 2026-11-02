@@ -6,9 +6,9 @@ from typing import AsyncGenerator, Optional
 import asyncpg
 import structlog
 
-from ledgerone.db.pool import db_manager
-from ledgerone.db.rls import TenantContext, apply_tenant_rls_context
-from ledgerone.exceptions import DatabaseError
+from src.db.pool import db_manager
+from src.db.rls import TenantContext, apply_tenant_rls_context
+from src.exceptions import DatabaseError
 
 logger = structlog.get_logger(__name__)
 

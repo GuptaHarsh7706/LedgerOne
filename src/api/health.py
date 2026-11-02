@@ -6,8 +6,8 @@ from typing import Any, Dict
 from fastapi import APIRouter, Response, status
 import structlog
 
-from ledgerone.db.pool import db_manager
-from ledgerone.storage.s3 import storage_manager
+from src.db.pool import db_manager
+from src.storage.s3 import storage_manager
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/health", tags=["Health & Observability"])

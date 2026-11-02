@@ -2,7 +2,7 @@
 Unit tests for LedgerOne typed configuration.
 """
 import pytest
-from ledgerone.config import Settings, get_settings
+from src.config import Settings, get_settings
 
 
 def test_settings_initialization():

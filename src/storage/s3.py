@@ -7,7 +7,7 @@ import boto3
 import botocore.exceptions
 import structlog
 
-from ledgerone.config import get_settings
+from src.config import get_settings
 
 logger = structlog.get_logger(__name__)
 

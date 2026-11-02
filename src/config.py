@@ -11,10 +11,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 def find_env_file() -> str:
     """Find the most relevant .env file location."""
     candidates = [
+        Path(__file__).resolve().parent.parent / ".env",
         Path.cwd() / "LedgerOne" / ".env",
         Path.cwd() / ".env",
         Path(__file__).resolve().parent.parent.parent / ".env",
-        Path(__file__).resolve().parent.parent.parent.parent / "LedgerOne" / ".env",
     ]
     for c in candidates:
         if c.is_file():

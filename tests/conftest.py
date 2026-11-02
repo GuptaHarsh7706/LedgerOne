@@ -7,11 +7,11 @@ import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from dotenv import load_dotenv
 
-from ledgerone.config import get_settings
-from ledgerone.dns import init_dns_resolver
-from ledgerone.db.pool import db_manager
-from ledgerone.main import create_app
-from ledgerone.tests_support import error_router
+from src.config import get_settings
+from src.dns import init_dns_resolver
+from src.db.pool import db_manager
+from src.main import create_app
+from src.tests_support import error_router
 
 # Load environment & DNS patch
 load_dotenv(r"D:\Projects\LedgerOne\.env")

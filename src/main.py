@@ -9,19 +9,19 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import structlog
 
-from ledgerone.config import get_settings
-from ledgerone.dns import init_dns_resolver
-from ledgerone.logging import configure_logging
-from ledgerone.middleware import RequestCorrelationMiddleware
-from ledgerone.exceptions import (
+from src.config import get_settings
+from src.dns import init_dns_resolver
+from src.logging import configure_logging
+from src.middleware import RequestCorrelationMiddleware
+from src.exceptions import (
     LedgerOneException,
     ledgerone_exception_handler,
     http_exception_handler,
     validation_exception_handler,
     unhandled_exception_handler,
 )
-from ledgerone.db.pool import db_manager
-from ledgerone.api.router import api_router
+from src.db.pool import db_manager
+from src.api.router import api_router
 
 logger = structlog.get_logger(__name__)
 

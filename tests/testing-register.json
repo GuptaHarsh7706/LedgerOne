@@ -15,7 +15,7 @@
     {
       "test_id": "TEST-PH1-CFG-001",
       "feature_id": "FEAT-CONFIG",
-      "module": "ledgerone.config",
+      "module": "src.config",
       "test_category": "Unit",
       "test_scenario": "Validate default settings initialization and typed field loading",
       "expected_result": "Settings initialize with valid ENV, port, and database URL",
@@ -30,7 +30,7 @@
     {
       "test_id": "TEST-PH1-CFG-002",
       "feature_id": "FEAT-CONFIG",
-      "module": "ledgerone.config",
+      "module": "src.config",
       "test_category": "Unit",
       "test_scenario": "Validate LOG_LEVEL validation and case-insensitivity rejection",
       "expected_result": "Valid levels uppercase normalized; invalid levels raise ValueError",
@@ -45,7 +45,7 @@
     {
       "test_id": "TEST-PH1-HLT-001",
       "feature_id": "FEAT-HEALTH",
-      "module": "ledgerone.api.health",
+      "module": "src.api.health",
       "test_category": "Integration",
       "test_scenario": "Validate root platform overview endpoint",
       "expected_result": "Returns HTTP 200 with application title, version 3.2.0, and operational status",
@@ -60,7 +60,7 @@
     {
       "test_id": "TEST-PH1-HLT-002",
       "feature_id": "FEAT-HEALTH",
-      "module": "ledgerone.api.health",
+      "module": "src.api.health",
       "test_category": "Unit",
       "test_scenario": "Validate lightweight liveness endpoint /health/live without external dependencies",
       "expected_result": "Returns HTTP 200 with status=ok and UTC ISO timestamp",
@@ -75,7 +75,7 @@
     {
       "test_id": "TEST-PH1-HLT-003",
       "feature_id": "FEAT-HEALTH",
-      "module": "ledgerone.api.health",
+      "module": "src.api.health",
       "test_category": "Integration",
       "test_scenario": "Validate readiness endpoint /health/ready independent of GPU availability",
       "expected_result": "Returns HTTP 200 with database latency and S3 health; GPU omitted from readiness contract",
@@ -90,7 +90,7 @@
     {
       "test_id": "TEST-PH1-HLT-004",
       "feature_id": "FEAT-HEALTH",
-      "module": "ledgerone.api.health",
+      "module": "src.api.health",
       "test_category": "Integration",
       "test_scenario": "Validate capabilities endpoint /health/capabilities reporting GPU VRAM & subsystems",
       "expected_result": "Returns HTTP 200 with PyTorch CUDA RTX 3050 hardware specs, DB stats, and storage stats",
@@ -105,7 +105,7 @@
     {
       "test_id": "TEST-PH1-HLT-005",
       "feature_id": "FEAT-METRICS",
-      "module": "ledgerone.metrics",
+      "module": "src.metrics",
       "test_category": "Integration",
       "test_scenario": "Validate Prometheus /metrics endpoint formatting and metric registration",
       "expected_result": "Returns HTTP 200 with Prometheus text exposition including http_requests and latency histograms",
@@ -120,7 +120,7 @@
     {
       "test_id": "TEST-PH1-MID-001",
       "feature_id": "FEAT-CORRELATION",
-      "module": "ledgerone.middleware",
+      "module": "src.middleware",
       "test_category": "Unit",
       "test_scenario": "Validate automatic X-Request-ID header generation when omitted by client",
       "expected_result": "Response contains valid generated UUID in X-Request-ID header",
@@ -135,7 +135,7 @@
     {
       "test_id": "TEST-PH1-MID-002",
       "feature_id": "FEAT-CORRELATION",
-      "module": "ledgerone.middleware",
+      "module": "src.middleware",
       "test_category": "Unit",
       "test_scenario": "Validate client-provided X-Request-ID header preservation and propagation",
       "expected_result": "Inbound request ID returned unchanged in response headers",
@@ -150,7 +150,7 @@
     {
       "test_id": "TEST-PH1-MID-003",
       "feature_id": "FEAT-EXCEPTIONS",
-      "module": "ledgerone.exceptions",
+      "module": "src.exceptions",
       "test_category": "Unit",
       "test_scenario": "Validate custom domain exception JSON envelope formatting (TenantIsolationError)",
       "expected_result": "Returns HTTP 403 with error code TENANT_ISOLATION_ERROR, message, and request_id",
@@ -165,7 +165,7 @@
     {
       "test_id": "TEST-PH1-MID-004",
       "feature_id": "FEAT-EXCEPTIONS",
-      "module": "ledgerone.exceptions",
+      "module": "src.exceptions",
       "test_category": "Unit",
       "test_scenario": "Validate NotFoundError centralized exception handler JSON envelope",
       "expected_result": "Returns HTTP 404 with error code RESOURCE_NOT_FOUND",
@@ -180,7 +180,7 @@
     {
       "test_id": "TEST-PH1-MID-005",
       "feature_id": "FEAT-EXCEPTIONS",
-      "module": "ledgerone.exceptions",
+      "module": "src.exceptions",
       "test_category": "Unit",
       "test_scenario": "Validate unhandled internal exception interception without leaking stack trace",
       "expected_result": "Returns HTTP 500 with generic INTERNAL_SERVER_ERROR message and request_id",
@@ -195,7 +195,7 @@
     {
       "test_id": "TEST-PH1-DB-001",
       "feature_id": "FEAT-RLS-ISOLATION",
-      "module": "ledgerone.db.pool",
+      "module": "src.db.pool",
       "test_category": "Integration",
       "test_scenario": "Validate connection pool reuse leaves zero residual tenant state across transactions",
       "expected_result": "Successive acquisitions from pool have clean empty session settings",
@@ -210,7 +210,7 @@
     {
       "test_id": "TEST-PH1-DB-002",
       "feature_id": "FEAT-RLS-ISOLATION",
-      "module": "ledgerone.db.pool",
+      "module": "src.db.pool",
       "test_category": "Integration",
       "test_scenario": "Validate 10 concurrent requests executing with distinct tenant identities",
       "expected_result": "Zero race conditions or cross-tenant contamination across parallel coroutines",
@@ -225,7 +225,7 @@
     {
       "test_id": "TEST-PH1-DB-003",
       "feature_id": "FEAT-RLS-ISOLATION",
-      "module": "ledgerone.db.rls",
+      "module": "src.db.rls",
       "test_category": "Integration",
       "test_scenario": "Validate cross-organization Row-Level Security isolation across SELECT, UPDATE, DELETE",
       "expected_result": "Org B receives 0 rows when attempting to view, modify, or delete Org A's document",
@@ -240,7 +240,7 @@
     {
       "test_id": "TEST-PH1-DB-004",
       "feature_id": "FEAT-RLS-ISOLATION",
-      "module": "ledgerone.db.rls",
+      "module": "src.db.rls",
       "test_category": "Integration",
       "test_scenario": "Validate cross-workspace Row-Level Security isolation within the same organization",
       "expected_result": "Member of Workspace 1 cannot view documents residing in Workspace 2",
@@ -255,7 +255,7 @@
     {
       "test_id": "TEST-PH1-DB-005",
       "feature_id": "FEAT-RLS-ISOLATION",
-      "module": "ledgerone.db.rls",
+      "module": "src.db.rls",
       "test_category": "Integration",
       "test_scenario": "Validate unprivileged role execution enforces rolbypassrls=False",
       "expected_result": "Role ledgerone_app executes with rolbypassrls=False",
@@ -270,7 +270,7 @@
     {
       "test_id": "TEST-PH1-DB-006",
       "feature_id": "FEAT-RLS-ISOLATION",
-      "module": "ledgerone.db.rls",
+      "module": "src.db.rls",
       "test_category": "Integration",
       "test_scenario": "Validate fail-closed security when tenant context is omitted",
       "expected_result": "Queries against documents, organizations, and workspaces return 0 rows",
@@ -285,7 +285,7 @@
     {
       "test_id": "TEST-PH1-DB-007",
       "feature_id": "FEAT-RLS-ISOLATION",
-      "module": "ledgerone.db.rls",
+      "module": "src.db.rls",
       "test_category": "Integration",
       "test_scenario": "Validate transaction-scoped setting lifecycle with automatic post-commit reversion",
       "expected_result": "app.current_org_id setting active during transaction and reverted after commit",
@@ -300,7 +300,7 @@
     {
       "test_id": "TEST-PH1-DB-008",
       "feature_id": "FEAT-RLS-ISOLATION",
-      "module": "ledgerone.db.rls",
+      "module": "src.db.rls",
       "test_category": "Integration",
       "test_scenario": "Validate transaction-scoped setting reversion upon transaction rollback",
       "expected_result": "Simulated error triggers rollback and completely clears transaction-local settings",

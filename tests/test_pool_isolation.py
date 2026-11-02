@@ -4,7 +4,7 @@ Integration tests validating connection pool reuse, concurrency, and cross-tenan
 import asyncio
 import uuid
 import pytest
-from ledgerone.db.rls import TenantContext, apply_tenant_rls_context
+from src.db.rls import TenantContext, apply_tenant_rls_context
 
 
 @pytest.mark.asyncio

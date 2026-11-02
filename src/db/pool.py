@@ -7,8 +7,8 @@ from typing import Optional
 import asyncpg
 import structlog
 
-from ledgerone.metrics import DB_POOL_CONNECTIONS, DB_QUERY_DURATION_SECONDS
-from ledgerone.exceptions import DatabaseError
+from src.metrics import DB_POOL_CONNECTIONS, DB_QUERY_DURATION_SECONDS
+from src.exceptions import DatabaseError
 
 logger = structlog.get_logger(__name__)
 

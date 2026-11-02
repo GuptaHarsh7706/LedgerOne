@@ -2,8 +2,8 @@
 Main API router assembling health and metrics routes.
 """
 from fastapi import APIRouter
-from ledgerone.api.health import router as health_router
-from ledgerone.metrics import metrics_response
+from src.api.health import router as health_router
+from src.metrics import metrics_response
 
 api_router = APIRouter()
 
