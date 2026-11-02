@@ -97,10 +97,15 @@ class TextBlock(BaseModel):
 
 
 class PageClassificationResult(BaseModel):
-    """Page classification diagnostic details and confidence score."""
+    """
+    Page classification diagnostic details and heuristic confidence score.
+    Note: 'confidence' represents a rule-based heuristic score (0.0 to 1.0)
+    derived from character density, font descriptor presence, and image area ratio,
+    pending formal probability calibration on held-out empirical datasets.
+    """
     page_index: int
     classification: PageClassification
-    confidence: float = Field(..., ge=0.0, le=1.0)
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Heuristic confidence score [0.0, 1.0]")
     char_count: int
     text_rect_count: int
     font_count: int

@@ -35,6 +35,19 @@ from src.intelligence.rendering import (
 )
 from src.intelligence.spreadsheet_extractor import SpreadsheetExtractor
 from src.intelligence.xy_cut import recursive_xy_cut, sort_text_blocks_reading_order
+from src.intelligence.ocr import (
+    BaseTextDetector,
+    BaseTextRecognizer,
+    ImagePreprocessor,
+    MorphologicalLineDetector,
+    OCRExtractionResult,
+    OCRPipeline,
+    ProjectionProfileDetector,
+    RecognizedLine,
+    TrOCRRecognizer,
+    calculate_cer,
+    calculate_wer,
+)
 
 __all__ = [
     "BoundingBox",
@@ -61,4 +74,15 @@ __all__ = [
     "extract_pdf_document",
     "recursive_xy_cut",
     "sort_text_blocks_reading_order",
+    "BaseTextDetector",
+    "BaseTextRecognizer",
+    "ImagePreprocessor",
+    "MorphologicalLineDetector",
+    "OCRExtractionResult",
+    "OCRPipeline",
+    "ProjectionProfileDetector",
+    "RecognizedLine",
+    "TrOCRRecognizer",
+    "calculate_cer",
+    "calculate_wer",
 ]

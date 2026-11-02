@@ -12,6 +12,10 @@ import pypdfium2 as pdfium
 import pypdfium2.raw as pdfium_c
 import ctypes
 
+from src.intelligence.evaluation import (
+    build_labeled_classification_benchmark,
+    evaluate_page_classifier,
+)
 from src.intelligence.models import (
     PageClassification,
 )
@@ -295,3 +299,26 @@ class TestDigitalExtractionAndClassification:
         assert "| InvoiceNumber | Vendor | Amount |" in res.markdown_table
         assert "INV-1001" in res.markdown_table
         assert "Acme Corp" in res.markdown_table
+
+    def test_labeled_dataset_classification_metrics(self):
+        """
+        Verify page classifier on labeled empirical dataset.
+        Computes accuracy, per-class Precision, Recall, F1, and Confusion Matrix.
+        """
+        dataset = build_labeled_classification_benchmark()
+        assert len(dataset) >= 9
+
+        report = evaluate_page_classifier(dataset)
+
+        assert report.total_samples == len(dataset)
+        assert report.accuracy >= 0.90, f"Classification accuracy {report.accuracy} below 90% threshold"
+        assert report.average_heuristic_confidence >= 0.80
+
+        # Verify all 3 classes are evaluated in confusion matrix
+        for cls_name in ["DIGITAL_TEXT", "SCANNED_IMAGE", "HYBRID"]:
+            assert cls_name in report.confusion_matrix
+            assert report.per_class_precision[cls_name] >= 0.80
+            assert report.per_class_recall[cls_name] >= 0.80
+            assert report.per_class_f1[cls_name] >= 0.80
+
+        assert len(report.misclassified_samples) == 0

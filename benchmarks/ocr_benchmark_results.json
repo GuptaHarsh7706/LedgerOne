@@ -1,0 +1,111 @@
+{
+  "benchmark_timestamp": "2026-11-02T20:06:18+0530",
+  "hardware": {
+    "cuda_available": true,
+    "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+    "baseline_rss_mb": 416.58,
+    "final_rss_mb": 1801.06
+  },
+  "models_evaluated": {
+    "detector_candidates": [
+      {
+        "name": "MorphologicalLineDetector",
+        "type": "Rule-based Morphological Dilation",
+        "license": "Apache 2.0"
+      },
+      {
+        "name": "ProjectionProfileDetector",
+        "type": "Histogram Scanline Profile",
+        "license": "Apache 2.0"
+      }
+    ],
+    "recognizer_candidates": [
+      {
+        "name": "microsoft/trocr-small-printed",
+        "architecture": "VisionEncoderDecoder (DeiT + MiniLM)",
+        "parameters": 61596672,
+        "license": "Apache 2.0",
+        "cpu_load_time_seconds": 20.31,
+        "gpu_load_time_seconds": 3.01
+      },
+      {
+        "name": "BaselinePatternRecognizer",
+        "type": "Deterministic Rule-based Fallback",
+        "license": "Apache 2.0"
+      }
+    ]
+  },
+  "detector_benchmark": {
+    "morphological_line_detector": {
+      "avg_precision": 0.8438,
+      "avg_recall": 0.875,
+      "avg_f1": 0.8571,
+      "p50_latency_ms": 1.05,
+      "p95_latency_ms": 2.63,
+      "throughput_pages_per_sec": 746.7
+    },
+    "projection_profile_detector": {
+      "avg_precision": 0.6667,
+      "avg_recall": 0.6458,
+      "avg_f1": 0.6528,
+      "p50_latency_ms": 1.16,
+      "p95_latency_ms": 2.56,
+      "throughput_pages_per_sec": 733.4
+    }
+  },
+  "recognizer_benchmark": {
+    "TrOCR (CPU FP32)": {
+      "device": "cpu",
+      "avg_cer": 0.4882,
+      "avg_wer": 0.775,
+      "p50_latency_ms": 5350.96,
+      "p95_latency_ms": 6679.71,
+      "throughput_lines_per_sec": 0.7,
+      "abstention_rate": 0.0,
+      "process_rss_mb": 1236.43,
+      "gpu_vram_peak_mb": "N/A"
+    },
+    "Baseline Pattern Recognizer": {
+      "device": "cpu",
+      "avg_cer": 1.0,
+      "avg_wer": 1.0,
+      "p50_latency_ms": 0.02,
+      "p95_latency_ms": 0.16,
+      "throughput_lines_per_sec": 10000.0,
+      "abstention_rate": 1.0,
+      "process_rss_mb": 1236.43,
+      "gpu_vram_peak_mb": "N/A"
+    },
+    "TrOCR (RTX 3050 GPU FP16)": {
+      "device": "cuda",
+      "avg_cer": 0.4861,
+      "avg_wer": 0.775,
+      "p50_latency_ms": 307.77,
+      "p95_latency_ms": 1662.74,
+      "throughput_lines_per_sec": 12.6,
+      "abstention_rate": 0.0,
+      "process_rss_mb": 1787.41,
+      "gpu_vram_peak_mb": 166.39
+    }
+  },
+  "end_to_end_pipeline_benchmark": {
+    "Pipeline (CPU)": {
+      "device": "cpu",
+      "avg_cer": 0.4653,
+      "avg_wer": 0.6969,
+      "reading_order_accuracy": 0.5714,
+      "p50_latency_ms": 1899.6,
+      "p95_latency_ms": 2171.85,
+      "pages_per_second": 0.53
+    },
+    "Pipeline (CUDA FP16)": {
+      "device": "cuda",
+      "avg_cer": 0.4653,
+      "avg_wer": 0.6969,
+      "reading_order_accuracy": 0.5714,
+      "p50_latency_ms": 365.85,
+      "p95_latency_ms": 940.12,
+      "pages_per_second": 2.73
+    }
+  }
+}

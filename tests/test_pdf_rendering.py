@@ -16,6 +16,8 @@ from src.intelligence.rendering import (
     RenderedPage,
     benchmark_concurrent_rendering,
     benchmark_cpu_memory_rendering,
+    benchmark_long_document_streaming,
+    benchmark_repeated_rendering,
     calculate_scale,
 )
 
@@ -136,7 +138,7 @@ class TestPDFRendering:
         assert received_indices == [0, 1, 2]
 
     def test_cpu_memory_and_throughput_benchmark(self):
-        """Verify CPU memory tracking and pages/sec throughput benchmark execution."""
+        """Verify CPU memory tracking (tracemalloc + psutil process RSS) and throughput benchmark."""
         pdf_bytes = _generate_test_pdf(page_count=3, page_width=612.0, page_height=792.0)
         metrics = benchmark_cpu_memory_rendering(pdf_bytes, dpi=DPIProfile.DRAFT)
 
@@ -146,6 +148,10 @@ class TestPDFRendering:
         assert metrics["megapixels_per_second"] > 0
         assert metrics["peak_memory_mb"] > 0
         assert metrics["dpi"] == 150
+        # Validate psutil process-level RSS tracking
+        assert "initial_rss_mb" in metrics and metrics["initial_rss_mb"] > 0
+        assert "peak_rss_mb" in metrics and metrics["peak_rss_mb"] >= metrics["initial_rss_mb"]
+        assert "rss_delta_mb" in metrics
 
     def test_concurrent_rendering_benchmark(self):
         """Verify multi-threaded concurrent rasterization benchmark across worker threads."""
@@ -163,3 +169,42 @@ class TestPDFRendering:
         assert results["total_duration_seconds"] > 0
         assert results["effective_throughput_pages_per_sec"] > 0
         assert len(results["worker_durations"]) == concurrency
+
+    def test_long_document_streaming_memory_stability(self):
+        """Verify that streaming a multi-page document maintains flat O(1) memory footprint."""
+        pdf_bytes = _generate_test_pdf(page_count=10, page_width=612.0, page_height=792.0)
+        stability = benchmark_long_document_streaming(pdf_bytes, dpi=DPIProfile.DRAFT, page_chunk_size=5)
+
+        assert stability["total_pages"] == 10
+        assert stability["memory_stable"] is True
+        assert stability["rss_growth_mb"] < 25.0
+
+    def test_repeated_rendering_zero_leakage(self):
+        """Verify that repeated rasterization runs dispose allocations cleanly with zero cumulative leak."""
+        pdf_bytes = _generate_test_pdf(page_count=2, page_width=612.0, page_height=792.0)
+        leak_res = benchmark_repeated_rendering(pdf_bytes, iterations=5, dpi=DPIProfile.DRAFT)
+
+        assert leak_res["iterations"] == 5
+        assert leak_res["leak_free"] is True
+        assert leak_res["rss_growth_mb"] < 15.0
+
+    def test_thread_isolation_object_lifecycle(self):
+        """Verify PDFium object lifecycle and thread safety via process-level PDFIUM_LOCK synchronization."""
+        from concurrent.futures import ThreadPoolExecutor
+
+        pdf_bytes = _generate_test_pdf(page_count=2, page_width=612.0, page_height=792.0)
+        renderer = PDFRenderer(default_dpi=DPIProfile.DRAFT)
+
+        def _isolated_render(worker_id: int) -> int:
+            # Each worker streams pages through PDFRenderer which guarantees PDFIUM_LOCK safety
+            pages = list(renderer.render_pages_streaming(pdf_bytes, dpi=DPIProfile.DRAFT))
+            assert len(pages) == 2
+            for p in pages:
+                p.close()
+            return worker_id
+
+        with ThreadPoolExecutor(max_workers=4) as ex:
+            futs = [ex.submit(_isolated_render, i) for i in range(4)]
+            results = [f.result() for f in futs]
+
+        assert sorted(results) == [0, 1, 2, 3]
