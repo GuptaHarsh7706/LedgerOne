@@ -1,0 +1,143 @@
+{
+  "project": "LedgerOne",
+  "phase": "Phase 0 - Python Dependency Architecture, Optimization & Lockfile Engineering",
+  "generated_at": "2026-11-02T12:13:15Z",
+  "environment": {
+    "os": "Windows 11",
+    "python_version": "3.11.9",
+    "virtual_environment": "LedgerOne\\.venv",
+    "hardware_acceleration": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+    "cuda_version": "12.4",
+    "database": "Neon PostgreSQL 18.6 (aws-ap-southeast-1)",
+    "storage": "Neon S3 Object Storage (bucket: assets, aws-ap-southeast-1)"
+  },
+  "summary": {
+    "total_tests": 15,
+    "passed": 15,
+    "failed": 0,
+    "pass_rate_pct": 100.0,
+    "execution_duration_sec": 15.20
+  },
+  "test_cases": [
+    {
+      "test_id": "ENV-001",
+      "suite": "tests/test_env_validation.py",
+      "test_name": "test_python_runtime_version",
+      "category": "Runtime Environment",
+      "status": "PASSED",
+      "evidence": "CPython 3.11.9 runtime verified against project specification."
+    },
+    {
+      "test_id": "ENV-002",
+      "suite": "tests/test_env_validation.py",
+      "test_name": "test_core_package_imports",
+      "category": "Dependency Compatibility",
+      "status": "PASSED",
+      "evidence": "FastAPI 0.162.0, Pydantic 2.14.2, PyTorch 2.6.0+cu124, asyncpg, faiss, pypdfium2, transformers imported without version conflict."
+    },
+    {
+      "test_id": "ENV-003",
+      "suite": "tests/test_env_validation.py",
+      "test_name": "test_environment_configuration_present",
+      "category": "Configuration Security",
+      "status": "PASSED",
+      "evidence": "Neon PostgreSQL 18.6 pooled/unpooled connection strings and Neon S3 credentials verified."
+    },
+    {
+      "test_id": "DB-001",
+      "suite": "tests/test_database_validation.py",
+      "test_name": "test_neon_postgres_connectivity_and_version",
+      "category": "Relational Persistence",
+      "status": "PASSED",
+      "evidence": "Live TCP connection verified to Neon PostgreSQL 18.6 (4e5fd08) in Singapore aws-ap-southeast-1."
+    },
+    {
+      "test_id": "DB-002",
+      "suite": "tests/test_database_validation.py",
+      "test_name": "test_neon_transaction_semantics",
+      "category": "ACID Compliance",
+      "status": "PASSED",
+      "evidence": "Transaction rollback and transaction commit verified on unpooled Neon backend."
+    },
+    {
+      "test_id": "DB-003",
+      "suite": "tests/test_database_validation.py",
+      "test_name": "test_pgvector_extension_operations",
+      "category": "Vector Storage & Retrieval",
+      "status": "PASSED",
+      "evidence": "pgvector extension registered; 3-dim vector cosine distance operator (<=>) validated with distance 0.0 for identical vectors."
+    },
+    {
+      "test_id": "DB-004",
+      "suite": "tests/test_database_validation.py",
+      "test_name": "test_rls_fail_closed_behavior",
+      "category": "Multi-Tenant Security",
+      "status": "PASSED",
+      "evidence": "FORCE ROW LEVEL SECURITY verified on documents table. Unprivileged role ledgerone_app returns 0 rows when app.current_org_id is unset."
+    },
+    {
+      "test_id": "S3-001",
+      "suite": "tests/test_storage_validation.py",
+      "test_name": "test_s3_upload_download_byte_integrity",
+      "category": "Object Storage",
+      "status": "PASSED",
+      "evidence": "PutObject and GetObject verified on bucket 'assets'. SHA-256 digest 657da2ea3c15cc25... matched uploaded payload with byte-exact integrity."
+    },
+    {
+      "test_id": "S3-002",
+      "suite": "tests/test_storage_validation.py",
+      "test_name": "test_s3_presigned_url_generation_and_access",
+      "category": "Object Storage Security",
+      "status": "PASSED",
+      "evidence": "Boto3 generated SigV4 path-style presigned URL. Direct HTTP GET retrieved test object with HTTP 200 OK."
+    },
+    {
+      "test_id": "ML-001",
+      "suite": "tests/test_ml_validation.py",
+      "test_name": "test_pytorch_cuda_and_cpu_operations",
+      "category": "Hardware Acceleration",
+      "status": "PASSED",
+      "evidence": "PyTorch 2.6.0+cu124 tensor matrix multiplication executed on NVIDIA GeForce RTX 3050 6GB Laptop GPU (CUDA 12.4, 0.05 GB allocated)."
+    },
+    {
+      "test_id": "ML-002",
+      "suite": "tests/test_ml_validation.py",
+      "test_name": "test_faiss_vector_indexing_and_similarity",
+      "category": "Local Vector Indexing",
+      "status": "PASSED",
+      "evidence": "FAISS IndexFlatIP (384-dimensional) indexed 100 normalized vectors and retrieved nearest neighbor with inner product 1.0 (unit recall)."
+    },
+    {
+      "test_id": "ML-003",
+      "suite": "tests/test_ml_validation.py",
+      "test_name": "test_pypdfium2_document_rendering",
+      "category": "Document Processing",
+      "status": "PASSED",
+      "evidence": "In-memory synthetic PDF document parsed and rendered to RGB PIL image (595x842) with zero external Poppler or C++ system binaries."
+    },
+    {
+      "test_id": "QUAL-001",
+      "suite": "tests/test_quality_validation.py",
+      "test_name": "test_ruff_linting",
+      "category": "Code Quality",
+      "status": "PASSED",
+      "evidence": "Ruff linter executed across tests/ directory with 0 errors and 0 warnings."
+    },
+    {
+      "test_id": "QUAL-002",
+      "suite": "tests/test_quality_validation.py",
+      "test_name": "test_mypy_type_checking",
+      "category": "Static Type Safety",
+      "status": "PASSED",
+      "evidence": "Mypy type checker passed with zero type errors."
+    },
+    {
+      "test_id": "QUAL-003",
+      "suite": "tests/test_quality_validation.py",
+      "test_name": "test_bandit_security_scan",
+      "category": "Application Security",
+      "status": "PASSED",
+      "evidence": "Bandit static AST security analysis passed with 0 medium and 0 high severity vulnerabilities across 305 LOC."
+    }
+  ]
+}
