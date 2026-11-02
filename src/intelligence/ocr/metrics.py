@@ -221,6 +221,8 @@ FINANCIAL_FIELD_CATEGORIES = [
     "currency_code",
     "quantity",
     "unit_price",
+    "subtotal",
+    "tax_amount",
     "tax_percentage",
     "total_amount",
 ]
@@ -293,4 +295,94 @@ def evaluate_financial_fields_dataset(
         "total_fields_evaluated": total_all,
         "total_fields_matched": matches_all,
     }
+
+
+def evaluate_table_structure(
+    predicted_table: Any,  # TableRegion
+    ground_truth_table: Any,  # TableRegion
+    iou_threshold: float = 0.50,
+) -> dict:
+    """
+    Evaluate table structural parsing against ground truth.
+    Measures Row F1, Column F1, and Cell Adjacency Matrix F1 (ICDAR standard).
+    """
+    # 1. Row Bounding Box Precision, Recall, F1
+    pred_row_boxes = [r.bbox for r in predicted_table.rows]
+    gt_row_boxes = [r.bbox for r in ground_truth_table.rows]
+    row_p, row_r, row_f1 = evaluate_detection_precision_recall(
+        pred_row_boxes, gt_row_boxes, iou_threshold=iou_threshold
+    )
+
+    # 2. Column Bounding Box Precision, Recall, F1
+    pred_col_boxes = [c.bbox for c in predicted_table.columns]
+    gt_col_boxes = [c.bbox for c in ground_truth_table.columns]
+    col_p, col_r, col_f1 = evaluate_detection_precision_recall(
+        pred_col_boxes, gt_col_boxes, iou_threshold=iou_threshold
+    )
+
+    # 3. Cell Adjacency Matrix Evaluation
+    # Collect adjacency pairs in ground truth: (cell_a_text, cell_b_text, relation)
+    gt_adj: set = set()
+    for row in ground_truth_table.rows:
+        for idx in range(len(row.cells) - 1):
+            c1_txt = row.cells[idx].text.strip()
+            c2_txt = row.cells[idx + 1].text.strip()
+            if c1_txt and c2_txt:
+                gt_adj.add((c1_txt, c2_txt, "horizontal"))
+
+    # Vertical adjacency in ground truth
+    gt_cells = ground_truth_table.cells
+    for i, c1 in enumerate(gt_cells):
+        for j, c2 in enumerate(gt_cells):
+            if c1.col_index == c2.col_index and c2.row_index == c1.row_index + 1:
+                t1 = c1.text.strip()
+                t2 = c2.text.strip()
+                if t1 and t2:
+                    gt_adj.add((t1, t2, "vertical"))
+
+    # Predicted adjacency
+    pred_adj: set = set()
+    for row in predicted_table.rows:
+        for idx in range(len(row.cells) - 1):
+            c1_txt = row.cells[idx].text.strip()
+            c2_txt = row.cells[idx + 1].text.strip()
+            if c1_txt and c2_txt:
+                pred_adj.add((c1_txt, c2_txt, "horizontal"))
+
+    pred_cells = predicted_table.cells
+    for i, c1 in enumerate(pred_cells):
+        for j, c2 in enumerate(pred_cells):
+            if c1.col_index == c2.col_index and c2.row_index == c1.row_index + 1:
+                t1 = c1.text.strip()
+                t2 = c2.text.strip()
+                if t1 and t2:
+                    pred_adj.add((t1, t2, "vertical"))
+
+    tp = len(pred_adj.intersection(gt_adj))
+    fp = len(pred_adj - gt_adj)
+    fn = len(gt_adj - pred_adj)
+
+    cell_adj_p = round(float(tp / max(1, tp + fp)), 4) if (tp + fp) > 0 else 1.0
+    cell_adj_r = round(float(tp / max(1, tp + fn)), 4) if (tp + fn) > 0 else 1.0
+    cell_adj_f1 = (
+        round(float(2 * cell_adj_p * cell_adj_r / max(1e-6, cell_adj_p + cell_adj_r)), 4)
+        if (cell_adj_p + cell_adj_r) > 0 else 0.0
+    )
+
+    composite_score = round((row_f1 + col_f1 + cell_adj_f1) / 3.0, 4)
+
+    return {
+        "row_metrics": {"precision": row_p, "recall": row_r, "f1": row_f1},
+        "column_metrics": {"precision": col_p, "recall": col_r, "f1": col_f1},
+        "cell_adjacency_metrics": {
+            "true_positives": tp,
+            "false_positives": fp,
+            "false_negatives": fn,
+            "precision": cell_adj_p,
+            "recall": cell_adj_r,
+            "f1": cell_adj_f1,
+        },
+        "composite_table_structure_f1": composite_score,
+    }
+
 

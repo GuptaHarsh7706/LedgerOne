@@ -114,10 +114,73 @@ class PageClassificationResult(BaseModel):
     reasons: List[str] = Field(default_factory=list)
 
 
+class TableCell(BaseModel):
+    """A single cell within a structured or borderless table."""
+    cell_id: str = Field(default="", description="Unique cell identifier")
+    row_index: int = Field(..., description="Zero-based row index")
+    col_index: int = Field(..., description="Zero-based column index")
+    row_span: int = Field(default=1, description="Number of rows spanned")
+    col_span: int = Field(default=1, description="Number of columns spanned")
+    bbox: BoundingBox
+    text: str = Field(default="", description="Concatenated cell text")
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0)
+    is_header: bool = False
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+class TableRow(BaseModel):
+    """A row of cells within a table region."""
+    row_index: int
+    bbox: BoundingBox
+    cells: List[TableCell] = Field(default_factory=list)
+    is_header: bool = False
+    confidence: float = 1.0
+
+
+class TableColumn(BaseModel):
+    """A column definition within a table region."""
+    col_index: int
+    bbox: BoundingBox
+    header_text: Optional[str] = None
+    confidence: float = 1.0
+
+
+class TableRegion(BaseModel):
+    """
+    Table region capturing row, column, and cell geometry
+    separated from raw text recognition.
+    """
+    region_id: str = Field(default="", description="Table identifier")
+    bbox: BoundingBox
+    rows: List[TableRow] = Field(default_factory=list)
+    columns: List[TableColumn] = Field(default_factory=list)
+    cells: List[TableCell] = Field(default_factory=list)
+    is_borderless: bool = False
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+    @property
+    def row_count(self) -> int:
+        return len(self.rows)
+
+    @property
+    def col_count(self) -> int:
+        return len(self.columns)
+
+
+class ReadingOrderRelation(BaseModel):
+    """Explicit directed reading-order or structural relationship between elements."""
+    source_id: str
+    target_id: str
+    relation_type: str = "precedes"  # "precedes", "same_row", "same_column", "child_of"
+    confidence: float = 1.0
+
+
 class ExtractedPage(BaseModel):
     """
     Dual-stream extracted page preserving both native digital text
-    and OCR stream outputs where hybrid.
+    and OCR stream outputs where hybrid, along with explicit table
+    and reading-order relationships.
     """
     page_index: int
     width_pt: float
@@ -128,6 +191,8 @@ class ExtractedPage(BaseModel):
     digital_blocks: List[TextBlock] = Field(default_factory=list)
     ocr_text: Optional[str] = None
     ocr_blocks: List[TextBlock] = Field(default_factory=list)
+    tables: List[TableRegion] = Field(default_factory=list)
+    reading_order_relations: List[ReadingOrderRelation] = Field(default_factory=list)
     is_hybrid: bool = False
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
