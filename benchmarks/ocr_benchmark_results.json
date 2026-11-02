@@ -1,21 +1,62 @@
 {
-  "benchmark_timestamp": "2026-11-02T20:06:18+0530",
-  "hardware": {
+  "benchmark_timestamp": "2026-11-02T20:36:47+0530",
+  "hardware_environment": {
     "cuda_available": true,
     "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
-    "baseline_rss_mb": 416.58,
-    "final_rss_mb": 1801.06
+    "memory_baseline": {
+      "cuda_available": true,
+      "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+      "total_device_vram_mb": 6143.5,
+      "free_device_vram_mb": 5156.0,
+      "used_device_vram_mb": 987.5,
+      "pytorch_allocated_mb": 0.0,
+      "pytorch_reserved_mb": 0.0,
+      "pytorch_max_allocated_mb": 0.0,
+      "pytorch_max_reserved_mb": 0.0
+    },
+    "memory_after_model_load": {
+      "cuda_available": true,
+      "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+      "total_device_vram_mb": 6143.5,
+      "free_device_vram_mb": 4866.0,
+      "used_device_vram_mb": 1277.5,
+      "pytorch_allocated_mb": 120.66,
+      "pytorch_reserved_mb": 278.0,
+      "pytorch_max_allocated_mb": 236.41,
+      "pytorch_max_reserved_mb": 278.0
+    }
+  },
+  "dataset_inventory": {
+    "total_documents": 20,
+    "development_documents": 10,
+    "held_out_documents": 10,
+    "total_lines_annotated": 109,
+    "total_reference_characters": 3335,
+    "categories_evaluated": [
+      "Commercial Invoice",
+      "Thermal Receipt",
+      "Purchase Order",
+      "Bank Statement",
+      "Financial Schedule",
+      "Legal Contract",
+      "Multi-Column Report",
+      "Hybrid Document",
+      "Low-Contrast / Skewed Scan",
+      "Borderless Table / Blank"
+    ]
   },
   "models_evaluated": {
     "detector_candidates": [
       {
         "name": "MorphologicalLineDetector",
-        "type": "Rule-based Morphological Dilation",
+        "status": "Provisional Baseline",
+        "type": "Morphological Dilation",
         "license": "Apache 2.0"
       },
       {
         "name": "ProjectionProfileDetector",
-        "type": "Histogram Scanline Profile",
+        "status": "Comparative Baseline",
+        "type": "Scanline Profile Histogram",
         "license": "Apache 2.0"
       }
     ],
@@ -24,88 +65,646 @@
         "name": "microsoft/trocr-small-printed",
         "architecture": "VisionEncoderDecoder (DeiT + MiniLM)",
         "parameters": 61596672,
-        "license": "Apache 2.0",
-        "cpu_load_time_seconds": 20.31,
-        "gpu_load_time_seconds": 3.01
+        "license": "Apache 2.0"
       },
       {
         "name": "BaselinePatternRecognizer",
-        "type": "Deterministic Rule-based Fallback",
+        "architecture": "Rule-based Regex Fallback",
+        "parameters": 0,
         "license": "Apache 2.0"
       }
     ]
   },
-  "detector_benchmark": {
-    "morphological_line_detector": {
-      "avg_precision": 0.8438,
-      "avg_recall": 0.875,
-      "avg_f1": 0.8571,
-      "p50_latency_ms": 1.05,
-      "p95_latency_ms": 2.63,
-      "throughput_pages_per_sec": 746.7
-    },
-    "projection_profile_detector": {
-      "avg_precision": 0.6667,
-      "avg_recall": 0.6458,
-      "avg_f1": 0.6528,
-      "p50_latency_ms": 1.16,
-      "p95_latency_ms": 2.56,
-      "throughput_pages_per_sec": 733.4
-    }
-  },
-  "recognizer_benchmark": {
+  "stage_1_recognition_only": {
     "TrOCR (CPU FP32)": {
       "device": "cpu",
-      "avg_cer": 0.4882,
-      "avg_wer": 0.775,
-      "p50_latency_ms": 5350.96,
-      "p95_latency_ms": 6679.71,
-      "throughput_lines_per_sec": 0.7,
-      "abstention_rate": 0.0,
-      "process_rss_mb": 1236.43,
-      "gpu_vram_peak_mb": "N/A"
+      "model_load_duration_seconds": 9.75,
+      "single_item_latency_ms": {
+        "p50": 476.36,
+        "p95": 826.81,
+        "mean": 529.54,
+        "reconciled_sequential_throughput_lines_sec": 1.89
+      },
+      "batch_scaling": {
+        "batch_size_1": {
+          "items_evaluated": 20,
+          "total_wall_clock_seconds": 10.5205,
+          "throughput_lines_per_sec": 1.9,
+          "effective_latency_ms_per_line": 526.02,
+          "mean_cer": 0.2794,
+          "mean_wer": 0.4831,
+          "gpu_memory": null
+        },
+        "batch_size_4": {
+          "items_evaluated": 20,
+          "total_wall_clock_seconds": 7.734,
+          "throughput_lines_per_sec": 2.59,
+          "effective_latency_ms_per_line": 386.7,
+          "mean_cer": 0.2794,
+          "mean_wer": 0.4831,
+          "gpu_memory": null
+        }
+      },
+      "financial_fields_exact_match": {
+        "per_category": {
+          "invoice_number": {
+            "total": 16,
+            "matched": 3,
+            "exact_match_accuracy": 0.1875
+          },
+          "date": {
+            "total": 17,
+            "matched": 3,
+            "exact_match_accuracy": 0.1765
+          },
+          "tax_id": {
+            "total": 3,
+            "matched": 2,
+            "exact_match_accuracy": 0.6667
+          },
+          "currency_code": {
+            "total": 19,
+            "matched": 17,
+            "exact_match_accuracy": 0.8947
+          },
+          "quantity": {
+            "total": 12,
+            "matched": 11,
+            "exact_match_accuracy": 0.9167
+          },
+          "unit_price": {
+            "total": 9,
+            "matched": 4,
+            "exact_match_accuracy": 0.4444
+          },
+          "tax_percentage": {
+            "total": 8,
+            "matched": 3,
+            "exact_match_accuracy": 0.375
+          },
+          "total_amount": {
+            "total": 19,
+            "matched": 3,
+            "exact_match_accuracy": 0.1579
+          }
+        },
+        "overall_exact_match_accuracy": 0.4466,
+        "total_fields_evaluated": 103,
+        "total_fields_matched": 46
+      }
     },
-    "Baseline Pattern Recognizer": {
+    "BaselinePatternRecognizer": {
       "device": "cpu",
-      "avg_cer": 1.0,
-      "avg_wer": 1.0,
-      "p50_latency_ms": 0.02,
-      "p95_latency_ms": 0.16,
-      "throughput_lines_per_sec": 10000.0,
-      "abstention_rate": 1.0,
-      "process_rss_mb": 1236.43,
-      "gpu_vram_peak_mb": "N/A"
+      "model_load_duration_seconds": 9.75,
+      "single_item_latency_ms": {
+        "p50": 0.0,
+        "p95": 0.01,
+        "mean": 0.0,
+        "reconciled_sequential_throughput_lines_sec": 211416.47
+      },
+      "batch_scaling": {
+        "batch_size_1": {
+          "items_evaluated": 109,
+          "total_wall_clock_seconds": 0.0006,
+          "throughput_lines_per_sec": 194781.98,
+          "effective_latency_ms_per_line": 0.01,
+          "mean_cer": 1.0,
+          "mean_wer": 1.0,
+          "gpu_memory": null
+        }
+      },
+      "financial_fields_exact_match": {
+        "per_category": {
+          "invoice_number": {
+            "total": 16,
+            "matched": 0,
+            "exact_match_accuracy": 0.0
+          },
+          "date": {
+            "total": 17,
+            "matched": 0,
+            "exact_match_accuracy": 0.0
+          },
+          "tax_id": {
+            "total": 3,
+            "matched": 0,
+            "exact_match_accuracy": 0.0
+          },
+          "currency_code": {
+            "total": 19,
+            "matched": 0,
+            "exact_match_accuracy": 0.0
+          },
+          "quantity": {
+            "total": 12,
+            "matched": 0,
+            "exact_match_accuracy": 0.0
+          },
+          "unit_price": {
+            "total": 9,
+            "matched": 0,
+            "exact_match_accuracy": 0.0
+          },
+          "tax_percentage": {
+            "total": 8,
+            "matched": 0,
+            "exact_match_accuracy": 0.0
+          },
+          "total_amount": {
+            "total": 19,
+            "matched": 0,
+            "exact_match_accuracy": 0.0
+          }
+        },
+        "overall_exact_match_accuracy": 0.0,
+        "total_fields_evaluated": 103,
+        "total_fields_matched": 0
+      }
     },
     "TrOCR (RTX 3050 GPU FP16)": {
       "device": "cuda",
-      "avg_cer": 0.4861,
-      "avg_wer": 0.775,
-      "p50_latency_ms": 307.77,
-      "p95_latency_ms": 1662.74,
-      "throughput_lines_per_sec": 12.6,
-      "abstention_rate": 0.0,
-      "process_rss_mb": 1787.41,
-      "gpu_vram_peak_mb": 166.39
+      "model_load_duration_seconds": 1.11,
+      "single_item_latency_ms": {
+        "p50": 148.6,
+        "p95": 249.0,
+        "mean": 160.86,
+        "reconciled_sequential_throughput_lines_sec": 6.22
+      },
+      "batch_scaling": {
+        "batch_size_1": {
+          "items_evaluated": 109,
+          "total_wall_clock_seconds": 17.4046,
+          "throughput_lines_per_sec": 6.26,
+          "effective_latency_ms_per_line": 159.68,
+          "mean_cer": 0.3709,
+          "mean_wer": 0.5759,
+          "gpu_memory": {
+            "cuda_available": true,
+            "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+            "total_device_vram_mb": 6143.5,
+            "free_device_vram_mb": 4850.0,
+            "used_device_vram_mb": 1293.5,
+            "pytorch_allocated_mb": 128.78,
+            "pytorch_reserved_mb": 278.0,
+            "pytorch_max_allocated_mb": 143.95,
+            "pytorch_max_reserved_mb": 278.0
+          }
+        },
+        "batch_size_4": {
+          "items_evaluated": 109,
+          "total_wall_clock_seconds": 6.6784,
+          "throughput_lines_per_sec": 16.32,
+          "effective_latency_ms_per_line": 61.27,
+          "mean_cer": 0.3709,
+          "mean_wer": 0.5759,
+          "gpu_memory": {
+            "cuda_available": true,
+            "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+            "total_device_vram_mb": 6143.5,
+            "free_device_vram_mb": 4826.0,
+            "used_device_vram_mb": 1317.5,
+            "pytorch_allocated_mb": 128.78,
+            "pytorch_reserved_mb": 300.0,
+            "pytorch_max_allocated_mb": 187.62,
+            "pytorch_max_reserved_mb": 300.0
+          }
+        },
+        "batch_size_8": {
+          "items_evaluated": 109,
+          "total_wall_clock_seconds": 3.7286,
+          "throughput_lines_per_sec": 29.23,
+          "effective_latency_ms_per_line": 34.21,
+          "mean_cer": 0.3709,
+          "mean_wer": 0.5759,
+          "gpu_memory": {
+            "cuda_available": true,
+            "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+            "total_device_vram_mb": 6143.5,
+            "free_device_vram_mb": 4784.0,
+            "used_device_vram_mb": 1359.5,
+            "pytorch_allocated_mb": 128.78,
+            "pytorch_reserved_mb": 342.0,
+            "pytorch_max_allocated_mb": 247.06,
+            "pytorch_max_reserved_mb": 342.0
+          }
+        }
+      },
+      "financial_fields_exact_match": {
+        "per_category": {
+          "invoice_number": {
+            "total": 16,
+            "matched": 15,
+            "exact_match_accuracy": 0.9375
+          },
+          "date": {
+            "total": 17,
+            "matched": 17,
+            "exact_match_accuracy": 1.0
+          },
+          "tax_id": {
+            "total": 3,
+            "matched": 3,
+            "exact_match_accuracy": 1.0
+          },
+          "currency_code": {
+            "total": 19,
+            "matched": 19,
+            "exact_match_accuracy": 1.0
+          },
+          "quantity": {
+            "total": 12,
+            "matched": 12,
+            "exact_match_accuracy": 1.0
+          },
+          "unit_price": {
+            "total": 9,
+            "matched": 9,
+            "exact_match_accuracy": 1.0
+          },
+          "tax_percentage": {
+            "total": 8,
+            "matched": 8,
+            "exact_match_accuracy": 1.0
+          },
+          "total_amount": {
+            "total": 19,
+            "matched": 12,
+            "exact_match_accuracy": 0.6316
+          }
+        },
+        "overall_exact_match_accuracy": 0.9223,
+        "total_fields_evaluated": 103,
+        "total_fields_matched": 95
+      }
     }
   },
-  "end_to_end_pipeline_benchmark": {
-    "Pipeline (CPU)": {
-      "device": "cpu",
-      "avg_cer": 0.4653,
-      "avg_wer": 0.6969,
-      "reading_order_accuracy": 0.5714,
-      "p50_latency_ms": 1899.6,
-      "p95_latency_ms": 2171.85,
-      "pages_per_second": 0.53
+  "stage_2_detection_only": {
+    "morphological_line_detector": {
+      "status": "Provisional Baseline",
+      "latency_ms": {
+        "p50": 0.56,
+        "p95": 1.34,
+        "mean": 0.81
+      },
+      "throughput_pages_per_sec": 1237.6,
+      "multi_threshold_metrics": {
+        "iou_40": {
+          "avg_f1": 0.9602
+        },
+        "iou_50": {
+          "precision": 0.9232,
+          "recall": 0.95,
+          "f1": 0.9352
+        },
+        "iou_75": {
+          "avg_f1": 0.9352
+        }
+      }
     },
-    "Pipeline (CUDA FP16)": {
-      "device": "cuda",
-      "avg_cer": 0.4653,
-      "avg_wer": 0.6969,
-      "reading_order_accuracy": 0.5714,
-      "p50_latency_ms": 365.85,
-      "p95_latency_ms": 940.12,
-      "pages_per_second": 2.73
+    "projection_profile_detector": {
+      "status": "Comparative Baseline",
+      "latency_ms": {
+        "p50": 0.63,
+        "p95": 0.9,
+        "mean": 0.63
+      },
+      "throughput_pages_per_sec": 1585.2,
+      "multi_threshold_metrics": {
+        "iou_40": {
+          "avg_f1": 0.7782
+        },
+        "iou_50": {
+          "precision": 0.4987,
+          "recall": 0.4862,
+          "f1": 0.4912
+        },
+        "iou_75": {
+          "avg_f1": 0.05
+        }
+      }
     }
+  },
+  "stage_3_end_to_end_pipeline": {
+    "Development Set - CUDA": {
+      "split": "Development Set",
+      "device": "cuda",
+      "documents_evaluated": 10,
+      "latency_ms": {
+        "p50": 262.28,
+        "p95": 329.39,
+        "mean": 256.78
+      },
+      "throughput_pages_per_sec": 3.89,
+      "mean_cer": 0.3777,
+      "mean_wer": 0.6393,
+      "reading_order": {
+        "concordant_pairs": 40,
+        "total_annotated_pairs": 61,
+        "pairwise_concordance_accuracy": 0.6557
+      },
+      "financial_fields_exact_match": {
+        "per_category": {
+          "invoice_number": {
+            "total": 9,
+            "matched": 8,
+            "exact_match_accuracy": 0.8889
+          },
+          "date": {
+            "total": 9,
+            "matched": 8,
+            "exact_match_accuracy": 0.8889
+          },
+          "tax_id": {
+            "total": 2,
+            "matched": 2,
+            "exact_match_accuracy": 1.0
+          },
+          "currency_code": {
+            "total": 10,
+            "matched": 10,
+            "exact_match_accuracy": 1.0
+          },
+          "quantity": {
+            "total": 5,
+            "matched": 5,
+            "exact_match_accuracy": 1.0
+          },
+          "unit_price": {
+            "total": 4,
+            "matched": 4,
+            "exact_match_accuracy": 1.0
+          },
+          "tax_percentage": {
+            "total": 6,
+            "matched": 6,
+            "exact_match_accuracy": 1.0
+          },
+          "total_amount": {
+            "total": 10,
+            "matched": 5,
+            "exact_match_accuracy": 0.5
+          }
+        },
+        "overall_exact_match_accuracy": 0.8727,
+        "total_fields_evaluated": 55,
+        "total_fields_matched": 48
+      }
+    },
+    "Development Set - CPU": {
+      "split": "Development Set",
+      "device": "cpu",
+      "documents_evaluated": 10,
+      "latency_ms": {
+        "p50": 1983.71,
+        "p95": 2400.85,
+        "mean": 1882.21
+      },
+      "throughput_pages_per_sec": 0.53,
+      "mean_cer": 0.3777,
+      "mean_wer": 0.6393,
+      "reading_order": {
+        "concordant_pairs": 40,
+        "total_annotated_pairs": 61,
+        "pairwise_concordance_accuracy": 0.6557
+      },
+      "financial_fields_exact_match": {
+        "per_category": {
+          "invoice_number": {
+            "total": 9,
+            "matched": 8,
+            "exact_match_accuracy": 0.8889
+          },
+          "date": {
+            "total": 9,
+            "matched": 8,
+            "exact_match_accuracy": 0.8889
+          },
+          "tax_id": {
+            "total": 2,
+            "matched": 2,
+            "exact_match_accuracy": 1.0
+          },
+          "currency_code": {
+            "total": 10,
+            "matched": 10,
+            "exact_match_accuracy": 1.0
+          },
+          "quantity": {
+            "total": 5,
+            "matched": 5,
+            "exact_match_accuracy": 1.0
+          },
+          "unit_price": {
+            "total": 4,
+            "matched": 4,
+            "exact_match_accuracy": 1.0
+          },
+          "tax_percentage": {
+            "total": 6,
+            "matched": 6,
+            "exact_match_accuracy": 1.0
+          },
+          "total_amount": {
+            "total": 10,
+            "matched": 5,
+            "exact_match_accuracy": 0.5
+          }
+        },
+        "overall_exact_match_accuracy": 0.8727,
+        "total_fields_evaluated": 55,
+        "total_fields_matched": 48
+      }
+    },
+    "Held-Out Evaluation Set - CUDA": {
+      "split": "Held-Out Evaluation Set",
+      "device": "cuda",
+      "documents_evaluated": 10,
+      "latency_ms": {
+        "p50": 260.56,
+        "p95": 471.9,
+        "mean": 266.85
+      },
+      "throughput_pages_per_sec": 3.75,
+      "mean_cer": 0.4135,
+      "mean_wer": 0.6869,
+      "reading_order": {
+        "concordant_pairs": 16,
+        "total_annotated_pairs": 43,
+        "pairwise_concordance_accuracy": 0.3721
+      },
+      "financial_fields_exact_match": {
+        "per_category": {
+          "invoice_number": {
+            "total": 7,
+            "matched": 5,
+            "exact_match_accuracy": 0.7143
+          },
+          "date": {
+            "total": 8,
+            "matched": 7,
+            "exact_match_accuracy": 0.875
+          },
+          "tax_id": {
+            "total": 1,
+            "matched": 1,
+            "exact_match_accuracy": 1.0
+          },
+          "currency_code": {
+            "total": 9,
+            "matched": 8,
+            "exact_match_accuracy": 0.8889
+          },
+          "quantity": {
+            "total": 7,
+            "matched": 7,
+            "exact_match_accuracy": 1.0
+          },
+          "unit_price": {
+            "total": 5,
+            "matched": 3,
+            "exact_match_accuracy": 0.6
+          },
+          "tax_percentage": {
+            "total": 2,
+            "matched": 2,
+            "exact_match_accuracy": 1.0
+          },
+          "total_amount": {
+            "total": 9,
+            "matched": 5,
+            "exact_match_accuracy": 0.5556
+          }
+        },
+        "overall_exact_match_accuracy": 0.7917,
+        "total_fields_evaluated": 48,
+        "total_fields_matched": 38
+      }
+    },
+    "Held-Out Evaluation Set - CPU": {
+      "split": "Held-Out Evaluation Set",
+      "device": "cpu",
+      "documents_evaluated": 10,
+      "latency_ms": {
+        "p50": 2034.94,
+        "p95": 2410.98,
+        "mean": 1806.86
+      },
+      "throughput_pages_per_sec": 0.55,
+      "mean_cer": 0.4135,
+      "mean_wer": 0.6869,
+      "reading_order": {
+        "concordant_pairs": 16,
+        "total_annotated_pairs": 43,
+        "pairwise_concordance_accuracy": 0.3721
+      },
+      "financial_fields_exact_match": {
+        "per_category": {
+          "invoice_number": {
+            "total": 7,
+            "matched": 5,
+            "exact_match_accuracy": 0.7143
+          },
+          "date": {
+            "total": 8,
+            "matched": 7,
+            "exact_match_accuracy": 0.875
+          },
+          "tax_id": {
+            "total": 1,
+            "matched": 1,
+            "exact_match_accuracy": 1.0
+          },
+          "currency_code": {
+            "total": 9,
+            "matched": 8,
+            "exact_match_accuracy": 0.8889
+          },
+          "quantity": {
+            "total": 7,
+            "matched": 7,
+            "exact_match_accuracy": 1.0
+          },
+          "unit_price": {
+            "total": 5,
+            "matched": 3,
+            "exact_match_accuracy": 0.6
+          },
+          "tax_percentage": {
+            "total": 2,
+            "matched": 2,
+            "exact_match_accuracy": 1.0
+          },
+          "total_amount": {
+            "total": 9,
+            "matched": 5,
+            "exact_match_accuracy": 0.5556
+          }
+        },
+        "overall_exact_match_accuracy": 0.7917,
+        "total_fields_evaluated": 48,
+        "total_fields_matched": 38
+      }
+    }
+  },
+  "stage_4_concurrency_and_safety": {
+    "benchmark": "PDFIUM_LOCK Thread Contention Evaluation",
+    "lock_type": "threading.RLock()",
+    "safety_guarantee": "Prevents native C++ access violation (0xC0000005) in FPDF_LoadPage font cache",
+    "scaling": {
+      "1_threads": {
+        "total_pages": 1,
+        "duration_seconds": 0.0444,
+        "throughput_pages_sec": 22.55,
+        "speedup_vs_single_thread": 1.0,
+        "lock_contention_ratio": 0.0
+      },
+      "2_threads": {
+        "total_pages": 2,
+        "duration_seconds": 0.1071,
+        "throughput_pages_sec": 18.68,
+        "speedup_vs_single_thread": 0.83,
+        "lock_contention_ratio": 0.5858
+      },
+      "4_threads": {
+        "total_pages": 4,
+        "duration_seconds": 0.2052,
+        "throughput_pages_sec": 19.49,
+        "speedup_vs_single_thread": 0.86,
+        "lock_contention_ratio": 0.7839
+      }
+    },
+    "architectural_recommendation": "Multi-threaded in-process rendering is serialized by PDFIUM_LOCK to guarantee native C++ safety. For true horizontal multi-core throughput scaling without lock contention, production deployments must employ a multi-process architecture (ProcessPoolExecutor / separate worker container instances)."
+  },
+  "stage_5_error_propagation_and_root_causes": {
+    "recognition_only_cer": 0.3709,
+    "end_to_end_cer": 0.4135,
+    "error_propagation_delta": 0.0426,
+    "isolated_root_causes": [
+      {
+        "root_cause": "Bounding Box Character Clipping",
+        "impact": "Detector box contours occasionally shave 1-2 pixels from ascenders/descenders, inducing character substitution.",
+        "mitigation": "Added 3px padding in TrOCR line cropping."
+      },
+      {
+        "root_cause": "Thermal Receipt Faint Print Binarization",
+        "impact": "Otsu thresholding eliminates low-contrast pixels on thermal receipts with gray background.",
+        "mitigation": "Adaptive Gaussian binarization preserves faint strokes on uneven illumination."
+      },
+      {
+        "root_cause": "Small-Font Financial Tables (8pt)",
+        "impact": "TrOCR DeiT encoder expects 384x384 resolution; interpolating 8pt text lines introduces blur.",
+        "mitigation": "Requires minimum 250-300 DPI rendering profile for dense tax schedules."
+      },
+      {
+        "root_cause": "Financial Domain Mismatch on Special Characters",
+        "impact": "TrOCR printed checkpoint exhibits confusion on symbols ('$', '#', '/') and decimal separators.",
+        "mitigation": "Financial entity fine-tuning required in Step 4 post-LLM selection."
+      },
+      {
+        "root_cause": "Autoregressive CPU Inefficiency",
+        "impact": "Autoregressive VisionEncoderDecoder generates tokens sequentially on CPU, achieving only 0.7-1.5 lines/sec.",
+        "mitigation": "CPU workers must NOT run TrOCR; CPU workers require non-autoregressive CTC architectures (e.g. MobileNet-CTC or Tesseract)."
+      }
+    ]
   }
 }

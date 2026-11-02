@@ -369,3 +369,48 @@ def benchmark_concurrent_rendering(
         "effective_throughput_pages_per_sec": round(total_pages / max(1e-6, total_duration), 2),
         "worker_durations": [round(r[2], 4) for r in results],
     }
+
+
+def evaluate_pdfium_lock_contention(
+    pdf_source_bytes: bytes,
+    dpi: Union[int, DPIProfile] = DPIProfile.STANDARD,
+    thread_counts: List[int] = [1, 2, 4],
+    pages_per_worker: int = 2,
+) -> dict:
+    """
+    Evaluate the throughput impact of PDFIUM_LOCK serialization across thread pools.
+    Quantifies lock contention overhead vs memory safety.
+    """
+    scaling_results = {}
+    base_throughput = 0.0
+
+    for tc in thread_counts:
+        bench = benchmark_concurrent_rendering(
+            pdf_source_bytes, dpi=dpi, concurrency=tc, pages_per_worker=pages_per_worker
+        )
+        tput = bench["effective_throughput_pages_per_sec"]
+        if tc == 1:
+            base_throughput = tput
+
+        speedup = round(tput / max(1e-6, base_throughput), 2)
+        contention_ratio = round(max(0.0, 1.0 - (tput / max(1e-6, base_throughput * tc))), 4)
+        scaling_results[f"{tc}_threads"] = {
+            "total_pages": bench["total_pages_rendered"],
+            "duration_seconds": bench["total_duration_seconds"],
+            "throughput_pages_sec": tput,
+            "speedup_vs_single_thread": speedup,
+            "lock_contention_ratio": contention_ratio,
+        }
+
+    return {
+        "benchmark": "PDFIUM_LOCK Thread Contention Evaluation",
+        "lock_type": "threading.RLock()",
+        "safety_guarantee": "Prevents native C++ access violation (0xC0000005) in FPDF_LoadPage font cache",
+        "scaling": scaling_results,
+        "architectural_recommendation": (
+            "Multi-threaded in-process rendering is serialized by PDFIUM_LOCK to guarantee native C++ safety. "
+            "For true horizontal multi-core throughput scaling without lock contention, production deployments "
+            "must employ a multi-process architecture (ProcessPoolExecutor / separate worker container instances)."
+        ),
+    }
+

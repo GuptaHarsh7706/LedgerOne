@@ -39,6 +39,16 @@ class BaseTextRecognizer(ABC):
         """
         pass
 
+    @abstractmethod
+    def recognize_crops(
+        self,
+        crops: List[PIL.Image.Image],
+        device: str = "cpu",
+        batch_size: Optional[int] = None,
+    ) -> List[RecognizedLine]:
+        """Recognize text directly from a list of pre-cropped line images."""
+        pass
+
     @property
     @abstractmethod
     def model_name(self) -> str:
@@ -197,6 +207,95 @@ class TrOCRRecognizer(BaseTextRecognizer):
 
         return recognized_lines
 
+    def recognize_crops(
+        self,
+        crops: List[PIL.Image.Image],
+        device: str = "cpu",
+        batch_size: Optional[int] = None,
+    ) -> List[RecognizedLine]:
+        """
+        Directly recognize a list of pre-cropped line images (Recognition-Only mode).
+        Allows isolated evaluation without detector bounding box errors.
+        """
+        if not crops:
+            return []
+
+        use_cuda = (device == "cuda" and torch.cuda.is_available())
+        active_device = "cuda" if use_cuda else "cpu"
+        self.load_model(active_device)
+
+        model = self._model_cuda if use_cuda else self._model_cpu
+        eff_batch_size = batch_size or self.batch_size
+
+        recognized_lines: List[RecognizedLine] = []
+
+        for b_idx in range(0, len(crops), eff_batch_size):
+            batch_crops = crops[b_idx : b_idx + eff_batch_size]
+
+            safe_crops = []
+            for c in batch_crops:
+                if c.size[0] < 5 or c.size[1] < 5:
+                    safe_crops.append(PIL.Image.new("RGB", (32, 32), color=(255, 255, 255)))
+                else:
+                    safe_crops.append(c.convert("RGB"))
+
+            pixel_values = self._processor(images=safe_crops, return_tensors="pt").pixel_values
+            pixel_values = pixel_values.to(device=model.device, dtype=model.dtype)
+
+            with torch.no_grad():
+                outputs = model.generate(
+                    pixel_values,
+                    return_dict_in_generate=True,
+                    output_scores=True,
+                    max_new_tokens=self.max_new_tokens,
+                )
+
+            decoded_texts = self._processor.batch_decode(outputs.sequences, skip_special_tokens=True)
+
+            scores = outputs.scores
+            batch_step_probs = []
+            if scores:
+                for step_logits in scores:
+                    step_softmax = torch.softmax(step_logits.float(), dim=-1)
+                    max_probs = step_softmax.max(dim=-1).values.cpu().tolist()
+                    batch_step_probs.append(max_probs)
+
+            for i, text in enumerate(decoded_texts):
+                clean_text = text.strip()
+                global_idx = b_idx + i
+
+                if batch_step_probs:
+                    item_probs = [step[i] for step in batch_step_probs]
+                    confidence = float(sum(item_probs) / max(1, len(item_probs)))
+                else:
+                    confidence = 0.50
+
+                confidence = max(0.0, min(1.0, confidence))
+                abstained = (confidence < self.abstention_threshold) or (len(clean_text) == 0)
+                words = clean_text.split()
+
+                dummy_box = BoundingBox(
+                    x0=0.0, y0=0.0, x1=1.0, y1=1.0,
+                    x0_pt=0.0, y0_pt=0.0, x1_pt=float(safe_crops[i].size[0]), y1_pt=float(safe_crops[i].size[1])
+                )
+
+                recognized_lines.append(
+                    RecognizedLine(
+                        line_index=global_idx,
+                        reading_order_index=global_idx,
+                        text=clean_text,
+                        bbox=dummy_box,
+                        confidence=round(confidence, 4),
+                        char_count=len(clean_text),
+                        word_count=len(words),
+                        abstained=abstained,
+                        source="ocr",
+                        model_provenance=f"{self._model_name}:{active_device}",
+                    )
+                )
+
+        return recognized_lines
+
 
 class BaselinePatternRecognizer(BaseTextRecognizer):
     """
@@ -225,6 +324,34 @@ class BaselinePatternRecognizer(BaseTextRecognizer):
                     reading_order_index=i,
                     text="",  # Unmatched fallback
                     bbox=box,
+                    confidence=0.0,
+                    char_count=0,
+                    word_count=0,
+                    abstained=True,
+                    source="ocr",
+                    model_provenance="baseline_pattern_recognizer",
+                )
+            )
+        return lines
+
+    def recognize_crops(
+        self,
+        crops: List[PIL.Image.Image],
+        device: str = "cpu",
+        batch_size: Optional[int] = None,
+    ) -> List[RecognizedLine]:
+        lines: List[RecognizedLine] = []
+        for i, crop in enumerate(crops):
+            dummy_box = BoundingBox(
+                x0=0.0, y0=0.0, x1=1.0, y1=1.0,
+                x0_pt=0.0, y0_pt=0.0, x1_pt=float(crop.size[0]), y1_pt=float(crop.size[1])
+            )
+            lines.append(
+                RecognizedLine(
+                    line_index=i,
+                    reading_order_index=i,
+                    text="",
+                    bbox=dummy_box,
                     confidence=0.0,
                     char_count=0,
                     word_count=0,

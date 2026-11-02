@@ -23,8 +23,12 @@ from src.intelligence.ocr.metrics import (
     calculate_box_iou,
     calculate_cer,
     calculate_reading_order_accuracy,
+    calculate_reading_order_detailed,
     calculate_wer,
+    evaluate_detection_multi_threshold,
     evaluate_detection_precision_recall,
+    evaluate_financial_fields_dataset,
+    evaluate_financial_fields_exact_match,
     levenshtein_distance,
 )
 from src.intelligence.ocr.models import RecognizedLine
@@ -34,6 +38,7 @@ from src.intelligence.ocr.recognizers import (
     BaselinePatternRecognizer,
     TrOCRRecognizer,
 )
+from src.intelligence.rendering import evaluate_pdfium_lock_contention
 
 
 # =====================================================================
@@ -289,3 +294,92 @@ def test_ocr_pipeline_dual_stream_enrichment():
     assert len(enriched_page.ocr_blocks) >= 1
     assert "ocr" in enriched_page.metadata
     assert enriched_page.metadata["ocr"]["detector"] == "morphological_line_detector"
+
+
+# =====================================================================
+# 6. Revalidation Benchmark Enhancements
+# =====================================================================
+
+def test_reading_order_detailed_explicit_denominator():
+    """Verify reading order detailed returns exact concordant pairs, total pairs, and ratio."""
+    gt = ["Line 1", "Line 2", "Line 3", "Line 4"]
+    # Perfect order: K = 4*3/2 = 6 pairs
+    pred_perfect = ["Line 1", "Line 2", "Line 3", "Line 4"]
+    res_perfect = calculate_reading_order_detailed(pred_perfect, gt)
+    assert res_perfect["concordant_pairs"] == 6
+    assert res_perfect["total_annotated_pairs"] == 6
+    assert res_perfect["concordance_ratio"] == 1.0
+
+    # Reversed order: 0 concordant pairs
+    pred_reversed = ["Line 4", "Line 3", "Line 2", "Line 1"]
+    res_reversed = calculate_reading_order_detailed(pred_reversed, gt)
+    assert res_reversed["concordant_pairs"] == 0
+    assert res_reversed["total_annotated_pairs"] == 6
+    assert res_reversed["concordance_ratio"] == 0.0
+
+    # Fuzzy tolerance for minor OCR character substitution
+    pred_fuzzy = ["Line 1", "Line 2 - typo", "Line 3", "Line 4"]
+    res_fuzzy = calculate_reading_order_detailed(pred_fuzzy, gt)
+    assert res_fuzzy["total_annotated_pairs"] >= 3
+    assert res_fuzzy["concordance_ratio"] > 0.5
+
+
+def test_evaluate_detection_multi_threshold():
+    """Verify multi-threshold detection evaluation at IoU 0.40, 0.50, and 0.75."""
+    box = BoundingBox(x0=0.1, y0=0.1, x1=0.5, y1=0.3, x0_pt=10, y0_pt=10, x1_pt=50, y1_pt=30)
+    res = evaluate_detection_multi_threshold([box], [box], thresholds=[0.40, 0.50, 0.75])
+    assert "iou_40" in res
+    assert "iou_50" in res
+    assert "iou_75" in res
+    assert res["iou_50"]["f1"] == 1.0
+
+
+def test_evaluate_financial_fields_exact_match():
+    """Verify exact-match evaluation preserves punctuation and decimal separators."""
+    gt_fields = {
+        "invoice_number": "INV-2026-90",
+        "date": "2026-05-15",
+        "currency_code": "USD",
+        "total_amount": "$1,450.00",
+    }
+    # Verbatim match
+    text_verbatim = "INVOICE #INV-2026-90 Date: 2026-05-15 Currency: USD Total: $1,450.00"
+    res_verbatim = evaluate_financial_fields_exact_match(text_verbatim, gt_fields)
+    assert res_verbatim["_summary"]["matched_fields"] == 4
+    assert res_verbatim["_summary"]["exact_match_accuracy"] == 1.0
+
+    # Altered decimal separator or missing comma must FAIL exact match
+    text_altered = "INVOICE #INV-2026-90 Date: 2026-05-15 Currency: USD Total: $1450.00"
+    res_altered = evaluate_financial_fields_exact_match(text_altered, gt_fields)
+    assert res_altered["total_amount"]["matched"] is False
+    assert res_altered["_summary"]["matched_fields"] == 3
+
+
+def test_recognize_crops_method():
+    """Verify recognize_crops executes directly on image crops in Recognition-Only mode."""
+    rec = BaselinePatternRecognizer()
+    crop1 = Image.new("RGB", (100, 30), color=(255, 255, 255))
+    crop2 = Image.new("RGB", (120, 30), color=(255, 255, 255))
+
+    lines = rec.recognize_crops([crop1, crop2], device="cpu")
+    assert len(lines) == 2
+    for l in lines:
+        assert isinstance(l, RecognizedLine)
+        assert l.abstained is True
+
+
+def test_evaluate_pdfium_lock_contention():
+    """Verify evaluate_pdfium_lock_contention benchmarks scaling across thread counts."""
+    sample_pdf = Image.new("RGB", (300, 300), (255, 255, 255))
+    bio = Image.new("RGB", (300, 300), (255, 255, 255))
+    import io as _io
+    buf = _io.BytesIO()
+    sample_pdf.save(buf, format="PDF")
+    pdf_bytes = buf.getvalue()
+
+    contention = evaluate_pdfium_lock_contention(pdf_bytes, thread_counts=[1, 2], pages_per_worker=1)
+    assert "scaling" in contention
+    assert "1_threads" in contention["scaling"]
+    assert "2_threads" in contention["scaling"]
+    assert "architectural_recommendation" in contention
+

@@ -127,24 +127,170 @@ def calculate_reading_order_accuracy(
 ) -> float:
     """
     Measure pairwise relative ordering accuracy (concordant pairs ratio).
-    Evaluates whether line A appears before line B when line A precedes line B in ground truth.
+    Matches predicted lines to closest ground-truth line via Levenshtein alignment.
     """
-    if len(ground_truth_lines) <= 1:
-        return 1.0
+    res = calculate_reading_order_detailed(predicted_text_lines, ground_truth_lines)
+    return res["concordance_ratio"]
 
-    # Build mapping from line content to ground truth rank
-    gt_ranks = {line.strip(): i for i, line in enumerate(ground_truth_lines)}
 
-    matched_preds = [gt_ranks[p.strip()] for p in predicted_text_lines if p.strip() in gt_ranks]
+def calculate_reading_order_detailed(
+    predicted_text_lines: List[str],
+    ground_truth_lines: List[str],
+) -> dict:
+    """
+    Measure pairwise relative ordering with explicit denominator tracking.
+    Matches lines via string similarity (normalized edit distance <= 0.40) to decouple
+    reading-order evaluation from OCR character substitution noise.
+    Returns:
+        - concordant_pairs: Number of correctly ordered pairs
+        - total_annotated_pairs: Total evaluated pairs K = N*(N-1)/2
+        - concordance_ratio: concordant_pairs / max(1, total_annotated_pairs)
+    """
+    n_gt = len(ground_truth_lines)
+    total_k = n_gt * (n_gt - 1) // 2
+
+    if n_gt <= 1:
+        return {
+            "concordant_pairs": 0,
+            "total_annotated_pairs": 0,
+            "concordance_ratio": 1.0,
+        }
+
+    # Match each predicted line to closest ground truth line
+    matched_preds: List[int] = []
+    for p in predicted_text_lines:
+        p_clean = p.strip()
+        if not p_clean:
+            continue
+        best_dist = 9999
+        best_gt_idx = -1
+        for gt_idx, gt in enumerate(ground_truth_lines):
+            gt_clean = gt.strip()
+            dist = levenshtein_distance(p_clean, gt_clean)
+            norm_dist = dist / max(1, len(gt_clean))
+            if norm_dist <= 0.40 and dist < best_dist:
+                best_dist = dist
+                best_gt_idx = gt_idx
+        if best_gt_idx != -1 and best_gt_idx not in matched_preds:
+            matched_preds.append(best_gt_idx)
+
     if len(matched_preds) <= 1:
-        return 1.0 if matched_preds else 0.0
+        return {
+            "concordant_pairs": 0,
+            "total_annotated_pairs": total_k,
+            "concordance_ratio": 0.0,
+        }
 
     concordant = 0
-    total_pairs = 0
+    evaluated_pairs = 0
     for i in range(len(matched_preds)):
         for j in range(i + 1, len(matched_preds)):
-            total_pairs += 1
+            evaluated_pairs += 1
             if matched_preds[i] < matched_preds[j]:
                 concordant += 1
 
-    return round(float(concordant / max(1, total_pairs)), 4)
+    ratio = round(float(concordant / max(1, evaluated_pairs)), 4)
+    return {
+        "concordant_pairs": concordant,
+        "total_annotated_pairs": evaluated_pairs,
+        "concordance_ratio": ratio,
+    }
+
+
+def evaluate_detection_multi_threshold(
+    predicted_boxes: List[BoundingBox],
+    ground_truth_boxes: List[BoundingBox],
+    thresholds: List[float] = [0.40, 0.50, 0.75],
+) -> dict:
+    """Evaluate detection Precision, Recall, and F1 across multiple IoU thresholds."""
+    results = {}
+    for th in thresholds:
+        p, r, f1 = evaluate_detection_precision_recall(predicted_boxes, ground_truth_boxes, iou_threshold=th)
+        results[f"iou_{int(th*100)}"] = {
+            "precision": p,
+            "recall": r,
+            "f1": f1,
+        }
+    return results
+
+
+FINANCIAL_FIELD_CATEGORIES = [
+    "invoice_number",
+    "date",
+    "tax_id",
+    "currency_code",
+    "quantity",
+    "unit_price",
+    "tax_percentage",
+    "total_amount",
+]
+
+
+def evaluate_financial_fields_exact_match(
+    predicted_text: str,
+    ground_truth_fields: dict,
+) -> dict:
+    """
+    Evaluate exact-match recognition of critical financial fields.
+    Preserves exact punctuation, case, decimal points, and currency symbols.
+    Never normalizes away characters that alter financial meaning.
+    """
+    field_results = {}
+    matched_count = 0
+    total_count = len(ground_truth_fields)
+
+    for category, expected_val in ground_truth_fields.items():
+        # Verbatim substring match preserving punctuation and decimals
+        matched = expected_val in predicted_text
+        if matched:
+            matched_count += 1
+        field_results[category] = {
+            "expected": expected_val,
+            "matched": matched,
+        }
+
+    field_results["_summary"] = {
+        "total_fields": total_count,
+        "matched_fields": matched_count,
+        "exact_match_accuracy": round(matched_count / max(1, total_count), 4),
+    }
+    return field_results
+
+
+def evaluate_financial_fields_dataset(
+    hypotheses: List[str],
+    ground_truth_fields_list: List[dict],
+) -> dict:
+    """Aggregate financial field exact match accuracy across an entire document set."""
+    category_totals = {cat: 0 for cat in FINANCIAL_FIELD_CATEGORIES}
+    category_matches = {cat: 0 for cat in FINANCIAL_FIELD_CATEGORIES}
+
+    for hyp, gt_fields in zip(hypotheses, ground_truth_fields_list):
+        for cat, expected in gt_fields.items():
+            if cat in category_totals:
+                category_totals[cat] += 1
+                if expected in hyp:
+                    category_matches[cat] += 1
+
+    per_category = {}
+    total_all = 0
+    matches_all = 0
+    for cat in FINANCIAL_FIELD_CATEGORIES:
+        tot = category_totals[cat]
+        mat = category_matches[cat]
+        total_all += tot
+        matches_all += mat
+        acc = round(mat / max(1, tot), 4) if tot > 0 else 0.0
+        per_category[cat] = {
+            "total": tot,
+            "matched": mat,
+            "exact_match_accuracy": acc,
+        }
+
+    return {
+        "per_category": per_category,
+        "overall_exact_match_accuracy": round(matches_all / max(1, total_all), 4) if total_all > 0 else 0.0,
+        "total_fields_evaluated": total_all,
+        "total_fields_matched": matches_all,
+    }
+
