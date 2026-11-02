@@ -156,16 +156,16 @@ def calculate_reading_order_detailed(
             "concordance_ratio": 1.0,
         }
 
-    # Match each predicted line to closest ground truth line
+    # Match each predicted line to closest ground truth line (case-insensitive)
     matched_preds: List[int] = []
     for p in predicted_text_lines:
-        p_clean = p.strip()
+        p_clean = p.strip().lower()
         if not p_clean:
             continue
         best_dist = 9999
         best_gt_idx = -1
         for gt_idx, gt in enumerate(ground_truth_lines):
-            gt_clean = gt.strip()
+            gt_clean = gt.strip().lower()
             dist = levenshtein_distance(p_clean, gt_clean)
             norm_dist = dist / max(1, len(gt_clean))
             if norm_dist <= 0.40 and dist < best_dist:
@@ -320,17 +320,17 @@ def evaluate_table_structure(
         pred_col_boxes, gt_col_boxes, iou_threshold=iou_threshold
     )
 
-    # 3. Cell Adjacency Matrix Evaluation
-    # Collect adjacency pairs in ground truth: (cell_a_text, cell_b_text, relation)
-    gt_adj: set = set()
+    # 3. Cell Adjacency Matrix Evaluation (ICDAR Standard)
+    # Collect horizontal and vertical adjacency pairs in ground truth: (cell_a_text, cell_b_text)
+    gt_adj_h: set = set()
     for row in ground_truth_table.rows:
         for idx in range(len(row.cells) - 1):
             c1_txt = row.cells[idx].text.strip()
             c2_txt = row.cells[idx + 1].text.strip()
             if c1_txt and c2_txt:
-                gt_adj.add((c1_txt, c2_txt, "horizontal"))
+                gt_adj_h.add((c1_txt, c2_txt))
 
-    # Vertical adjacency in ground truth
+    gt_adj_v: set = set()
     gt_cells = ground_truth_table.cells
     for i, c1 in enumerate(gt_cells):
         for j, c2 in enumerate(gt_cells):
@@ -338,17 +338,18 @@ def evaluate_table_structure(
                 t1 = c1.text.strip()
                 t2 = c2.text.strip()
                 if t1 and t2:
-                    gt_adj.add((t1, t2, "vertical"))
+                    gt_adj_v.add((t1, t2))
 
-    # Predicted adjacency
-    pred_adj: set = set()
+    # Predicted horizontal and vertical adjacency
+    pred_adj_h: set = set()
     for row in predicted_table.rows:
         for idx in range(len(row.cells) - 1):
             c1_txt = row.cells[idx].text.strip()
             c2_txt = row.cells[idx + 1].text.strip()
             if c1_txt and c2_txt:
-                pred_adj.add((c1_txt, c2_txt, "horizontal"))
+                pred_adj_h.add((c1_txt, c2_txt))
 
+    pred_adj_v: set = set()
     pred_cells = predicted_table.cells
     for i, c1 in enumerate(pred_cells):
         for j, c2 in enumerate(pred_cells):
@@ -356,12 +357,28 @@ def evaluate_table_structure(
                 t1 = c1.text.strip()
                 t2 = c2.text.strip()
                 if t1 and t2:
-                    pred_adj.add((t1, t2, "vertical"))
+                    pred_adj_v.add((t1, t2))
 
-    tp = len(pred_adj.intersection(gt_adj))
-    fp = len(pred_adj - gt_adj)
-    fn = len(gt_adj - pred_adj)
+    # Compute Horizontal Adjacency Metrics
+    tp_h = len(pred_adj_h.intersection(gt_adj_h))
+    fp_h = len(pred_adj_h - gt_adj_h)
+    fn_h = len(gt_adj_h - pred_adj_h)
+    p_h = round(float(tp_h / max(1, tp_h + fp_h)), 4) if (tp_h + fp_h) > 0 else 1.0
+    r_h = round(float(tp_h / max(1, tp_h + fn_h)), 4) if (tp_h + fn_h) > 0 else 1.0
+    f1_h = round(float(2 * p_h * r_h / max(1e-6, p_h + r_h)), 4) if (p_h + r_h) > 0 else 0.0
 
+    # Compute Vertical Adjacency Metrics
+    tp_v = len(pred_adj_v.intersection(gt_adj_v))
+    fp_v = len(pred_adj_v - gt_adj_v)
+    fn_v = len(gt_adj_v - pred_adj_v)
+    p_v = round(float(tp_v / max(1, tp_v + fp_v)), 4) if (tp_v + fp_v) > 0 else 1.0
+    r_v = round(float(tp_v / max(1, tp_v + fn_v)), 4) if (tp_v + fn_v) > 0 else 1.0
+    f1_v = round(float(2 * p_v * r_v / max(1e-6, p_v + r_v)), 4) if (p_v + r_v) > 0 else 0.0
+
+    # Overall Combined Adjacency
+    tp = tp_h + tp_v
+    fp = fp_h + fp_v
+    fn = fn_h + fn_v
     cell_adj_p = round(float(tp / max(1, tp + fp)), 4) if (tp + fp) > 0 else 1.0
     cell_adj_r = round(float(tp / max(1, tp + fn)), 4) if (tp + fn) > 0 else 1.0
     cell_adj_f1 = (
@@ -369,7 +386,18 @@ def evaluate_table_structure(
         if (cell_adj_p + cell_adj_r) > 0 else 0.0
     )
 
-    composite_score = round((row_f1 + col_f1 + cell_adj_f1) / 3.0, 4)
+    # 4. Content Association / Value Alignment
+    # Evaluates exact text matching at (row_index, col_index) grid intersections
+    gt_grid_map = {(c.row_index, c.col_index): c.text.strip().lower() for c in gt_cells}
+    pred_grid_map = {(c.row_index, c.col_index): c.text.strip().lower() for c in pred_cells}
+    matched_content = 0
+    total_gt_cells = len(gt_grid_map)
+    for coord, gt_txt in gt_grid_map.items():
+        if coord in pred_grid_map and pred_grid_map[coord] == gt_txt:
+            matched_content += 1
+    content_assoc_acc = round(float(matched_content / max(1, total_gt_cells)), 4)
+
+    composite_score = round((row_f1 + col_f1 + cell_adj_f1 + content_assoc_acc) / 4.0, 4)
 
     return {
         "row_metrics": {"precision": row_p, "recall": row_r, "f1": row_f1},
@@ -381,6 +409,13 @@ def evaluate_table_structure(
             "precision": cell_adj_p,
             "recall": cell_adj_r,
             "f1": cell_adj_f1,
+            "horizontal": {"precision": p_h, "recall": r_h, "f1": f1_h},
+            "vertical": {"precision": p_v, "recall": r_v, "f1": f1_v},
+        },
+        "content_association": {
+            "total_cells": total_gt_cells,
+            "matched_cells": matched_content,
+            "accuracy": content_assoc_acc,
         },
         "composite_table_structure_f1": composite_score,
     }

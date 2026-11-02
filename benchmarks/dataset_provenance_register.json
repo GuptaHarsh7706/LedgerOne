@@ -1,0 +1,491 @@
+{
+  "schema_version": "1.0.0",
+  "register_title": "LedgerOne Financial Document Benchmark Dataset Provenance Register",
+  "curation_standard": "Phase 4 Step 2 Formal Validation Standard",
+  "total_documents": 30,
+  "splits_summary": {
+    "development": 10,
+    "synthetic_held_out": 10,
+    "external_held_out": 10
+  },
+  "documents": [
+    {
+      "document_id": "DEV-01-CLEAN-INVOICE",
+      "split": "development",
+      "category": "Commercial Invoice",
+      "description": "Standard corporate commercial invoice with header, line items, and VAT summary",
+      "provenance_classification": "synthetic_development",
+      "source_template_basis": "Standard Enterprise SaaS Invoice Layout",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Entity (No real individuals or organizations)",
+      "tax_id_anonymization": "VAT-US889912 (Synthetic format)",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth with exact bounding boxes, Decimal normalizations, and reading order",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "DEV-02-THERMAL-RECEIPT",
+      "split": "development",
+      "category": "Thermal Receipt",
+      "description": "Faded thermal paper with gray background, additive noise, and local sales tax",
+      "provenance_classification": "synthetic_development",
+      "source_template_basis": "POS Point-of-Sale Register Tape",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Entity (Cafe Metropolis Store #104)",
+      "tax_id_anonymization": "N/A (Store Register ID only)",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth with simulated thermal fading, noise modeling, and bounding boxes",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "DEV-03-PURCHASE-ORDER",
+      "split": "development",
+      "category": "Purchase Order",
+      "description": "Procurement purchase order with vendor EIN and hardware unit price schedule",
+      "provenance_classification": "synthetic_development",
+      "source_template_basis": "ERP Procurement PO Standard Template",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Entity (Industrial Networking PO-2026-9912)",
+      "tax_id_anonymization": "EIN-12-99881 (Synthetic EIN)",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth with line items, quantities, and commitment total",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "DEV-04-BANK-STATEMENT",
+      "split": "development",
+      "category": "Bank Statement",
+      "description": "Monthly commercial account statement with opening and closing balances",
+      "provenance_classification": "synthetic_development",
+      "source_template_basis": "Commercial Banking Monthly Statement Format",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Entity (Global Commercial Bank)",
+      "tax_id_anonymization": "ACCT-9012-441 (Synthetic Account Number)",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth with debits, credits, and closing balance",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "DEV-05-FINANCIAL-SCHEDULE",
+      "split": "development",
+      "category": "Financial Schedule",
+      "description": "Dense 8pt tax asset depreciation schedule with multi-column alignment",
+      "provenance_classification": "synthetic_development",
+      "source_template_basis": "Tax Asset Depreciation Schedule Table",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Entity",
+      "tax_id_anonymization": "Asset ID #AS-101 / #AS-102",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth for dense small fonts and columnar depreciation amounts",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "DEV-06-LEGAL-CONTRACT",
+      "split": "development",
+      "category": "Legal Contract",
+      "description": "Contract agreement amendment clause with early termination penalty fee",
+      "provenance_classification": "synthetic_development",
+      "source_template_basis": "Master Services Agreement (MSA) Standard Clause",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Legal Clause",
+      "tax_id_anonymization": "Contract ID MSA-2026-44",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth with penalty monetary field extraction",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "DEV-07-MULTI-COLUMN",
+      "split": "development",
+      "category": "Multi-Column Report",
+      "description": "Side-by-side two-column billing and shipping logistics dispatch summary",
+      "provenance_classification": "synthetic_development",
+      "source_template_basis": "Logistics Dispatch Freight Manifest Layout",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Entities (Alpha Logistics / Beta Harbor)",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth for 2D XY-Cut reading order and total amount",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "DEV-08-HYBRID-SCAN",
+      "split": "development",
+      "category": "Hybrid Document",
+      "description": "Digital expense claim with embedded scanned receipt block and approval stamp",
+      "provenance_classification": "synthetic_development",
+      "source_template_basis": "Corporate Expense Reimbursement Claim Form",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Claim #EXP-772",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth with digital header and embedded raster receipt region",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "DEV-09-SKEWED-INVOICE",
+      "split": "development",
+      "category": "Low-Contrast / Skewed Scan",
+      "description": "Freight invoice scanned with 3.5 deg physical rotational skew",
+      "provenance_classification": "synthetic_development",
+      "source_template_basis": "Freight Logistics Billing Slip",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Entity #FR-4019",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth with pre-skew bounding boxes and post-deskew verification",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "DEV-10-STAMP-ANNOTATION",
+      "split": "development",
+      "category": "Document with Stamp/Seal",
+      "description": "Corporate disbursement voucher containing official verification stamp",
+      "provenance_classification": "synthetic_development",
+      "source_template_basis": "Treasury Disbursement Voucher",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Voucher #DV-901",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth with stamp overlay bounding box and disbursement total",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "HELD-01-COMMERCIAL-INVOICE",
+      "split": "synthetic_held_out",
+      "category": "Commercial Invoice",
+      "description": "European multi-item commercial invoice denominated in EUR with German VAT ID",
+      "provenance_classification": "synthetic_held_out",
+      "source_template_basis": "European Commercial Invoice (DIN 5008)",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic European Entity",
+      "tax_id_anonymization": "DE-81499210 (Synthetic USt-IdNr)",
+      "monetary_units": [
+        "EUR"
+      ],
+      "annotation_methodology": "Independent held-out annotation of EUR monetary formats, quantities, and totals",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "HELD-02-RESTAURANT-RECEIPT",
+      "split": "synthetic_held_out",
+      "category": "Thermal Receipt",
+      "description": "Restaurant guest check with service gratuity, sales tax, and cashier ID",
+      "provenance_classification": "synthetic_held_out",
+      "source_template_basis": "Hospitality POS Guest Check",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Restaurant #502",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Independent held-out annotation of multi-item food orders, tax, and gratuity",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "HELD-03-SUPPLY-PO",
+      "split": "synthetic_held_out",
+      "category": "Purchase Order",
+      "description": "Industrial parts procurement order with vendor code and delivery freight fee",
+      "provenance_classification": "synthetic_held_out",
+      "source_template_basis": "MRO Industrial Supply Purchase Order",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic PO #PO-77401",
+      "tax_id_anonymization": "VEND-9902 (Synthetic Vendor ID)",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Independent held-out annotation of parts, quantities, freight charge, and total",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "HELD-04-CHECKING-STATEMENT",
+      "split": "synthetic_held_out",
+      "category": "Bank Statement",
+      "description": "London sterling commercial business checking statement",
+      "provenance_classification": "synthetic_held_out",
+      "source_template_basis": "UK Commercial Bank Monthly Statement",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic UK Entity (Lloyds Metropolitan)",
+      "tax_id_anonymization": "GB-9921-008 (Synthetic Account)",
+      "monetary_units": [
+        "GBP"
+      ],
+      "annotation_methodology": "Independent held-out annotation of GBP transactions and net closing balance",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "HELD-05-TAX-SCHEDULE",
+      "split": "synthetic_held_out",
+      "category": "Financial Schedule",
+      "description": "Federal Tax Form 4562 asset recovery sub-schedule",
+      "provenance_classification": "synthetic_held_out",
+      "source_template_basis": "IRS Form 4562 Depreciation Table Standard",
+      "license_status": "Public Domain Financial Form Specification",
+      "pii_sanitization_status": "100% Synthetic Asset Tax Schedule",
+      "tax_id_anonymization": "#TX-901",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Independent held-out annotation of asset cost, MACRS recovery period, and deduction",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "HELD-06-SERVICE-CONTRACT",
+      "split": "synthetic_held_out",
+      "category": "Legal Contract",
+      "description": "SLA service agreement with monthly recurring support fee and annual commitment",
+      "provenance_classification": "synthetic_held_out",
+      "source_template_basis": "Enterprise SaaS Service Level Agreement",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Contract SLA-2026-90",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Independent held-out annotation of monthly rate and annual contract value",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "HELD-07-TWO-COLUMN-LEDGER",
+      "split": "synthetic_held_out",
+      "category": "Multi-Column Report",
+      "description": "Disbursement ledger with side-by-side department expense columns",
+      "provenance_classification": "synthetic_held_out",
+      "source_template_basis": "Corporate General Ledger Departmental Allocation",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Departmental Ledger",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Independent held-out annotation of multi-column reading order and consolidated total",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "HELD-08-HYBRID-PORTFOLIO",
+      "split": "synthetic_held_out",
+      "category": "Hybrid Document",
+      "description": "Quarterly investment portfolio summary with scanned broker execution confirmation",
+      "provenance_classification": "synthetic_held_out",
+      "source_template_basis": "Brokerage Trade Confirmation Slip",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Brokerage Entity",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Independent held-out annotation of share quantities, commission, and trade total",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "HELD-09-LOW-CONTRAST-SCAN",
+      "split": "synthetic_held_out",
+      "category": "Low-Contrast / Skewed Scan",
+      "description": "Photocopied archival invoice with faint text and low-contrast background",
+      "provenance_classification": "synthetic_held_out",
+      "source_template_basis": "Archival Thermal Copy Standard",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "100% Synthetic Invoice #ARC-2019-55",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Independent held-out annotation of degraded character glyphs and restoration fee",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "HELD-10-BLANK-PAGE",
+      "split": "synthetic_held_out",
+      "category": "Borderless Table / Blank",
+      "description": "Blank white page with no text lines to verify false-positive rejection and abstention",
+      "provenance_classification": "synthetic_held_out",
+      "source_template_basis": "Separator Blank Page Standard",
+      "license_status": "Apache-2.0 Clean-Room Implementation",
+      "pii_sanitization_status": "N/A (Blank Page)",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [],
+      "annotation_methodology": "Verified zero-line ground truth to validate 0% false detection rate",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "EXT-HELD-01-AWS-INVOICE",
+      "split": "external_held_out",
+      "category": "Commercial Invoice",
+      "description": "Amazon Web Services cloud computing monthly billing invoice with EC2/S3 line items",
+      "provenance_classification": "synthetic_template_reconstruction",
+      "source_template_basis": "AWS Monthly Billing Statement Public Schema",
+      "license_status": "Synthetic Clean-Room Reconstruction of Open Billing Schema",
+      "pii_sanitization_status": "100% Synthetic Account (1290-4820-9901) and Tax ID (US-94-312890)",
+      "tax_id_anonymization": "US-94-312890 (Synthetic EIN)",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth for cloud computing quantities, subtotal, and sales tax",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "EXT-HELD-02-SHELL-POS-RECEIPT",
+      "split": "external_held_out",
+      "category": "Thermal Receipt",
+      "description": "Shell station fuel dispenser receipt with 3-decimal gallon pricing and county sales tax",
+      "provenance_classification": "synthetic_template_reconstruction",
+      "source_template_basis": "Retail Petroleum Fleet Receipt Schema",
+      "license_status": "Synthetic Clean-Room Reconstruction of POS Tape Schema",
+      "pii_sanitization_status": "100% Synthetic Store #4402",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth for 3-decimal fuel unit pricing ($3.299) and tax",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "EXT-HELD-03-DELL-PO",
+      "split": "external_held_out",
+      "category": "Purchase Order",
+      "description": "Dell Global Procurement purchase order for datacenter server hardware and air freight",
+      "provenance_classification": "synthetic_template_reconstruction",
+      "source_template_basis": "Hardware OEM Procurement PO Schema",
+      "license_status": "Synthetic Clean-Room Reconstruction of Enterprise PO Schema",
+      "pii_sanitization_status": "100% Synthetic Order #PO-DELL-8820",
+      "tax_id_anonymization": "US-74-219088 (Synthetic Tax ID)",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth for high-value hardware subtotals and freight",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "EXT-HELD-04-BARCLAYS-BANK-STATEMENT",
+      "split": "external_held_out",
+      "category": "Bank Statement",
+      "description": "Barclays commercial sterling checking statement with debits (DR), credits (CR), and net balance",
+      "provenance_classification": "synthetic_template_reconstruction",
+      "source_template_basis": "UK Commercial Clearing Bank Statement Standard",
+      "license_status": "Synthetic Clean-Room Reconstruction of Commercial Banking Schema",
+      "pii_sanitization_status": "100% Synthetic Account GB-2290-771",
+      "tax_id_anonymization": "GB-2290-771",
+      "monetary_units": [
+        "GBP"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth for accounting DR/CR annotations and ledger balance",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "EXT-HELD-05-IRS-4562-DEPRECIATION",
+      "split": "external_held_out",
+      "category": "Financial Schedule",
+      "description": "IRS Form 4562 Cost Depreciation and Section 179 Expense Deduction Schedule",
+      "provenance_classification": "synthetic_template_reconstruction",
+      "source_template_basis": "US Department of Treasury IRS Form 4562 Public Disclosure Schema",
+      "license_status": "US Public Domain Government Form Specification",
+      "pii_sanitization_status": "100% Synthetic Tax Return Schedule",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth for Section 179 deductions and net depreciable balances",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "EXT-HELD-06-ENTERPRISE-SLA-CONTRACT",
+      "split": "external_held_out",
+      "category": "Legal Contract",
+      "description": "Enterprise SaaS Master Service Agreement with liquidated damages penalty clauses",
+      "provenance_classification": "synthetic_template_reconstruction",
+      "source_template_basis": "Commercial Cloud MSA Legal Specification",
+      "license_status": "Synthetic Clean-Room Legal Template",
+      "pii_sanitization_status": "100% Synthetic Agreement #SLA-2026-904",
+      "tax_id_anonymization": "US-88-109283 (Synthetic Registration)",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth for contract subtotal, penalty, and total value",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "EXT-HELD-07-MULTIPAGE-FINANCIAL-P1",
+      "split": "external_held_out",
+      "category": "Multi-Column Report",
+      "description": "Multi-page consolidated corporate earnings report (Page 1 of 2) with segmented revenues",
+      "provenance_classification": "synthetic_template_reconstruction",
+      "source_template_basis": "SEC Form 10-Q Consolidated Income Statement Public Schema",
+      "license_status": "Public Financial Disclosure Schema",
+      "pii_sanitization_status": "100% Synthetic Financial Earnings Report",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth for segmented revenues, software sales, and operating totals",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "EXT-HELD-08-BALANCE-SHEET-TABLE",
+      "split": "external_held_out",
+      "category": "Borderless Table / Blank",
+      "description": "Borderless corporate balance sheet with irregular row heights and wrapped account headers",
+      "provenance_classification": "synthetic_template_reconstruction",
+      "source_template_basis": "GAAP Corporate Balance Sheet Asset Summary",
+      "license_status": "GAAP Financial Statement Specification",
+      "pii_sanitization_status": "100% Synthetic Corporate Balance Sheet",
+      "tax_id_anonymization": "N/A",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth for borderless grid alignment and total current assets",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "EXT-HELD-09-EUROPEAN-VENDOR-INVOICE",
+      "split": "external_held_out",
+      "category": "Commercial Invoice",
+      "description": "European German vendor invoice with period thousands, comma decimals, and USt-IdNr",
+      "provenance_classification": "synthetic_template_reconstruction",
+      "source_template_basis": "German Industry DIN 5008 Commercial Invoice Schema",
+      "license_status": "Synthetic Clean-Room Reconstruction of DIN Standard Schema",
+      "pii_sanitization_status": "100% Synthetic German Entity (Siemens Industrial GmbH)",
+      "tax_id_anonymization": "DE-129274091 (Synthetic USt-IdNr)",
+      "monetary_units": [
+        "EUR"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth for de_DE separators (1.750,00 EUR) and MwSt",
+      "template_independence_verified": true
+    },
+    {
+      "document_id": "EXT-HELD-10-STAMP-SEAL-CERTIFICATE",
+      "split": "external_held_out",
+      "category": "Low-Contrast / Skewed Scan",
+      "description": "Notarized audit disbursement certificate with -3.5 deg physical skew and overlapping auditor seal",
+      "provenance_classification": "synthetic_template_reconstruction",
+      "source_template_basis": "Certified Public Accountant Disbursement Certificate Schema",
+      "license_status": "Synthetic Clean-Room Reconstruction of Notarized Audit Schema",
+      "pii_sanitization_status": "100% Synthetic Certificate #AC-7701",
+      "tax_id_anonymization": "US-99-00124 (Synthetic Auditor Registration)",
+      "monetary_units": [
+        "USD"
+      ],
+      "annotation_methodology": "Dual-annotator ground truth for skewed seal, approved funds, and certified disbursement",
+      "template_independence_verified": true
+    }
+  ]
+}

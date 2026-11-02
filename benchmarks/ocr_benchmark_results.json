@@ -1,5 +1,5 @@
 {
-  "benchmark_timestamp": "2026-11-02T21:39:58+0530",
+  "benchmark_timestamp": "2026-11-02T23:12:27+0530",
   "hardware_environment": {
     "cuda_available": true,
     "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
@@ -7,23 +7,23 @@
       "cuda_available": true,
       "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
       "total_device_vram_mb": 6143.5,
-      "free_device_vram_mb": 4784.0,
-      "used_device_vram_mb": 1359.5,
-      "pytorch_allocated_mb": 8.12,
-      "pytorch_reserved_mb": 342.0,
-      "pytorch_max_allocated_mb": 164.56,
-      "pytorch_max_reserved_mb": 342.0
+      "free_device_vram_mb": 5156.0,
+      "used_device_vram_mb": 987.5,
+      "pytorch_allocated_mb": 0.0,
+      "pytorch_reserved_mb": 0.0,
+      "pytorch_max_allocated_mb": 0.0,
+      "pytorch_max_reserved_mb": 0.0
     },
     "memory_after_model_load": {
       "cuda_available": true,
       "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
       "total_device_vram_mb": 6143.5,
-      "free_device_vram_mb": 4784.0,
-      "used_device_vram_mb": 1359.5,
-      "pytorch_allocated_mb": 128.53,
-      "pytorch_reserved_mb": 342.0,
-      "pytorch_max_allocated_mb": 243.66,
-      "pytorch_max_reserved_mb": 342.0
+      "free_device_vram_mb": 4866.0,
+      "used_device_vram_mb": 1277.5,
+      "pytorch_allocated_mb": 120.66,
+      "pytorch_reserved_mb": 278.0,
+      "pytorch_max_allocated_mb": 236.41,
+      "pytorch_max_reserved_mb": 278.0
     }
   },
   "dataset_inventory": {
@@ -77,49 +77,185 @@
     ]
   },
   "stage_1_recognition_only": {
-    "TrOCR (CPU FP32)": {
+    "BaselinePatternRecognizer (CPU Heuristic)": {
       "device": "cpu",
-      "model_load_duration_seconds": 1.71,
+      "model_load_duration_seconds": 10.17,
       "single_item_latency_ms": {
-        "p50": 526.13,
-        "p95": 830.59,
-        "mean": 577.76,
-        "reconciled_sequential_throughput_lines_sec": 1.73
+        "p50": 9.7,
+        "p95": 16.18,
+        "mean": 10.35,
+        "reconciled_sequential_throughput_lines_sec": 96.58
       },
       "batch_scaling": {
         "batch_size_1": {
-          "items_evaluated": 20,
-          "total_wall_clock_seconds": 12.1118,
-          "throughput_lines_per_sec": 1.65,
-          "effective_latency_ms_per_line": 605.59,
-          "mean_cer": 0.2794,
-          "mean_wer": 0.4831,
-          "gpu_memory": null
-        },
-        "batch_size_4": {
-          "items_evaluated": 20,
-          "total_wall_clock_seconds": 8.8786,
-          "throughput_lines_per_sec": 2.25,
-          "effective_latency_ms_per_line": 443.93,
-          "mean_cer": 0.2794,
-          "mean_wer": 0.4831,
+          "items_evaluated": 172,
+          "total_wall_clock_seconds": 2.2438,
+          "throughput_lines_per_sec": 76.66,
+          "effective_latency_ms_per_line": 13.05,
+          "mean_cer": 0.8745,
+          "mean_wer": 1.0,
           "gpu_memory": null
         }
       },
       "financial_fields_evaluation": {
         "overall_summary": {
           "total_fields": 177,
-          "raw_exact_matches": 22,
-          "raw_exact_match_rate": 0.1243,
-          "accepted_fields": 22,
-          "abstained_fields": 155,
-          "abstention_rate": 0.8757,
-          "accepted_exact_matches": 22,
+          "raw_exact_matches": 11,
+          "raw_exact_match_rate": 0.0621,
+          "automatically_accepted_fields": 11,
+          "correct_accepted_fields": 11,
+          "incorrect_accepted_fields": 0,
+          "abstained_fields": 166,
+          "abstention_rate": 0.9379,
           "accepted_precision": 1.0,
+          "coverage": 0.0621,
+          "false_acceptance_rate": 0.0,
           "target_98_percent_achieved": true
         },
         "per_field_category": {
           "invoice_number": {
+            "total_fields": 23,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 23,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
+          },
+          "date": {
+            "total_fields": 27,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 27,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
+          },
+          "tax_id": {
+            "total_fields": 8,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 8,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
+          },
+          "currency_code": {
+            "total_fields": 29,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 29,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
+          },
+          "quantity": {
+            "total_fields": 21,
+            "raw_exact_matches": 11,
+            "automatically_accepted_fields": 11,
+            "correct_accepted_fields": 11,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 10,
+            "accepted_precision": 1.0,
+            "coverage": 0.5238,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.4762
+          },
+          "unit_price": {
+            "total_fields": 16,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 16,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
+          },
+          "tax_percentage": {
+            "total_fields": 8,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 8,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
+          },
+          "total_amount": {
+            "total_fields": 29,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 29,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
+          },
+          "subtotal": {
+            "total_fields": 10,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 10,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
+          },
+          "tax_amount": {
+            "total_fields": 6,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 6,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
+          }
+        },
+        "per_document_category": {
+          "Commercial Invoice": {
+            "total": 34,
+            "accepted": 4,
+            "abstained": 30,
+            "accepted_matched": 4,
+            "raw_matched": 4,
+            "raw_exact_match_rate": 0.1176,
+            "abstention_rate": 0.8824,
+            "accepted_precision": 1.0
+          },
+          "Thermal Receipt": {
+            "total": 22,
+            "accepted": 0,
+            "abstained": 22,
+            "accepted_matched": 0,
+            "raw_matched": 0,
+            "raw_exact_match_rate": 0.0,
+            "abstention_rate": 1.0,
+            "accepted_precision": 1.0
+          },
+          "Purchase Order": {
             "total": 23,
             "accepted": 3,
             "abstained": 20,
@@ -129,146 +265,24 @@
             "abstention_rate": 0.8696,
             "accepted_precision": 1.0
           },
-          "date": {
-            "total": 27,
-            "accepted": 3,
-            "abstained": 24,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.1111,
-            "abstention_rate": 0.8889,
-            "accepted_precision": 1.0
-          },
-          "tax_id": {
-            "total": 8,
-            "accepted": 2,
-            "abstained": 6,
-            "accepted_matched": 2,
-            "raw_matched": 2,
-            "raw_exact_match_rate": 0.25,
-            "abstention_rate": 0.75,
-            "accepted_precision": 1.0
-          },
-          "currency_code": {
-            "total": 29,
-            "accepted": 3,
-            "abstained": 26,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.1034,
-            "abstention_rate": 0.8966,
-            "accepted_precision": 1.0
-          },
-          "quantity": {
-            "total": 21,
-            "accepted": 3,
-            "abstained": 18,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.1429,
-            "abstention_rate": 0.8571,
-            "accepted_precision": 1.0
-          },
-          "unit_price": {
-            "total": 16,
-            "accepted": 3,
-            "abstained": 13,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.1875,
-            "abstention_rate": 0.8125,
-            "accepted_precision": 1.0
-          },
-          "tax_percentage": {
-            "total": 8,
-            "accepted": 3,
-            "abstained": 5,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.375,
-            "abstention_rate": 0.625,
-            "accepted_precision": 1.0
-          },
-          "total_amount": {
-            "total": 29,
-            "accepted": 2,
-            "abstained": 27,
-            "accepted_matched": 2,
-            "raw_matched": 2,
-            "raw_exact_match_rate": 0.069,
-            "abstention_rate": 0.931,
-            "accepted_precision": 1.0
-          },
-          "subtotal": {
-            "total": 10,
-            "accepted": 0,
-            "abstained": 10,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
-            "accepted_precision": 1.0
-          },
-          "tax_amount": {
-            "total": 6,
-            "accepted": 0,
-            "abstained": 6,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
-            "accepted_precision": 1.0
-          }
-        },
-        "per_document_category": {
-          "Commercial Invoice": {
-            "total": 34,
-            "accepted": 7,
-            "abstained": 27,
-            "accepted_matched": 7,
-            "raw_matched": 7,
-            "raw_exact_match_rate": 0.2059,
-            "abstention_rate": 0.7941,
-            "accepted_precision": 1.0
-          },
-          "Thermal Receipt": {
-            "total": 22,
-            "accepted": 7,
-            "abstained": 15,
-            "accepted_matched": 7,
-            "raw_matched": 7,
-            "raw_exact_match_rate": 0.3182,
-            "abstention_rate": 0.6818,
-            "accepted_precision": 1.0
-          },
-          "Purchase Order": {
-            "total": 23,
-            "accepted": 8,
-            "abstained": 15,
-            "accepted_matched": 8,
-            "raw_matched": 8,
-            "raw_exact_match_rate": 0.3478,
-            "abstention_rate": 0.6522,
-            "accepted_precision": 1.0
-          },
           "Bank Statement": {
             "total": 16,
-            "accepted": 0,
-            "abstained": 16,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
+            "accepted": 1,
+            "abstained": 15,
+            "accepted_matched": 1,
+            "raw_matched": 1,
+            "raw_exact_match_rate": 0.0625,
+            "abstention_rate": 0.9375,
             "accepted_precision": 1.0
           },
           "Financial Schedule": {
             "total": 17,
-            "accepted": 0,
-            "abstained": 17,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
+            "accepted": 1,
+            "abstained": 16,
+            "accepted_matched": 1,
+            "raw_matched": 1,
+            "raw_exact_match_rate": 0.0588,
+            "abstention_rate": 0.9412,
             "accepted_precision": 1.0
           },
           "Legal Contract": {
@@ -283,22 +297,22 @@
           },
           "Multi-Column Report": {
             "total": 10,
-            "accepted": 0,
-            "abstained": 10,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
+            "accepted": 1,
+            "abstained": 9,
+            "accepted_matched": 1,
+            "raw_matched": 1,
+            "raw_exact_match_rate": 0.1,
+            "abstention_rate": 0.9,
             "accepted_precision": 1.0
           },
           "Hybrid Document": {
             "total": 12,
-            "accepted": 0,
-            "abstained": 12,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
+            "accepted": 1,
+            "abstained": 11,
+            "accepted_matched": 1,
+            "raw_matched": 1,
+            "raw_exact_match_rate": 0.0833,
+            "abstention_rate": 0.9167,
             "accepted_precision": 1.0
           },
           "Low-Contrast / Skewed Scan": {
@@ -331,26 +345,93 @@
             "abstention_rate": 1.0,
             "accepted_precision": 1.0
           }
-        }
+        },
+        "risk_vs_coverage_curve": [
+          {
+            "confidence_threshold": 0.4,
+            "automatically_accepted": 11,
+            "abstained": 166,
+            "accepted_precision": 1.0,
+            "coverage": 0.0621,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.5,
+            "automatically_accepted": 11,
+            "abstained": 166,
+            "accepted_precision": 1.0,
+            "coverage": 0.0621,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.6,
+            "automatically_accepted": 11,
+            "abstained": 166,
+            "accepted_precision": 1.0,
+            "coverage": 0.0621,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.7,
+            "automatically_accepted": 11,
+            "abstained": 166,
+            "accepted_precision": 1.0,
+            "coverage": 0.0621,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.8,
+            "automatically_accepted": 11,
+            "abstained": 166,
+            "accepted_precision": 1.0,
+            "coverage": 0.0621,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.9,
+            "automatically_accepted": 11,
+            "abstained": 166,
+            "accepted_precision": 1.0,
+            "coverage": 0.0621,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.95,
+            "automatically_accepted": 11,
+            "abstained": 166,
+            "accepted_precision": 1.0,
+            "coverage": 0.0621,
+            "false_acceptance_rate": 0.0
+          }
+        ]
       }
     },
-    "BaselinePatternRecognizer": {
+    "TrOCR (CPU FP32)": {
       "device": "cpu",
-      "model_load_duration_seconds": 1.71,
+      "model_load_duration_seconds": 10.17,
       "single_item_latency_ms": {
-        "p50": 0.01,
-        "p95": 0.01,
-        "mean": 0.01,
-        "reconciled_sequential_throughput_lines_sec": 117889.77
+        "p50": 480.98,
+        "p95": 840.01,
+        "mean": 596.0,
+        "reconciled_sequential_throughput_lines_sec": 1.68
       },
       "batch_scaling": {
         "batch_size_1": {
-          "items_evaluated": 172,
-          "total_wall_clock_seconds": 0.001,
-          "throughput_lines_per_sec": 176121.24,
-          "effective_latency_ms_per_line": 0.01,
-          "mean_cer": 1.0,
-          "mean_wer": 1.0,
+          "items_evaluated": 5,
+          "total_wall_clock_seconds": 3.0615,
+          "throughput_lines_per_sec": 1.63,
+          "effective_latency_ms_per_line": 612.3,
+          "mean_cer": 0.3146,
+          "mean_wer": 0.5,
+          "gpu_memory": null
+        },
+        "batch_size_4": {
+          "items_evaluated": 5,
+          "total_wall_clock_seconds": 2.5735,
+          "throughput_lines_per_sec": 1.94,
+          "effective_latency_ms_per_line": 514.69,
+          "mean_cer": 0.3146,
+          "mean_wer": 0.5,
           "gpu_memory": null
         }
       },
@@ -359,113 +440,136 @@
           "total_fields": 177,
           "raw_exact_matches": 0,
           "raw_exact_match_rate": 0.0,
-          "accepted_fields": 0,
+          "automatically_accepted_fields": 0,
+          "correct_accepted_fields": 0,
+          "incorrect_accepted_fields": 0,
           "abstained_fields": 177,
           "abstention_rate": 1.0,
-          "accepted_exact_matches": 0,
           "accepted_precision": 1.0,
+          "coverage": 0.0,
+          "false_acceptance_rate": 0.0,
           "target_98_percent_achieved": true
         },
         "per_field_category": {
           "invoice_number": {
-            "total": 23,
-            "accepted": 0,
-            "abstained": 23,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
-            "accepted_precision": 1.0
+            "total_fields": 23,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 23,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
           },
           "date": {
-            "total": 27,
-            "accepted": 0,
-            "abstained": 27,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
-            "accepted_precision": 1.0
+            "total_fields": 27,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 27,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
           },
           "tax_id": {
-            "total": 8,
-            "accepted": 0,
-            "abstained": 8,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
-            "accepted_precision": 1.0
+            "total_fields": 8,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 8,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
           },
           "currency_code": {
-            "total": 29,
-            "accepted": 0,
-            "abstained": 29,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
-            "accepted_precision": 1.0
+            "total_fields": 29,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 29,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
           },
           "quantity": {
-            "total": 21,
-            "accepted": 0,
-            "abstained": 21,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
-            "accepted_precision": 1.0
+            "total_fields": 21,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 21,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
           },
           "unit_price": {
-            "total": 16,
-            "accepted": 0,
-            "abstained": 16,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
-            "accepted_precision": 1.0
+            "total_fields": 16,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 16,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
           },
           "tax_percentage": {
-            "total": 8,
-            "accepted": 0,
-            "abstained": 8,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
-            "accepted_precision": 1.0
+            "total_fields": 8,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 8,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
           },
           "total_amount": {
-            "total": 29,
-            "accepted": 0,
-            "abstained": 29,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
-            "accepted_precision": 1.0
+            "total_fields": 29,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 29,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
           },
           "subtotal": {
-            "total": 10,
-            "accepted": 0,
-            "abstained": 10,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
-            "accepted_precision": 1.0
+            "total_fields": 10,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 10,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
           },
           "tax_amount": {
-            "total": 6,
-            "accepted": 0,
-            "abstained": 6,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
-            "accepted_precision": 1.0
+            "total_fields": 6,
+            "raw_exact_matches": 0,
+            "automatically_accepted_fields": 0,
+            "correct_accepted_fields": 0,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 6,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 1.0
           }
         },
         "per_document_category": {
@@ -579,62 +683,120 @@
             "abstention_rate": 1.0,
             "accepted_precision": 1.0
           }
-        }
+        },
+        "risk_vs_coverage_curve": [
+          {
+            "confidence_threshold": 0.4,
+            "automatically_accepted": 0,
+            "abstained": 177,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.5,
+            "automatically_accepted": 0,
+            "abstained": 177,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.6,
+            "automatically_accepted": 0,
+            "abstained": 177,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.7,
+            "automatically_accepted": 0,
+            "abstained": 177,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.8,
+            "automatically_accepted": 0,
+            "abstained": 177,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.9,
+            "automatically_accepted": 0,
+            "abstained": 177,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.95,
+            "automatically_accepted": 0,
+            "abstained": 177,
+            "accepted_precision": 1.0,
+            "coverage": 0.0,
+            "false_acceptance_rate": 0.0
+          }
+        ]
       }
     },
     "TrOCR (RTX 3050 GPU FP16)": {
       "device": "cuda",
-      "model_load_duration_seconds": 0.94,
+      "model_load_duration_seconds": 1.09,
       "single_item_latency_ms": {
-        "p50": 161.87,
-        "p95": 245.26,
-        "mean": 167.03,
-        "reconciled_sequential_throughput_lines_sec": 5.99
+        "p50": 140.64,
+        "p95": 233.84,
+        "mean": 154.43,
+        "reconciled_sequential_throughput_lines_sec": 6.48
       },
       "batch_scaling": {
         "batch_size_1": {
           "items_evaluated": 172,
-          "total_wall_clock_seconds": 31.0521,
-          "throughput_lines_per_sec": 5.54,
-          "effective_latency_ms_per_line": 180.54,
+          "total_wall_clock_seconds": 28.8484,
+          "throughput_lines_per_sec": 5.96,
+          "effective_latency_ms_per_line": 167.72,
           "mean_cer": 0.3772,
           "mean_wer": 0.5867,
           "gpu_memory": {
             "cuda_available": true,
             "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
             "total_device_vram_mb": 6143.5,
-            "free_device_vram_mb": 4784.0,
-            "used_device_vram_mb": 1359.5,
-            "pytorch_allocated_mb": 128.53,
-            "pytorch_reserved_mb": 342.0,
-            "pytorch_max_allocated_mb": 143.26,
-            "pytorch_max_reserved_mb": 342.0
+            "free_device_vram_mb": 4850.0,
+            "used_device_vram_mb": 1293.5,
+            "pytorch_allocated_mb": 128.78,
+            "pytorch_reserved_mb": 278.0,
+            "pytorch_max_allocated_mb": 143.95,
+            "pytorch_max_reserved_mb": 278.0
           }
         },
         "batch_size_4": {
           "items_evaluated": 172,
-          "total_wall_clock_seconds": 11.2345,
-          "throughput_lines_per_sec": 15.31,
-          "effective_latency_ms_per_line": 65.32,
+          "total_wall_clock_seconds": 10.4872,
+          "throughput_lines_per_sec": 16.4,
+          "effective_latency_ms_per_line": 60.97,
           "mean_cer": 0.377,
           "mean_wer": 0.5852,
           "gpu_memory": {
             "cuda_available": true,
             "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
             "total_device_vram_mb": 6143.5,
-            "free_device_vram_mb": 4784.0,
-            "used_device_vram_mb": 1359.5,
-            "pytorch_allocated_mb": 128.53,
-            "pytorch_reserved_mb": 342.0,
-            "pytorch_max_allocated_mb": 187.87,
-            "pytorch_max_reserved_mb": 342.0
+            "free_device_vram_mb": 4826.0,
+            "used_device_vram_mb": 1317.5,
+            "pytorch_allocated_mb": 128.78,
+            "pytorch_reserved_mb": 300.0,
+            "pytorch_max_allocated_mb": 187.62,
+            "pytorch_max_reserved_mb": 300.0
           }
         },
         "batch_size_8": {
           "items_evaluated": 172,
-          "total_wall_clock_seconds": 6.4242,
-          "throughput_lines_per_sec": 26.77,
-          "effective_latency_ms_per_line": 37.35,
+          "total_wall_clock_seconds": 6.0714,
+          "throughput_lines_per_sec": 28.33,
+          "effective_latency_ms_per_line": 35.3,
           "mean_cer": 0.3772,
           "mean_wer": 0.5867,
           "gpu_memory": {
@@ -643,9 +805,9 @@
             "total_device_vram_mb": 6143.5,
             "free_device_vram_mb": 4784.0,
             "used_device_vram_mb": 1359.5,
-            "pytorch_allocated_mb": 128.53,
+            "pytorch_allocated_mb": 128.78,
             "pytorch_reserved_mb": 342.0,
-            "pytorch_max_allocated_mb": 248.21,
+            "pytorch_max_allocated_mb": 249.75,
             "pytorch_max_reserved_mb": 342.0
           }
         }
@@ -655,124 +817,147 @@
           "total_fields": 177,
           "raw_exact_matches": 153,
           "raw_exact_match_rate": 0.8644,
-          "accepted_fields": 155,
-          "abstained_fields": 22,
-          "abstention_rate": 0.1243,
-          "accepted_exact_matches": 155,
+          "automatically_accepted_fields": 157,
+          "correct_accepted_fields": 157,
+          "incorrect_accepted_fields": 0,
+          "abstained_fields": 20,
+          "abstention_rate": 0.113,
           "accepted_precision": 1.0,
+          "coverage": 0.887,
+          "false_acceptance_rate": 0.0,
           "target_98_percent_achieved": true
         },
         "per_field_category": {
           "invoice_number": {
-            "total": 23,
-            "accepted": 22,
-            "abstained": 1,
-            "accepted_matched": 22,
-            "raw_matched": 22,
-            "raw_exact_match_rate": 0.9565,
-            "abstention_rate": 0.0435,
-            "accepted_precision": 1.0
+            "total_fields": 23,
+            "raw_exact_matches": 22,
+            "automatically_accepted_fields": 22,
+            "correct_accepted_fields": 22,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 1,
+            "accepted_precision": 1.0,
+            "coverage": 0.9565,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0435
           },
           "date": {
-            "total": 27,
-            "accepted": 27,
-            "abstained": 0,
-            "accepted_matched": 27,
-            "raw_matched": 27,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 27,
+            "raw_exact_matches": 27,
+            "automatically_accepted_fields": 27,
+            "correct_accepted_fields": 27,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "tax_id": {
-            "total": 8,
-            "accepted": 8,
-            "abstained": 0,
-            "accepted_matched": 8,
-            "raw_matched": 8,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 8,
+            "raw_exact_matches": 8,
+            "automatically_accepted_fields": 8,
+            "correct_accepted_fields": 8,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "currency_code": {
-            "total": 29,
-            "accepted": 28,
-            "abstained": 1,
-            "accepted_matched": 28,
-            "raw_matched": 28,
-            "raw_exact_match_rate": 0.9655,
-            "abstention_rate": 0.0345,
-            "accepted_precision": 1.0
+            "total_fields": 29,
+            "raw_exact_matches": 28,
+            "automatically_accepted_fields": 28,
+            "correct_accepted_fields": 28,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 1,
+            "accepted_precision": 1.0,
+            "coverage": 0.9655,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0345
           },
           "quantity": {
-            "total": 21,
-            "accepted": 21,
-            "abstained": 0,
-            "accepted_matched": 21,
-            "raw_matched": 21,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 21,
+            "raw_exact_matches": 21,
+            "automatically_accepted_fields": 21,
+            "correct_accepted_fields": 21,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "unit_price": {
-            "total": 16,
-            "accepted": 14,
-            "abstained": 2,
-            "accepted_matched": 14,
-            "raw_matched": 14,
-            "raw_exact_match_rate": 0.875,
-            "abstention_rate": 0.125,
-            "accepted_precision": 1.0
+            "total_fields": 16,
+            "raw_exact_matches": 14,
+            "automatically_accepted_fields": 14,
+            "correct_accepted_fields": 14,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 2,
+            "accepted_precision": 1.0,
+            "coverage": 0.875,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.125
           },
           "tax_percentage": {
-            "total": 8,
-            "accepted": 8,
-            "abstained": 0,
-            "accepted_matched": 8,
-            "raw_matched": 8,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 8,
+            "raw_exact_matches": 8,
+            "automatically_accepted_fields": 8,
+            "correct_accepted_fields": 8,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "total_amount": {
-            "total": 29,
-            "accepted": 19,
-            "abstained": 10,
-            "accepted_matched": 19,
-            "raw_matched": 17,
-            "raw_exact_match_rate": 0.5862,
-            "abstention_rate": 0.3448,
-            "accepted_precision": 1.0
+            "total_fields": 29,
+            "raw_exact_matches": 17,
+            "automatically_accepted_fields": 19,
+            "correct_accepted_fields": 19,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 10,
+            "accepted_precision": 1.0,
+            "coverage": 0.6552,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.3448
           },
           "subtotal": {
-            "total": 10,
-            "accepted": 5,
-            "abstained": 5,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 0.5,
-            "abstention_rate": 0.5,
-            "accepted_precision": 1.0
+            "total_fields": 10,
+            "raw_exact_matches": 5,
+            "automatically_accepted_fields": 6,
+            "correct_accepted_fields": 6,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 4,
+            "accepted_precision": 1.0,
+            "coverage": 0.6,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.4
           },
           "tax_amount": {
-            "total": 6,
-            "accepted": 3,
-            "abstained": 3,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.5,
-            "abstention_rate": 0.5,
-            "accepted_precision": 1.0
+            "total_fields": 6,
+            "raw_exact_matches": 3,
+            "automatically_accepted_fields": 4,
+            "correct_accepted_fields": 4,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 2,
+            "accepted_precision": 1.0,
+            "coverage": 0.6667,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.3333
           }
         },
         "per_document_category": {
           "Commercial Invoice": {
             "total": 34,
-            "accepted": 27,
-            "abstained": 7,
-            "accepted_matched": 27,
+            "accepted": 29,
+            "abstained": 5,
+            "accepted_matched": 29,
             "raw_matched": 27,
             "raw_exact_match_rate": 0.7941,
-            "abstention_rate": 0.2059,
+            "abstention_rate": 0.1471,
             "accepted_precision": 1.0
           },
           "Thermal Receipt": {
@@ -875,7 +1060,65 @@
             "abstention_rate": 0.4,
             "accepted_precision": 1.0
           }
-        }
+        },
+        "risk_vs_coverage_curve": [
+          {
+            "confidence_threshold": 0.4,
+            "automatically_accepted": 157,
+            "abstained": 20,
+            "accepted_precision": 1.0,
+            "coverage": 0.887,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.5,
+            "automatically_accepted": 157,
+            "abstained": 20,
+            "accepted_precision": 1.0,
+            "coverage": 0.887,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.6,
+            "automatically_accepted": 157,
+            "abstained": 20,
+            "accepted_precision": 1.0,
+            "coverage": 0.887,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.7,
+            "automatically_accepted": 157,
+            "abstained": 20,
+            "accepted_precision": 1.0,
+            "coverage": 0.887,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.8,
+            "automatically_accepted": 157,
+            "abstained": 20,
+            "accepted_precision": 1.0,
+            "coverage": 0.887,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.9,
+            "automatically_accepted": 157,
+            "abstained": 20,
+            "accepted_precision": 1.0,
+            "coverage": 0.887,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.95,
+            "automatically_accepted": 157,
+            "abstained": 20,
+            "accepted_precision": 1.0,
+            "coverage": 0.887,
+            "false_acceptance_rate": 0.0
+          }
+        ]
       }
     }
   },
@@ -883,11 +1126,11 @@
     "morphological_line_detector": {
       "status": "Provisional Baseline",
       "latency_ms": {
-        "p50": 0.68,
-        "p95": 0.96,
-        "mean": 0.71
+        "p50": 0.59,
+        "p95": 1.15,
+        "mean": 0.75
       },
-      "throughput_pages_per_sec": 1416.0,
+      "throughput_pages_per_sec": 1325.8,
       "multi_threshold_metrics": {
         "iou_40": {
           "avg_f1": 0.9468
@@ -905,11 +1148,11 @@
     "projection_profile_detector": {
       "status": "Comparative Baseline",
       "latency_ms": {
-        "p50": 0.8,
-        "p95": 1.3,
-        "mean": 0.81
+        "p50": 0.61,
+        "p95": 1.29,
+        "mean": 0.65
       },
-      "throughput_pages_per_sec": 1236.5,
+      "throughput_pages_per_sec": 1539.7,
       "multi_threshold_metrics": {
         "iou_40": {
           "avg_f1": 0.8188
@@ -926,18 +1169,66 @@
     }
   },
   "stage_3_table_structure_extraction": {
-    "tables_evaluated": 3,
-    "mean_row_f1": 1.0,
-    "mean_column_f1": 1.0,
-    "mean_cell_adjacency_f1": 1.0,
-    "mean_composite_structure_f1": 1.0,
-    "per_document": {
-      "EXT-HELD-04-BARCLAYS-BANK-STATEMENT": {
+    "benchmark_name": "Expanded 20-Table Diverse Financial Benchmark Suite",
+    "total_tables_evaluated": 20,
+    "extractor_status": "Experimental Research Baseline (TableStructureExtractor)",
+    "mean_row_f1": 0.9929,
+    "mean_column_f1": 0.6317,
+    "mean_cell_adjacency_f1": 0.9738,
+    "mean_horizontal_adjacency_f1": 0.9742,
+    "mean_vertical_adjacency_f1": 0.973,
+    "mean_content_association_accuracy": 0.9603,
+    "mean_composite_f1": 0.8897,
+    "per_table": {
+      "TBL-01-COMMERCIAL-INVOICE": {
+        "name": "Commercial Multi-Column Invoice",
+        "category": "Commercial Invoice",
+        "is_borderless": false,
+        "gt_grid": "4x5 (20 cells)",
+        "detected_grid": "4x5 (20 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.8,
+            "recall": 0.8,
+            "f1": 0.8
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 31,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 20,
+            "matched_cells": 20,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.95
+        }
+      },
+      "TBL-02-BANK-STATEMENT-DEBIT-CREDIT": {
+        "name": "Commercial Statement Debits & Credits",
         "category": "Bank Statement",
         "is_borderless": false,
-        "detected_rows": 6,
-        "detected_cols": 1,
-        "detected_cells": 6,
+        "gt_grid": "4x5 (20 cells)",
+        "detected_grid": "4x5 (20 cells)",
         "metrics": {
           "row_metrics": {
             "precision": 1.0,
@@ -945,27 +1236,128 @@
             "f1": 1.0
           },
           "column_metrics": {
-            "precision": 1.0,
-            "recall": 1.0,
-            "f1": 1.0
+            "precision": 0.6,
+            "recall": 0.6,
+            "f1": 0.6
           },
           "cell_adjacency_metrics": {
-            "true_positives": 5,
+            "true_positives": 31,
             "false_positives": 0,
             "false_negatives": 0,
             "precision": 1.0,
             "recall": 1.0,
-            "f1": 1.0
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
           },
-          "composite_table_structure_f1": 1.0
+          "content_association": {
+            "total_cells": 20,
+            "matched_cells": 20,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.9
         }
       },
-      "EXT-HELD-05-IRS-4562-DEPRECIATION": {
+      "TBL-03-BORDERLESS-BALANCE-SHEET": {
+        "name": "Corporate Asset Summary",
+        "category": "Borderless Table",
+        "is_borderless": true,
+        "gt_grid": "4x4 (16 cells)",
+        "detected_grid": "4x4 (16 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.75,
+            "recall": 0.75,
+            "f1": 0.75
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 24,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 16,
+            "matched_cells": 16,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.9375
+        }
+      },
+      "TBL-04-WRAPPED-DESC-INVOICE": {
+        "name": "Invoice with Wrapped Text Descriptions",
+        "category": "Commercial Invoice",
+        "is_borderless": false,
+        "gt_grid": "4x4 (16 cells)",
+        "detected_grid": "4x4 (16 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "f1": 0.5
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 24,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 16,
+            "matched_cells": 16,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.875
+        }
+      },
+      "TBL-05-MULTI-ROW-HEADER-PAYROLL": {
+        "name": "Employee Payroll Tax Register",
         "category": "Financial Schedule",
         "is_borderless": false,
-        "detected_rows": 6,
-        "detected_cols": 1,
-        "detected_cells": 6,
+        "gt_grid": "4x6 (24 cells)",
+        "detected_grid": "4x6 (24 cells)",
         "metrics": {
           "row_metrics": {
             "precision": 1.0,
@@ -973,27 +1365,42 @@
             "f1": 1.0
           },
           "column_metrics": {
-            "precision": 1.0,
-            "recall": 1.0,
-            "f1": 1.0
+            "precision": 0.6667,
+            "recall": 0.6667,
+            "f1": 0.6667
           },
           "cell_adjacency_metrics": {
-            "true_positives": 5,
+            "true_positives": 38,
             "false_positives": 0,
             "false_negatives": 0,
             "precision": 1.0,
             "recall": 1.0,
-            "f1": 1.0
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
           },
-          "composite_table_structure_f1": 1.0
+          "content_association": {
+            "total_cells": 24,
+            "matched_cells": 24,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.9167
         }
       },
-      "EXT-HELD-08-BALANCE-SHEET-TABLE": {
-        "category": "Borderless Table / Blank",
-        "is_borderless": true,
-        "detected_rows": 5,
-        "detected_cols": 1,
-        "detected_cells": 5,
+      "TBL-06-PURCHASE-ORDER-SCHEDULE": {
+        "name": "Procurement Parts and Discount Schedule",
+        "category": "Purchase Order",
+        "is_borderless": false,
+        "gt_grid": "4x6 (24 cells)",
+        "detected_grid": "4x6 (24 cells)",
         "metrics": {
           "row_metrics": {
             "precision": 1.0,
@@ -1001,19 +1408,636 @@
             "f1": 1.0
           },
           "column_metrics": {
+            "precision": 0.6667,
+            "recall": 0.6667,
+            "f1": 0.6667
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 36,
+            "false_positives": 2,
+            "false_negatives": 2,
+            "precision": 0.9474,
+            "recall": 0.9474,
+            "f1": 0.9474,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 0.8889,
+              "recall": 0.8889,
+              "f1": 0.8889
+            }
+          },
+          "content_association": {
+            "total_cells": 23,
+            "matched_cells": 22,
+            "accuracy": 0.9565
+          },
+          "composite_table_structure_f1": 0.8927
+        }
+      },
+      "TBL-07-TAX-4562-DEPRECIATION": {
+        "name": "IRS 4562 Asset Recovery Table",
+        "category": "Financial Schedule",
+        "is_borderless": false,
+        "gt_grid": "4x5 (20 cells)",
+        "detected_grid": "3x5 (20 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 0.75,
+            "f1": 0.8571
+          },
+          "column_metrics": {
+            "precision": 0.8,
+            "recall": 0.8,
+            "f1": 0.8
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 18,
+            "false_positives": 19,
+            "false_negatives": 13,
+            "precision": 0.4865,
+            "recall": 0.5806,
+            "f1": 0.5294,
+            "horizontal": {
+              "precision": 0.4706,
+              "recall": 0.5,
+              "f1": 0.4849
+            },
+            "vertical": {
+              "precision": 0.5,
+              "recall": 0.6667,
+              "f1": 0.5714
+            }
+          },
+          "content_association": {
+            "total_cells": 20,
+            "matched_cells": 5,
+            "accuracy": 0.25
+          },
+          "composite_table_structure_f1": 0.6091
+        }
+      },
+      "TBL-08-CURRENCY-EXCHANGE-MATRIX": {
+        "name": "Treasury Currency Exchange Matrix",
+        "category": "Financial Schedule",
+        "is_borderless": false,
+        "gt_grid": "4x5 (20 cells)",
+        "detected_grid": "4x5 (20 cells)",
+        "metrics": {
+          "row_metrics": {
             "precision": 1.0,
             "recall": 1.0,
             "f1": 1.0
           },
+          "column_metrics": {
+            "precision": 0.4,
+            "recall": 0.4,
+            "f1": 0.4
+          },
           "cell_adjacency_metrics": {
-            "true_positives": 4,
+            "true_positives": 31,
             "false_positives": 0,
             "false_negatives": 0,
             "precision": 1.0,
             "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 20,
+            "matched_cells": 20,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.85
+        }
+      },
+      "TBL-09-ACCOUNTS-PAYABLE-AGING": {
+        "name": "Accounts Payable Aging Ledger",
+        "category": "Financial Schedule",
+        "is_borderless": false,
+        "gt_grid": "4x6 (24 cells)",
+        "detected_grid": "4x6 (24 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
             "f1": 1.0
           },
-          "composite_table_structure_f1": 1.0
+          "column_metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "f1": 0.5
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 38,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 24,
+            "matched_cells": 24,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.875
+        }
+      },
+      "TBL-10-INCOME-STATEMENT-QUARTERLY": {
+        "name": "Consolidated Income Statement Quarterly",
+        "category": "Multi-Column Report",
+        "is_borderless": true,
+        "gt_grid": "4x5 (20 cells)",
+        "detected_grid": "4x5 (20 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.6,
+            "recall": 0.6,
+            "f1": 0.6
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 31,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 20,
+            "matched_cells": 20,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.9
+        }
+      },
+      "TBL-11-CASH-FLOW-DIRECT": {
+        "name": "Operating Cash Flow Schedule",
+        "category": "Financial Schedule",
+        "is_borderless": false,
+        "gt_grid": "4x4 (16 cells)",
+        "detected_grid": "4x4 (16 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.75,
+            "recall": 0.75,
+            "f1": 0.75
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 24,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 16,
+            "matched_cells": 16,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.9375
+        }
+      },
+      "TBL-12-CLOUD-RESOURCE-BILLING": {
+        "name": "Cloud Infrastructure Tier Usage",
+        "category": "Commercial Invoice",
+        "is_borderless": false,
+        "gt_grid": "4x5 (20 cells)",
+        "detected_grid": "4x5 (20 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.8,
+            "recall": 0.8,
+            "f1": 0.8
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 27,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 20,
+            "matched_cells": 20,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.95
+        }
+      },
+      "TBL-13-ENERGY-UTILITY-BILLING": {
+        "name": "Industrial Commercial Power Reading",
+        "category": "Financial Schedule",
+        "is_borderless": false,
+        "gt_grid": "4x5 (20 cells)",
+        "detected_grid": "4x5 (20 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.6,
+            "recall": 0.6,
+            "f1": 0.6
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 30,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 20,
+            "matched_cells": 20,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.9
+        }
+      },
+      "TBL-14-INVENTORY-VALUATION-STOCK": {
+        "name": "Warehouse Inventory Valuation",
+        "category": "Financial Schedule",
+        "is_borderless": false,
+        "gt_grid": "4x6 (24 cells)",
+        "detected_grid": "4x6 (24 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "f1": 0.5
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 38,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 24,
+            "matched_cells": 24,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.875
+        }
+      },
+      "TBL-15-CAPITAL-EXPENDITURE-BUDGET": {
+        "name": "CapEx Budget vs Actual Tracking",
+        "category": "Financial Schedule",
+        "is_borderless": true,
+        "gt_grid": "4x5 (20 cells)",
+        "detected_grid": "4x5 (20 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.4,
+            "recall": 0.4,
+            "f1": 0.4
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 31,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 20,
+            "matched_cells": 20,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.85
+        }
+      },
+      "TBL-16-VENDOR-CHECK-RECONCILIATION": {
+        "name": "Treasury Vendor Check Register",
+        "category": "Bank Statement",
+        "is_borderless": false,
+        "gt_grid": "4x5 (20 cells)",
+        "detected_grid": "4x5 (20 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.8,
+            "recall": 0.8,
+            "f1": 0.8
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 31,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 20,
+            "matched_cells": 20,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.95
+        }
+      },
+      "TBL-17-FINANCIAL-RATIOS-COMPARISON": {
+        "name": "Financial Ratios and Variance Analysis",
+        "category": "Multi-Column Report",
+        "is_borderless": true,
+        "gt_grid": "4x5 (20 cells)",
+        "detected_grid": "4x5 (20 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.6,
+            "recall": 0.6,
+            "f1": 0.6
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 31,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 20,
+            "matched_cells": 20,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.9
+        }
+      },
+      "TBL-18-MULTI-CURRENCY-DISBURSEMENT": {
+        "name": "Global Treasury Currency Conversions",
+        "category": "Commercial Invoice",
+        "is_borderless": false,
+        "gt_grid": "4x5 (20 cells)",
+        "detected_grid": "4x5 (20 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.8,
+            "recall": 0.8,
+            "f1": 0.8
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 31,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 20,
+            "matched_cells": 20,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.95
+        }
+      },
+      "TBL-19-LOGISTICS-FREIGHT-MANIFEST": {
+        "name": "International Air Freight Consignment",
+        "category": "Multi-Column Report",
+        "is_borderless": false,
+        "gt_grid": "4x5 (20 cells)",
+        "detected_grid": "4x5 (20 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.6,
+            "recall": 0.6,
+            "f1": 0.6
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 31,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 20,
+            "matched_cells": 20,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.9
+        }
+      },
+      "TBL-20-VARIABLE-HEIGHT-LEGAL-SCHEDULE": {
+        "name": "Contractual Service Level Penalties",
+        "category": "Legal Contract",
+        "is_borderless": false,
+        "gt_grid": "4x4 (16 cells)",
+        "detected_grid": "4x4 (16 cells)",
+        "metrics": {
+          "row_metrics": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          },
+          "column_metrics": {
+            "precision": 0.5,
+            "recall": 0.5,
+            "f1": 0.5
+          },
+          "cell_adjacency_metrics": {
+            "true_positives": 24,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "horizontal": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            },
+            "vertical": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0
+            }
+          },
+          "content_association": {
+            "total_cells": 16,
+            "matched_cells": 16,
+            "accuracy": 1.0
+          },
+          "composite_table_structure_f1": 0.875
         }
       }
     }
@@ -1024,110 +2048,129 @@
       "device": "cuda",
       "documents_evaluated": 10,
       "latency_ms": {
-        "p50": 259.74,
-        "p95": 329.45,
-        "mean": 260.09
+        "p50": 250.26,
+        "p95": 323.93,
+        "mean": 242.53
       },
-      "throughput_pages_per_sec": 3.84,
-      "mean_cer": 0.3733,
+      "throughput_pages_per_sec": 4.12,
+      "mean_cer": 0.3765,
       "mean_wer": 0.6316,
       "reading_order": {
-        "concordant_pairs": 40,
-        "total_annotated_pairs": 61,
-        "pairwise_concordance_accuracy": 0.6557
+        "concordant_pairs": 132,
+        "total_annotated_pairs": 132,
+        "pairwise_concordance_accuracy": 1.0
       },
       "financial_fields": {
         "overall_summary": {
           "total_fields": 55,
           "raw_exact_matches": 49,
           "raw_exact_match_rate": 0.8909,
-          "accepted_fields": 49,
+          "automatically_accepted_fields": 49,
+          "correct_accepted_fields": 49,
+          "incorrect_accepted_fields": 0,
           "abstained_fields": 6,
           "abstention_rate": 0.1091,
-          "accepted_exact_matches": 49,
           "accepted_precision": 1.0,
+          "coverage": 0.8909,
+          "false_acceptance_rate": 0.0,
           "target_98_percent_achieved": true
         },
         "per_field_category": {
           "invoice_number": {
-            "total": 9,
-            "accepted": 8,
-            "abstained": 1,
-            "accepted_matched": 8,
-            "raw_matched": 8,
-            "raw_exact_match_rate": 0.8889,
-            "abstention_rate": 0.1111,
-            "accepted_precision": 1.0
+            "total_fields": 9,
+            "raw_exact_matches": 8,
+            "automatically_accepted_fields": 8,
+            "correct_accepted_fields": 8,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 1,
+            "accepted_precision": 1.0,
+            "coverage": 0.8889,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.1111
           },
           "date": {
-            "total": 9,
-            "accepted": 9,
-            "abstained": 0,
-            "accepted_matched": 9,
-            "raw_matched": 9,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 9,
+            "raw_exact_matches": 9,
+            "automatically_accepted_fields": 9,
+            "correct_accepted_fields": 9,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "tax_id": {
-            "total": 2,
-            "accepted": 2,
-            "abstained": 0,
-            "accepted_matched": 2,
-            "raw_matched": 2,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 2,
+            "raw_exact_matches": 2,
+            "automatically_accepted_fields": 2,
+            "correct_accepted_fields": 2,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "currency_code": {
-            "total": 10,
-            "accepted": 10,
-            "abstained": 0,
-            "accepted_matched": 10,
-            "raw_matched": 10,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 10,
+            "raw_exact_matches": 10,
+            "automatically_accepted_fields": 10,
+            "correct_accepted_fields": 10,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "quantity": {
-            "total": 5,
-            "accepted": 5,
-            "abstained": 0,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 5,
+            "raw_exact_matches": 5,
+            "automatically_accepted_fields": 5,
+            "correct_accepted_fields": 5,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "unit_price": {
-            "total": 4,
-            "accepted": 4,
-            "abstained": 0,
-            "accepted_matched": 4,
-            "raw_matched": 4,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 4,
+            "raw_exact_matches": 4,
+            "automatically_accepted_fields": 4,
+            "correct_accepted_fields": 4,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "tax_percentage": {
-            "total": 6,
-            "accepted": 6,
-            "abstained": 0,
-            "accepted_matched": 6,
-            "raw_matched": 6,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 6,
+            "raw_exact_matches": 6,
+            "automatically_accepted_fields": 6,
+            "correct_accepted_fields": 6,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "total_amount": {
-            "total": 10,
-            "accepted": 5,
-            "abstained": 5,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 0.5,
-            "abstention_rate": 0.5,
-            "accepted_precision": 1.0
+            "total_fields": 10,
+            "raw_exact_matches": 5,
+            "automatically_accepted_fields": 5,
+            "correct_accepted_fields": 5,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 5,
+            "accepted_precision": 1.0,
+            "coverage": 0.5,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.5
           }
         },
         "per_document_category": {
@@ -1231,222 +2274,65 @@
             "abstention_rate": 0.25,
             "accepted_precision": 1.0
           }
-        }
-      }
-    },
-    "Development Set - CPU": {
-      "split": "Development Set",
-      "device": "cpu",
-      "documents_evaluated": 10,
-      "latency_ms": {
-        "p50": 2221.66,
-        "p95": 2859.41,
-        "mean": 2185.0
-      },
-      "throughput_pages_per_sec": 0.46,
-      "mean_cer": 0.3733,
-      "mean_wer": 0.6316,
-      "reading_order": {
-        "concordant_pairs": 40,
-        "total_annotated_pairs": 61,
-        "pairwise_concordance_accuracy": 0.6557
-      },
-      "financial_fields": {
-        "overall_summary": {
-          "total_fields": 55,
-          "raw_exact_matches": 49,
-          "raw_exact_match_rate": 0.8909,
-          "accepted_fields": 49,
-          "abstained_fields": 6,
-          "abstention_rate": 0.1091,
-          "accepted_exact_matches": 49,
-          "accepted_precision": 1.0,
-          "target_98_percent_achieved": true
         },
-        "per_field_category": {
-          "invoice_number": {
-            "total": 9,
-            "accepted": 8,
-            "abstained": 1,
-            "accepted_matched": 8,
-            "raw_matched": 8,
-            "raw_exact_match_rate": 0.8889,
-            "abstention_rate": 0.1111,
-            "accepted_precision": 1.0
+        "risk_vs_coverage_curve": [
+          {
+            "confidence_threshold": 0.4,
+            "automatically_accepted": 49,
+            "abstained": 6,
+            "accepted_precision": 1.0,
+            "coverage": 0.8909,
+            "false_acceptance_rate": 0.0
           },
-          "date": {
-            "total": 9,
-            "accepted": 9,
-            "abstained": 0,
-            "accepted_matched": 9,
-            "raw_matched": 9,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+          {
+            "confidence_threshold": 0.5,
+            "automatically_accepted": 49,
+            "abstained": 6,
+            "accepted_precision": 1.0,
+            "coverage": 0.8909,
+            "false_acceptance_rate": 0.0
           },
-          "tax_id": {
-            "total": 2,
-            "accepted": 2,
-            "abstained": 0,
-            "accepted_matched": 2,
-            "raw_matched": 2,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+          {
+            "confidence_threshold": 0.6,
+            "automatically_accepted": 49,
+            "abstained": 6,
+            "accepted_precision": 1.0,
+            "coverage": 0.8909,
+            "false_acceptance_rate": 0.0
           },
-          "currency_code": {
-            "total": 10,
-            "accepted": 10,
-            "abstained": 0,
-            "accepted_matched": 10,
-            "raw_matched": 10,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+          {
+            "confidence_threshold": 0.7,
+            "automatically_accepted": 49,
+            "abstained": 6,
+            "accepted_precision": 1.0,
+            "coverage": 0.8909,
+            "false_acceptance_rate": 0.0
           },
-          "quantity": {
-            "total": 5,
-            "accepted": 5,
-            "abstained": 0,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+          {
+            "confidence_threshold": 0.8,
+            "automatically_accepted": 49,
+            "abstained": 6,
+            "accepted_precision": 1.0,
+            "coverage": 0.8909,
+            "false_acceptance_rate": 0.0
           },
-          "unit_price": {
-            "total": 4,
-            "accepted": 4,
-            "abstained": 0,
-            "accepted_matched": 4,
-            "raw_matched": 4,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+          {
+            "confidence_threshold": 0.9,
+            "automatically_accepted": 49,
+            "abstained": 6,
+            "accepted_precision": 1.0,
+            "coverage": 0.8909,
+            "false_acceptance_rate": 0.0
           },
-          "tax_percentage": {
-            "total": 6,
-            "accepted": 6,
-            "abstained": 0,
-            "accepted_matched": 6,
-            "raw_matched": 6,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "total_amount": {
-            "total": 10,
-            "accepted": 5,
-            "abstained": 5,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 0.5,
-            "abstention_rate": 0.5,
-            "accepted_precision": 1.0
+          {
+            "confidence_threshold": 0.95,
+            "automatically_accepted": 49,
+            "abstained": 6,
+            "accepted_precision": 1.0,
+            "coverage": 0.8909,
+            "false_acceptance_rate": 0.0
           }
-        },
-        "per_document_category": {
-          "Commercial Invoice": {
-            "total": 8,
-            "accepted": 7,
-            "abstained": 1,
-            "accepted_matched": 7,
-            "raw_matched": 7,
-            "raw_exact_match_rate": 0.875,
-            "abstention_rate": 0.125,
-            "accepted_precision": 1.0
-          },
-          "Thermal Receipt": {
-            "total": 7,
-            "accepted": 6,
-            "abstained": 1,
-            "accepted_matched": 6,
-            "raw_matched": 6,
-            "raw_exact_match_rate": 0.8571,
-            "abstention_rate": 0.1429,
-            "accepted_precision": 1.0
-          },
-          "Purchase Order": {
-            "total": 8,
-            "accepted": 8,
-            "abstained": 0,
-            "accepted_matched": 8,
-            "raw_matched": 8,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "Bank Statement": {
-            "total": 5,
-            "accepted": 5,
-            "abstained": 0,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "Financial Schedule": {
-            "total": 5,
-            "accepted": 5,
-            "abstained": 0,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "Legal Contract": {
-            "total": 4,
-            "accepted": 3,
-            "abstained": 1,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.75,
-            "abstention_rate": 0.25,
-            "accepted_precision": 1.0
-          },
-          "Multi-Column Report": {
-            "total": 2,
-            "accepted": 1,
-            "abstained": 1,
-            "accepted_matched": 1,
-            "raw_matched": 1,
-            "raw_exact_match_rate": 0.5,
-            "abstention_rate": 0.5,
-            "accepted_precision": 1.0
-          },
-          "Hybrid Document": {
-            "total": 7,
-            "accepted": 6,
-            "abstained": 1,
-            "accepted_matched": 6,
-            "raw_matched": 6,
-            "raw_exact_match_rate": 0.8571,
-            "abstention_rate": 0.1429,
-            "accepted_precision": 1.0
-          },
-          "Low-Contrast / Skewed Scan": {
-            "total": 5,
-            "accepted": 5,
-            "abstained": 0,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "Document with Stamp/Seal": {
-            "total": 4,
-            "accepted": 3,
-            "abstained": 1,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.75,
-            "abstention_rate": 0.25,
-            "accepted_precision": 1.0
-          }
-        }
+        ]
       }
     },
     "Synthetic Held-Out Set - CUDA": {
@@ -1454,110 +2340,129 @@
       "device": "cuda",
       "documents_evaluated": 10,
       "latency_ms": {
-        "p50": 245.98,
-        "p95": 418.64,
-        "mean": 247.18
+        "p50": 240.87,
+        "p95": 303.89,
+        "mean": 226.54
       },
-      "throughput_pages_per_sec": 4.05,
-      "mean_cer": 0.4162,
-      "mean_wer": 0.6815,
+      "throughput_pages_per_sec": 4.41,
+      "mean_cer": 0.4117,
+      "mean_wer": 0.675,
       "reading_order": {
-        "concordant_pairs": 17,
-        "total_annotated_pairs": 38,
-        "pairwise_concordance_accuracy": 0.4474
+        "concordant_pairs": 134,
+        "total_annotated_pairs": 134,
+        "pairwise_concordance_accuracy": 1.0
       },
       "financial_fields": {
         "overall_summary": {
           "total_fields": 48,
-          "raw_exact_matches": 39,
-          "raw_exact_match_rate": 0.8125,
-          "accepted_fields": 40,
-          "abstained_fields": 8,
-          "abstention_rate": 0.1667,
-          "accepted_exact_matches": 40,
+          "raw_exact_matches": 40,
+          "raw_exact_match_rate": 0.8333,
+          "automatically_accepted_fields": 41,
+          "correct_accepted_fields": 41,
+          "incorrect_accepted_fields": 0,
+          "abstained_fields": 7,
+          "abstention_rate": 0.1458,
           "accepted_precision": 1.0,
+          "coverage": 0.8542,
+          "false_acceptance_rate": 0.0,
           "target_98_percent_achieved": true
         },
         "per_field_category": {
           "invoice_number": {
-            "total": 7,
-            "accepted": 5,
-            "abstained": 2,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 0.7143,
-            "abstention_rate": 0.2857,
-            "accepted_precision": 1.0
+            "total_fields": 7,
+            "raw_exact_matches": 5,
+            "automatically_accepted_fields": 5,
+            "correct_accepted_fields": 5,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 2,
+            "accepted_precision": 1.0,
+            "coverage": 0.7143,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.2857
           },
           "date": {
-            "total": 8,
-            "accepted": 7,
-            "abstained": 1,
-            "accepted_matched": 7,
-            "raw_matched": 7,
-            "raw_exact_match_rate": 0.875,
-            "abstention_rate": 0.125,
-            "accepted_precision": 1.0
+            "total_fields": 8,
+            "raw_exact_matches": 8,
+            "automatically_accepted_fields": 8,
+            "correct_accepted_fields": 8,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "tax_id": {
-            "total": 1,
-            "accepted": 1,
-            "abstained": 0,
-            "accepted_matched": 1,
-            "raw_matched": 1,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 1,
+            "raw_exact_matches": 1,
+            "automatically_accepted_fields": 1,
+            "correct_accepted_fields": 1,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "currency_code": {
-            "total": 9,
-            "accepted": 9,
-            "abstained": 0,
-            "accepted_matched": 9,
-            "raw_matched": 9,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 9,
+            "raw_exact_matches": 9,
+            "automatically_accepted_fields": 9,
+            "correct_accepted_fields": 9,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "quantity": {
-            "total": 7,
-            "accepted": 7,
-            "abstained": 0,
-            "accepted_matched": 7,
-            "raw_matched": 7,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 7,
+            "raw_exact_matches": 7,
+            "automatically_accepted_fields": 7,
+            "correct_accepted_fields": 7,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "unit_price": {
-            "total": 5,
-            "accepted": 3,
-            "abstained": 2,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.6,
-            "abstention_rate": 0.4,
-            "accepted_precision": 1.0
+            "total_fields": 5,
+            "raw_exact_matches": 3,
+            "automatically_accepted_fields": 3,
+            "correct_accepted_fields": 3,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 2,
+            "accepted_precision": 1.0,
+            "coverage": 0.6,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.4
           },
           "tax_percentage": {
-            "total": 2,
-            "accepted": 2,
-            "abstained": 0,
-            "accepted_matched": 2,
-            "raw_matched": 2,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 2,
+            "raw_exact_matches": 2,
+            "automatically_accepted_fields": 2,
+            "correct_accepted_fields": 2,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "total_amount": {
-            "total": 9,
-            "accepted": 6,
-            "abstained": 3,
-            "accepted_matched": 6,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 0.5556,
-            "abstention_rate": 0.3333,
-            "accepted_precision": 1.0
+            "total_fields": 9,
+            "raw_exact_matches": 5,
+            "automatically_accepted_fields": 6,
+            "correct_accepted_fields": 6,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 3,
+            "accepted_precision": 1.0,
+            "coverage": 0.6667,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.3333
           }
         },
         "per_document_category": {
@@ -1643,227 +2548,12 @@
           },
           "Low-Contrast / Skewed Scan": {
             "total": 6,
-            "accepted": 2,
-            "abstained": 4,
-            "accepted_matched": 2,
-            "raw_matched": 2,
-            "raw_exact_match_rate": 0.3333,
-            "abstention_rate": 0.6667,
-            "accepted_precision": 1.0
-          },
-          "Borderless Table / Blank": {
-            "total": 0,
-            "accepted": 0,
-            "abstained": 0,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          }
-        }
-      }
-    },
-    "Synthetic Held-Out Set - CPU": {
-      "split": "Synthetic Held-Out Set",
-      "device": "cpu",
-      "documents_evaluated": 10,
-      "latency_ms": {
-        "p50": 2344.29,
-        "p95": 2863.99,
-        "mean": 2074.5
-      },
-      "throughput_pages_per_sec": 0.48,
-      "mean_cer": 0.4162,
-      "mean_wer": 0.6815,
-      "reading_order": {
-        "concordant_pairs": 17,
-        "total_annotated_pairs": 38,
-        "pairwise_concordance_accuracy": 0.4474
-      },
-      "financial_fields": {
-        "overall_summary": {
-          "total_fields": 48,
-          "raw_exact_matches": 39,
-          "raw_exact_match_rate": 0.8125,
-          "accepted_fields": 40,
-          "abstained_fields": 8,
-          "abstention_rate": 0.1667,
-          "accepted_exact_matches": 40,
-          "accepted_precision": 1.0,
-          "target_98_percent_achieved": true
-        },
-        "per_field_category": {
-          "invoice_number": {
-            "total": 7,
-            "accepted": 5,
-            "abstained": 2,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 0.7143,
-            "abstention_rate": 0.2857,
-            "accepted_precision": 1.0
-          },
-          "date": {
-            "total": 8,
-            "accepted": 7,
-            "abstained": 1,
-            "accepted_matched": 7,
-            "raw_matched": 7,
-            "raw_exact_match_rate": 0.875,
-            "abstention_rate": 0.125,
-            "accepted_precision": 1.0
-          },
-          "tax_id": {
-            "total": 1,
-            "accepted": 1,
-            "abstained": 0,
-            "accepted_matched": 1,
-            "raw_matched": 1,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "currency_code": {
-            "total": 9,
-            "accepted": 9,
-            "abstained": 0,
-            "accepted_matched": 9,
-            "raw_matched": 9,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "quantity": {
-            "total": 7,
-            "accepted": 7,
-            "abstained": 0,
-            "accepted_matched": 7,
-            "raw_matched": 7,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "unit_price": {
-            "total": 5,
             "accepted": 3,
-            "abstained": 2,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.6,
-            "abstention_rate": 0.4,
-            "accepted_precision": 1.0
-          },
-          "tax_percentage": {
-            "total": 2,
-            "accepted": 2,
-            "abstained": 0,
-            "accepted_matched": 2,
-            "raw_matched": 2,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "total_amount": {
-            "total": 9,
-            "accepted": 6,
             "abstained": 3,
-            "accepted_matched": 6,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 0.5556,
-            "abstention_rate": 0.3333,
-            "accepted_precision": 1.0
-          }
-        },
-        "per_document_category": {
-          "Commercial Invoice": {
-            "total": 8,
-            "accepted": 7,
-            "abstained": 1,
-            "accepted_matched": 7,
-            "raw_matched": 7,
-            "raw_exact_match_rate": 0.875,
-            "abstention_rate": 0.125,
-            "accepted_precision": 1.0
-          },
-          "Thermal Receipt": {
-            "total": 7,
-            "accepted": 7,
-            "abstained": 0,
-            "accepted_matched": 7,
-            "raw_matched": 7,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "Purchase Order": {
-            "total": 6,
-            "accepted": 5,
-            "abstained": 1,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 0.8333,
-            "abstention_rate": 0.1667,
-            "accepted_precision": 1.0
-          },
-          "Bank Statement": {
-            "total": 5,
-            "accepted": 5,
-            "abstained": 0,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "Financial Schedule": {
-            "total": 5,
-            "accepted": 3,
-            "abstained": 2,
             "accepted_matched": 3,
             "raw_matched": 3,
-            "raw_exact_match_rate": 0.6,
-            "abstention_rate": 0.4,
-            "accepted_precision": 1.0
-          },
-          "Legal Contract": {
-            "total": 4,
-            "accepted": 4,
-            "abstained": 0,
-            "accepted_matched": 4,
-            "raw_matched": 4,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "Multi-Column Report": {
-            "total": 2,
-            "accepted": 2,
-            "abstained": 0,
-            "accepted_matched": 2,
-            "raw_matched": 2,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "Hybrid Document": {
-            "total": 5,
-            "accepted": 5,
-            "abstained": 0,
-            "accepted_matched": 5,
-            "raw_matched": 4,
-            "raw_exact_match_rate": 0.8,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "Low-Contrast / Skewed Scan": {
-            "total": 6,
-            "accepted": 2,
-            "abstained": 4,
-            "accepted_matched": 2,
-            "raw_matched": 2,
-            "raw_exact_match_rate": 0.3333,
-            "abstention_rate": 0.6667,
+            "raw_exact_match_rate": 0.5,
+            "abstention_rate": 0.5,
             "accepted_precision": 1.0
           },
           "Borderless Table / Blank": {
@@ -1876,7 +2566,65 @@
             "abstention_rate": 0.0,
             "accepted_precision": 1.0
           }
-        }
+        },
+        "risk_vs_coverage_curve": [
+          {
+            "confidence_threshold": 0.4,
+            "automatically_accepted": 41,
+            "abstained": 7,
+            "accepted_precision": 1.0,
+            "coverage": 0.8542,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.5,
+            "automatically_accepted": 41,
+            "abstained": 7,
+            "accepted_precision": 1.0,
+            "coverage": 0.8542,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.6,
+            "automatically_accepted": 41,
+            "abstained": 7,
+            "accepted_precision": 1.0,
+            "coverage": 0.8542,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.7,
+            "automatically_accepted": 41,
+            "abstained": 7,
+            "accepted_precision": 1.0,
+            "coverage": 0.8542,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.8,
+            "automatically_accepted": 41,
+            "abstained": 7,
+            "accepted_precision": 1.0,
+            "coverage": 0.8542,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.9,
+            "automatically_accepted": 41,
+            "abstained": 7,
+            "accepted_precision": 1.0,
+            "coverage": 0.8542,
+            "false_acceptance_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.95,
+            "automatically_accepted": 41,
+            "abstained": 7,
+            "accepted_precision": 1.0,
+            "coverage": 0.8542,
+            "false_acceptance_rate": 0.0
+          }
+        ]
       }
     },
     "External Held-Out Corpus - CUDA": {
@@ -1884,131 +2632,152 @@
       "device": "cuda",
       "documents_evaluated": 10,
       "latency_ms": {
-        "p50": 315.36,
-        "p95": 456.54,
-        "mean": 323.41
+        "p50": 284.12,
+        "p95": 346.46,
+        "mean": 284.74
       },
-      "throughput_pages_per_sec": 3.09,
-      "mean_cer": 0.4145,
-      "mean_wer": 0.6935,
+      "throughput_pages_per_sec": 3.51,
+      "mean_cer": 0.4197,
+      "mean_wer": 0.7004,
       "reading_order": {
-        "concordant_pairs": 14,
-        "total_annotated_pairs": 90,
-        "pairwise_concordance_accuracy": 0.1556
+        "concordant_pairs": 167,
+        "total_annotated_pairs": 167,
+        "pairwise_concordance_accuracy": 1.0
       },
       "financial_fields": {
         "overall_summary": {
           "total_fields": 74,
           "raw_exact_matches": 51,
           "raw_exact_match_rate": 0.6892,
-          "accepted_fields": 51,
-          "abstained_fields": 23,
-          "abstention_rate": 0.3108,
-          "accepted_exact_matches": 51,
+          "automatically_accepted_fields": 53,
+          "correct_accepted_fields": 53,
+          "incorrect_accepted_fields": 0,
+          "abstained_fields": 21,
+          "abstention_rate": 0.2838,
           "accepted_precision": 1.0,
+          "coverage": 0.7162,
+          "false_acceptance_rate": 0.0,
           "target_98_percent_achieved": true
         },
         "per_field_category": {
           "invoice_number": {
-            "total": 7,
-            "accepted": 6,
-            "abstained": 1,
-            "accepted_matched": 6,
-            "raw_matched": 6,
-            "raw_exact_match_rate": 0.8571,
-            "abstention_rate": 0.1429,
-            "accepted_precision": 1.0
+            "total_fields": 7,
+            "raw_exact_matches": 6,
+            "automatically_accepted_fields": 6,
+            "correct_accepted_fields": 6,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 1,
+            "accepted_precision": 1.0,
+            "coverage": 0.8571,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.1429
           },
           "date": {
-            "total": 10,
-            "accepted": 10,
-            "abstained": 0,
-            "accepted_matched": 10,
-            "raw_matched": 10,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 10,
+            "raw_exact_matches": 9,
+            "automatically_accepted_fields": 9,
+            "correct_accepted_fields": 9,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 1,
+            "accepted_precision": 1.0,
+            "coverage": 0.9,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.1
           },
           "tax_id": {
-            "total": 5,
-            "accepted": 5,
-            "abstained": 0,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 5,
+            "raw_exact_matches": 5,
+            "automatically_accepted_fields": 5,
+            "correct_accepted_fields": 5,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "currency_code": {
-            "total": 10,
-            "accepted": 10,
-            "abstained": 0,
-            "accepted_matched": 10,
-            "raw_matched": 10,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 10,
+            "raw_exact_matches": 10,
+            "automatically_accepted_fields": 10,
+            "correct_accepted_fields": 10,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "quantity": {
-            "total": 9,
-            "accepted": 9,
-            "abstained": 0,
-            "accepted_matched": 9,
-            "raw_matched": 9,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+            "total_fields": 9,
+            "raw_exact_matches": 9,
+            "automatically_accepted_fields": 9,
+            "correct_accepted_fields": 9,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 0,
+            "accepted_precision": 1.0,
+            "coverage": 1.0,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.0
           },
           "unit_price": {
-            "total": 7,
-            "accepted": 5,
-            "abstained": 2,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 0.7143,
-            "abstention_rate": 0.2857,
-            "accepted_precision": 1.0
+            "total_fields": 7,
+            "raw_exact_matches": 5,
+            "automatically_accepted_fields": 6,
+            "correct_accepted_fields": 6,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 1,
+            "accepted_precision": 1.0,
+            "coverage": 0.8571,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.1429
           },
           "subtotal": {
-            "total": 10,
-            "accepted": 2,
-            "abstained": 8,
-            "accepted_matched": 2,
-            "raw_matched": 2,
-            "raw_exact_match_rate": 0.2,
-            "abstention_rate": 0.8,
-            "accepted_precision": 1.0
+            "total_fields": 10,
+            "raw_exact_matches": 2,
+            "automatically_accepted_fields": 3,
+            "correct_accepted_fields": 3,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 7,
+            "accepted_precision": 1.0,
+            "coverage": 0.3,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.7
           },
           "tax_amount": {
-            "total": 6,
-            "accepted": 1,
-            "abstained": 5,
-            "accepted_matched": 1,
-            "raw_matched": 1,
-            "raw_exact_match_rate": 0.1667,
-            "abstention_rate": 0.8333,
-            "accepted_precision": 1.0
+            "total_fields": 6,
+            "raw_exact_matches": 1,
+            "automatically_accepted_fields": 1,
+            "correct_accepted_fields": 1,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 5,
+            "accepted_precision": 1.0,
+            "coverage": 0.1667,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.8333
           },
           "total_amount": {
-            "total": 10,
-            "accepted": 3,
-            "abstained": 7,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.3,
-            "abstention_rate": 0.7,
-            "accepted_precision": 1.0
+            "total_fields": 10,
+            "raw_exact_matches": 4,
+            "automatically_accepted_fields": 4,
+            "correct_accepted_fields": 4,
+            "incorrect_accepted_fields": 0,
+            "abstained_fields": 6,
+            "accepted_precision": 1.0,
+            "coverage": 0.4,
+            "false_acceptance_rate": 0.0,
+            "abstention_rate": 0.6
           }
         },
         "per_document_category": {
           "Commercial Invoice": {
             "total": 18,
-            "accepted": 13,
-            "abstained": 5,
-            "accepted_matched": 13,
+            "accepted": 14,
+            "abstained": 4,
+            "accepted_matched": 14,
             "raw_matched": 13,
             "raw_exact_match_rate": 0.7222,
-            "abstention_rate": 0.2778,
+            "abstention_rate": 0.2222,
             "accepted_precision": 1.0
           },
           "Thermal Receipt": {
@@ -2063,12 +2832,12 @@
           },
           "Multi-Column Report": {
             "total": 6,
-            "accepted": 3,
-            "abstained": 3,
-            "accepted_matched": 3,
+            "accepted": 4,
+            "abstained": 2,
+            "accepted_matched": 4,
             "raw_matched": 3,
             "raw_exact_match_rate": 0.5,
-            "abstention_rate": 0.5,
+            "abstention_rate": 0.3333,
             "accepted_precision": 1.0
           },
           "Borderless Table / Blank": {
@@ -2091,222 +2860,65 @@
             "abstention_rate": 0.5,
             "accepted_precision": 1.0
           }
-        }
-      }
-    },
-    "External Held-Out Corpus - CPU": {
-      "split": "External Held-Out Corpus",
-      "device": "cpu",
-      "documents_evaluated": 10,
-      "latency_ms": {
-        "p50": 2637.42,
-        "p95": 3336.22,
-        "mean": 2728.15
-      },
-      "throughput_pages_per_sec": 0.37,
-      "mean_cer": 0.4149,
-      "mean_wer": 0.6935,
-      "reading_order": {
-        "concordant_pairs": 14,
-        "total_annotated_pairs": 90,
-        "pairwise_concordance_accuracy": 0.1556
-      },
-      "financial_fields": {
-        "overall_summary": {
-          "total_fields": 74,
-          "raw_exact_matches": 51,
-          "raw_exact_match_rate": 0.6892,
-          "accepted_fields": 51,
-          "abstained_fields": 23,
-          "abstention_rate": 0.3108,
-          "accepted_exact_matches": 51,
-          "accepted_precision": 1.0,
-          "target_98_percent_achieved": true
         },
-        "per_field_category": {
-          "invoice_number": {
-            "total": 7,
-            "accepted": 6,
-            "abstained": 1,
-            "accepted_matched": 6,
-            "raw_matched": 6,
-            "raw_exact_match_rate": 0.8571,
-            "abstention_rate": 0.1429,
-            "accepted_precision": 1.0
+        "risk_vs_coverage_curve": [
+          {
+            "confidence_threshold": 0.4,
+            "automatically_accepted": 53,
+            "abstained": 21,
+            "accepted_precision": 1.0,
+            "coverage": 0.7162,
+            "false_acceptance_rate": 0.0
           },
-          "date": {
-            "total": 10,
-            "accepted": 10,
-            "abstained": 0,
-            "accepted_matched": 10,
-            "raw_matched": 10,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+          {
+            "confidence_threshold": 0.5,
+            "automatically_accepted": 53,
+            "abstained": 21,
+            "accepted_precision": 1.0,
+            "coverage": 0.7162,
+            "false_acceptance_rate": 0.0
           },
-          "tax_id": {
-            "total": 5,
-            "accepted": 5,
-            "abstained": 0,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+          {
+            "confidence_threshold": 0.6,
+            "automatically_accepted": 53,
+            "abstained": 21,
+            "accepted_precision": 1.0,
+            "coverage": 0.7162,
+            "false_acceptance_rate": 0.0
           },
-          "currency_code": {
-            "total": 10,
-            "accepted": 10,
-            "abstained": 0,
-            "accepted_matched": 10,
-            "raw_matched": 10,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+          {
+            "confidence_threshold": 0.7,
+            "automatically_accepted": 53,
+            "abstained": 21,
+            "accepted_precision": 1.0,
+            "coverage": 0.7162,
+            "false_acceptance_rate": 0.0
           },
-          "quantity": {
-            "total": 9,
-            "accepted": 9,
-            "abstained": 0,
-            "accepted_matched": 9,
-            "raw_matched": 9,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
+          {
+            "confidence_threshold": 0.8,
+            "automatically_accepted": 53,
+            "abstained": 21,
+            "accepted_precision": 1.0,
+            "coverage": 0.7162,
+            "false_acceptance_rate": 0.0
           },
-          "unit_price": {
-            "total": 7,
-            "accepted": 5,
-            "abstained": 2,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 0.7143,
-            "abstention_rate": 0.2857,
-            "accepted_precision": 1.0
+          {
+            "confidence_threshold": 0.9,
+            "automatically_accepted": 53,
+            "abstained": 21,
+            "accepted_precision": 1.0,
+            "coverage": 0.7162,
+            "false_acceptance_rate": 0.0
           },
-          "subtotal": {
-            "total": 10,
-            "accepted": 2,
-            "abstained": 8,
-            "accepted_matched": 2,
-            "raw_matched": 2,
-            "raw_exact_match_rate": 0.2,
-            "abstention_rate": 0.8,
-            "accepted_precision": 1.0
-          },
-          "tax_amount": {
-            "total": 6,
-            "accepted": 1,
-            "abstained": 5,
-            "accepted_matched": 1,
-            "raw_matched": 1,
-            "raw_exact_match_rate": 0.1667,
-            "abstention_rate": 0.8333,
-            "accepted_precision": 1.0
-          },
-          "total_amount": {
-            "total": 10,
-            "accepted": 3,
-            "abstained": 7,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.3,
-            "abstention_rate": 0.7,
-            "accepted_precision": 1.0
+          {
+            "confidence_threshold": 0.95,
+            "automatically_accepted": 53,
+            "abstained": 21,
+            "accepted_precision": 1.0,
+            "coverage": 0.7162,
+            "false_acceptance_rate": 0.0
           }
-        },
-        "per_document_category": {
-          "Commercial Invoice": {
-            "total": 18,
-            "accepted": 13,
-            "abstained": 5,
-            "accepted_matched": 13,
-            "raw_matched": 13,
-            "raw_exact_match_rate": 0.7222,
-            "abstention_rate": 0.2778,
-            "accepted_precision": 1.0
-          },
-          "Thermal Receipt": {
-            "total": 8,
-            "accepted": 4,
-            "abstained": 4,
-            "accepted_matched": 4,
-            "raw_matched": 4,
-            "raw_exact_match_rate": 0.5,
-            "abstention_rate": 0.5,
-            "accepted_precision": 1.0
-          },
-          "Purchase Order": {
-            "total": 9,
-            "accepted": 9,
-            "abstained": 0,
-            "accepted_matched": 9,
-            "raw_matched": 9,
-            "raw_exact_match_rate": 1.0,
-            "abstention_rate": 0.0,
-            "accepted_precision": 1.0
-          },
-          "Bank Statement": {
-            "total": 6,
-            "accepted": 5,
-            "abstained": 1,
-            "accepted_matched": 5,
-            "raw_matched": 5,
-            "raw_exact_match_rate": 0.8333,
-            "abstention_rate": 0.1667,
-            "accepted_precision": 1.0
-          },
-          "Financial Schedule": {
-            "total": 7,
-            "accepted": 4,
-            "abstained": 3,
-            "accepted_matched": 4,
-            "raw_matched": 4,
-            "raw_exact_match_rate": 0.5714,
-            "abstention_rate": 0.4286,
-            "accepted_precision": 1.0
-          },
-          "Legal Contract": {
-            "total": 9,
-            "accepted": 7,
-            "abstained": 2,
-            "accepted_matched": 7,
-            "raw_matched": 7,
-            "raw_exact_match_rate": 0.7778,
-            "abstention_rate": 0.2222,
-            "accepted_precision": 1.0
-          },
-          "Multi-Column Report": {
-            "total": 6,
-            "accepted": 3,
-            "abstained": 3,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.5,
-            "abstention_rate": 0.5,
-            "accepted_precision": 1.0
-          },
-          "Borderless Table / Blank": {
-            "total": 5,
-            "accepted": 3,
-            "abstained": 2,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.6,
-            "abstention_rate": 0.4,
-            "accepted_precision": 1.0
-          },
-          "Low-Contrast / Skewed Scan": {
-            "total": 6,
-            "accepted": 3,
-            "abstained": 3,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.5,
-            "abstention_rate": 0.5,
-            "accepted_precision": 1.0
-          }
-        }
+        ]
       }
     }
   },
@@ -2317,25 +2929,25 @@
       "safety_guarantee": "Prevents native C++ access violation (0xC0000005) in FPDF_LoadPage font cache",
       "scaling": {
         "1_threads": {
-          "total_pages": 1,
-          "duration_seconds": 0.0386,
-          "throughput_pages_sec": 25.94,
+          "total_pages": 5,
+          "duration_seconds": 0.1845,
+          "throughput_pages_sec": 27.1,
           "speedup_vs_single_thread": 1.0,
           "lock_contention_ratio": 0.0
         },
         "2_threads": {
-          "total_pages": 2,
-          "duration_seconds": 0.0678,
-          "throughput_pages_sec": 29.52,
-          "speedup_vs_single_thread": 1.14,
-          "lock_contention_ratio": 0.431
+          "total_pages": 10,
+          "duration_seconds": 0.369,
+          "throughput_pages_sec": 27.1,
+          "speedup_vs_single_thread": 1.0,
+          "lock_contention_ratio": 0.5
         },
         "4_threads": {
-          "total_pages": 4,
-          "duration_seconds": 0.1389,
-          "throughput_pages_sec": 28.8,
-          "speedup_vs_single_thread": 1.11,
-          "lock_contention_ratio": 0.7224
+          "total_pages": 20,
+          "duration_seconds": 0.6889,
+          "throughput_pages_sec": 29.03,
+          "speedup_vs_single_thread": 1.07,
+          "lock_contention_ratio": 0.7322
         }
       },
       "architectural_recommendation": "Multi-threaded in-process rendering is serialized by PDFIUM_LOCK to guarantee native C++ safety. For true horizontal multi-core throughput scaling without lock contention, production deployments must employ a multi-process architecture (ProcessPoolExecutor / separate worker container instances)."
@@ -2345,30 +2957,48 @@
       "runtime_isolation": "Process-isolated PDFium C++ font caches without mutex lock contention",
       "process_scaling": {
         "1_processes": {
-          "total_pages": 1,
-          "duration_seconds": 4.0599,
-          "throughput_pages_sec": 0.25,
+          "total_pages": 5,
+          "duration_seconds": 4.3708,
+          "warm_render_duration_seconds": 0.2057,
+          "spawn_overhead_seconds": 4.1651,
+          "warm_throughput_pages_sec": 24.31,
+          "wall_clock_throughput_pages_sec": 1.14,
+          "throughput_pages_sec": 24.31,
           "speedup_vs_single_process": 1.0,
-          "peak_rss_mb": 416.6,
-          "parent_rss_mb": 1866.21,
+          "warm_speedup": 1.0,
+          "wall_clock_speedup": 1.0,
+          "peak_rss_mb": 416.56,
+          "parent_rss_mb": 1731.35,
           "error_count": 0
         },
         "2_processes": {
-          "total_pages": 2,
-          "duration_seconds": 4.0331,
-          "throughput_pages_sec": 0.5,
-          "speedup_vs_single_process": 2.0,
-          "peak_rss_mb": 416.95,
-          "parent_rss_mb": 1866.21,
+          "total_pages": 10,
+          "duration_seconds": 4.1611,
+          "warm_render_duration_seconds": 0.2073,
+          "spawn_overhead_seconds": 3.9538,
+          "warm_throughput_pages_sec": 48.23,
+          "wall_clock_throughput_pages_sec": 2.4,
+          "throughput_pages_sec": 48.23,
+          "speedup_vs_single_process": 1.98,
+          "warm_speedup": 1.98,
+          "wall_clock_speedup": 2.11,
+          "peak_rss_mb": 417.4,
+          "parent_rss_mb": 1731.32,
           "error_count": 0
         },
         "4_processes": {
-          "total_pages": 4,
-          "duration_seconds": 4.8154,
-          "throughput_pages_sec": 0.83,
-          "speedup_vs_single_process": 3.32,
-          "peak_rss_mb": 416.87,
-          "parent_rss_mb": 1866.21,
+          "total_pages": 20,
+          "duration_seconds": 4.7001,
+          "warm_render_duration_seconds": 0.2264,
+          "spawn_overhead_seconds": 4.4736,
+          "warm_throughput_pages_sec": 88.33,
+          "wall_clock_throughput_pages_sec": 4.26,
+          "throughput_pages_sec": 88.33,
+          "speedup_vs_single_process": 3.63,
+          "warm_speedup": 3.63,
+          "wall_clock_speedup": 3.74,
+          "peak_rss_mb": 417.14,
+          "parent_rss_mb": 1731.35,
           "error_count": 0
         }
       }
@@ -2376,8 +3006,8 @@
   },
   "stage_6_error_propagation_and_remediations": {
     "recognition_only_cer": 0.3772,
-    "end_to_end_external_cer": 0.4145,
-    "error_propagation_delta": 0.0373,
+    "end_to_end_external_cer": 0.4197,
+    "error_propagation_delta": 0.0425,
     "monetary_recognition_root_causes": [
       {
         "root_cause": "TrOCR Decimal Point Dropping ($11,22000 vs $11,220.00)",
@@ -2399,6 +3029,158 @@
         "mechanism": "Pure XY-Cut projection profiles fragment irregular tabular lines.",
         "safe_remediation": "TableStructureExtractor introduces horizontal overlap clustering and cell adjacency modeling."
       }
-    ]
+    ],
+    "monetary_failures_investigation": {
+      "total_amount_abstentions": [
+        {
+          "doc_id": "DEV-01-CLEAN-INVOICE",
+          "expected": "$11,220.00",
+          "raw_ocr": "TOTAL DUE: $11,22000 USD",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Ambiguous comma separator with non-standard digit grouping: '11,22000'",
+          "root_cause": "TrOCR DeiT patch downscaling dropped the period pixel, outputting 5 digits after comma.",
+          "ledger_safeguard": "Abstains to prevent recording $1,122,000 or corrupted amount into database."
+        },
+        {
+          "doc_id": "DEV-06-LEGAL-CONTRACT",
+          "expected": "$15,000.00",
+          "raw_ocr": "EARLY TERMINATION PENALTY FEE: $15,00000 USD",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Ambiguous comma separator with non-standard digit grouping: '15,00000'",
+          "root_cause": "TrOCR dropped the decimal point, producing 5-digit group.",
+          "ledger_safeguard": "Abstains and routes to ValidationStatus.AMBIGUOUS for manual audit."
+        },
+        {
+          "doc_id": "DEV-08-HYBRID-SCAN",
+          "expected": "$604.80",
+          "raw_ocr": "REIMBURSEMENT TOTAL: $60480 USD",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Unseparated multi-digit integer with ambiguous decimal or thousand position: '60480'",
+          "root_cause": "TrOCR dropped the decimal point in the raster receipt section, merging integer and cents.",
+          "ledger_safeguard": "Abstains, preventing 100x overpayment of employee claim ($60,480 vs $604.80)."
+        },
+        {
+          "doc_id": "DEV-10-STAMP-ANNOTATION",
+          "expected": "$16,500.00",
+          "raw_ocr": "AUTHORIZED PAYMENT $16,500000 USD",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Ambiguous comma separator with non-standard digit grouping: '16,500000'",
+          "root_cause": "TrOCR hallucinated an extra zero and omitted period under stamp overlay.",
+          "ledger_safeguard": "Abstains; flagged as AMBIGUOUS for human treasury authorization."
+        },
+        {
+          "doc_id": "HELD-05-TAX-SCHEDULE",
+          "expected": "$10,000.00",
+          "raw_ocr": "CURRENT YEAR DEDUCTION: $10,000000 USD",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Ambiguous comma separator with non-standard digit grouping: '10,000000'",
+          "root_cause": "Small 8pt font caused decimal blur, resulting in 6 digits after comma.",
+          "ledger_safeguard": "Abstains from recording malformed tax deduction."
+        },
+        {
+          "doc_id": "EXT-HELD-05-IRS-4562-DEPRECIATION",
+          "expected": "$10,000.00",
+          "raw_ocr": "NET DEPRECIABLE BALANCE: $ 10/00000 USD",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Ambiguous slash separator and non-standard grouping: '10/00000'",
+          "root_cause": "TrOCR substituted slash for comma/period.",
+          "ledger_safeguard": "Abstains; rejected as corrupted OCR."
+        },
+        {
+          "doc_id": "EXT-HELD-07-MULTIPAGE-FINANCIAL-P1",
+          "expected": "$250,000.00",
+          "raw_ocr": "TOTAL OPERATING REVENUE: $250,000000 USD",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Ambiguous comma separator with non-standard digit grouping: '250,000000'",
+          "root_cause": "TrOCR dropped period in multi-page corporate report.",
+          "ledger_safeguard": "Abstains from accepting $25,000,000 for $250,000."
+        },
+        {
+          "doc_id": "EXT-HELD-08-BALANCE-SHEET-TABLE",
+          "expected": "$205,000.00",
+          "raw_ocr": "TOTAL CURRENT ASSETS: $205.00 OSD",
+          "status": "ValidationStatus.NEEDS_REVIEW",
+          "rejection_reason": "Currency mismatch ('OSD' != 'USD') and decimal difference (205.00 vs 205,000.00)",
+          "root_cause": "TrOCR dropped three trailing zeros and substituted 'O' for 'U'.",
+          "ledger_safeguard": "Flagged as NEEDS_REVIEW; abstains from automated booking."
+        },
+        {
+          "doc_id": "EXT-HELD-09-EUROPEAN-VENDOR-INVOICE",
+          "expected": "2.082,50",
+          "raw_ocr": "GESANTBETRG FAHLIG: 2.08250 EUR",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Unseparated 5 digits after period: '2.08250'",
+          "root_cause": "TrOCR omitted the comma decimal separator in German DIN format.",
+          "ledger_safeguard": "Abstains, preserving European locale integrity."
+        },
+        {
+          "doc_id": "EXT-HELD-10-STAMP-SEAL-CERTIFICATE",
+          "expected": "$75,000.00",
+          "raw_ocr": "TOTAL CERTIFIED DISBURSEMENT $75.00.00 USD",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Multiple periods with invalid grouping: '75.00.00'",
+          "root_cause": "Overlapping notary seal caused TrOCR to predict two periods.",
+          "ledger_safeguard": "Abstains; rejected as malformed notation."
+        }
+      ],
+      "subtotal_abstentions": [
+        {
+          "doc_id": "EXT-HELD-05-IRS-4562-DEPRECIATION",
+          "expected": "$15,000.00",
+          "raw_ocr": "INITIAL SUBTOTAL BASIS: $15,000000 USD",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Ambiguous comma separator with non-standard digit grouping: '15,000000'",
+          "root_cause": "TrOCR dropped decimal point in tax schedule subtotal.",
+          "ledger_safeguard": "Abstains; routed to human tax auditor."
+        },
+        {
+          "doc_id": "EXT-HELD-07-MULTIPAGE-FINANCIAL-P1",
+          "expected": "$250,000.00",
+          "raw_ocr": "GROSS REVENUE SUBTOTAL: $250, 000.00 USD",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Space inside digit grouping: '250, 000.00'",
+          "root_cause": "TrOCR inserted space token after comma.",
+          "ledger_safeguard": "Abstains; prevents ambiguous subtotal reconciliation."
+        },
+        {
+          "doc_id": "EXT-HELD-09-EUROPEAN-VENDOR-INVOICE",
+          "expected": "1.750,00",
+          "raw_ocr": "ZWISCHENSUMMME NETTO: 1.750.00 EUR",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Two periods in numeric literal without comma decimal: '1.750.00'",
+          "root_cause": "TrOCR substituted period for comma in German invoice.",
+          "ledger_safeguard": "Abstains; prevents misinterpreting European decimal as US format."
+        },
+        {
+          "doc_id": "EXT-HELD-10-STAMP-SEAL-CERTIFICATE",
+          "expected": "$75,000.00",
+          "raw_ocr": "SUBTOTAL APPROVED FUNDS: $75,00000 USD",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Ambiguous comma separator with non-standard digit grouping: '75,00000'",
+          "root_cause": "TrOCR omitted decimal point under notarized stamp background.",
+          "ledger_safeguard": "Abstains; requires physical certification sign-off."
+        }
+      ],
+      "tax_amount_abstentions": [
+        {
+          "doc_id": "EXT-HELD-05-IRS-4562-DEPRECIATION",
+          "expected": "$5,000.00",
+          "raw_ocr": "SECTION 179 EXPENSE DEDUCTION: $5,000000 USD",
+          "status": "ValidationStatus.AMBIGUOUS",
+          "rejection_reason": "Ambiguous comma separator with non-standard digit grouping: '5,000000'",
+          "root_cause": "TrOCR dropped decimal point in deduction line.",
+          "ledger_safeguard": "Abstains; prevents 100x overstatement of tax deduction."
+        },
+        {
+          "doc_id": "EXT-HELD-09-EUROPEAN-VENDOR-INVOICE",
+          "expected": "332,50",
+          "raw_ocr": "UMSATZSTEUER 19% 332.50 EUR",
+          "status": "ValidationStatus.NEEDS_REVIEW",
+          "rejection_reason": "Period used instead of German comma decimal: '332.50 EUR'",
+          "root_cause": "Language model bias toward US period decimal in German tax field.",
+          "ledger_safeguard": "Flagged as NEEDS_REVIEW for VAT compliance check."
+        }
+      ]
+    }
   }
 }
