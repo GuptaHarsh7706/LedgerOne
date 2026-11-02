@@ -118,6 +118,7 @@ CREATE TABLE IF NOT EXISTS document_chunks (
   tsv_content tsvector GENERATED ALWAYS AS (to_tsvector('english', content)) STORED,
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (organization_id, id),
+  UNIQUE (organization_id, workspace_id, document_id, chunk_index),
   FOREIGN KEY (organization_id, workspace_id, document_id) REFERENCES documents(organization_id, workspace_id, id) ON DELETE CASCADE
 );
 
@@ -133,12 +134,14 @@ CREATE TABLE IF NOT EXISTS extracted_fields (
   confidence NUMERIC(5, 4) NOT NULL,
   page_number INT,
   bounding_box JSONB,
+  extraction_metadata JSONB DEFAULT '{}'::jsonb,
   is_verified BOOLEAN NOT NULL DEFAULT FALSE,
   verified_value JSONB,
   verified_by_user_id UUID REFERENCES users(id),
   verified_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (organization_id, id),
+  UNIQUE (organization_id, workspace_id, document_id, field_name),
   FOREIGN KEY (organization_id, workspace_id, document_id) REFERENCES documents(organization_id, workspace_id, id) ON DELETE CASCADE
 );
 

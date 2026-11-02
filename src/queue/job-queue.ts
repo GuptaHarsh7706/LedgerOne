@@ -148,7 +148,8 @@ export class TransactionalJobQueue {
     jobId: string,
     workerId: string,
     fencingToken: string,
-    leaseGeneration: number
+    leaseGeneration: number,
+    targetDocumentStatus: string = "COMPLETED"
   ): Promise<boolean> {
     const client = await this.pool.connect();
     try {
@@ -180,9 +181,9 @@ export class TransactionalJobQueue {
       // Coordinate document status transition transactionally
       await client.query(
         `UPDATE documents
-         SET status = 'COMPLETED', updated_at = CURRENT_TIMESTAMP
+         SET status = $2, updated_at = CURRENT_TIMESTAMP
          WHERE id = $1;`,
-        [docId]
+        [docId, targetDocumentStatus]
       );
 
       await client.query("COMMIT;");

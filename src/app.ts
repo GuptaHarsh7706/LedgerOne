@@ -458,6 +458,171 @@ export function createApp() {
   );
 
   // ==========================================================================
+  // 6. Phase 4: Document Intelligence & Human Verification (HITL) APIs
+  // ==========================================================================
+
+  // 6.1 Get Document Chunks with Layout Bounding Boxes
+  app.get(
+    "/api/v1/documents/:id/chunks",
+    authenticate,
+    requireTenantContext,
+    async (req: Request, res: Response) => {
+      try {
+        const documentId = req.params.id as string;
+        const chunks = await withTenantTransaction(req.tenantContext!, async (client) => {
+          const result = await client.query(
+            `SELECT id, organization_id, workspace_id, document_id, chunk_index, page_number, bounding_box, content, created_at
+             FROM document_chunks
+             WHERE document_id = $1 AND organization_id = $2
+             ORDER BY chunk_index ASC;`,
+            [documentId, req.tenantContext!.organizationId]
+          );
+          return result.rows;
+        });
+
+        res.status(200).json({ chunks });
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+
+  // 6.2 Get Document Extracted Fields with Evidence Provenance
+  app.get(
+    "/api/v1/documents/:id/fields",
+    authenticate,
+    requireTenantContext,
+    async (req: Request, res: Response) => {
+      try {
+        const documentId = req.params.id as string;
+        const fields = await withTenantTransaction(req.tenantContext!, async (client) => {
+          const result = await client.query(
+            `SELECT id, organization_id, workspace_id, document_id, field_name,
+                    field_value_raw, field_value_normalized, confidence, page_number,
+                    bounding_box, extraction_metadata, is_verified, verified_value,
+                    verified_by_user_id, verified_at, created_at
+             FROM extracted_fields
+             WHERE document_id = $1 AND organization_id = $2
+             ORDER BY page_number ASC, field_name ASC;`,
+            [documentId, req.tenantContext!.organizationId]
+          );
+          return result.rows;
+        });
+
+        res.status(200).json({ fields });
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+
+  // 6.3 Verify / Correct Extracted Field (Reviewer HITL Workflow)
+  app.put(
+    "/api/v1/documents/:id/fields/:fieldId/verify",
+    authenticate,
+    requireTenantContext,
+    requireRoles(["ORGANIZATION_ADMIN", "WORKSPACE_ADMIN", "DOCUMENT_MANAGER", "REVIEWER"]),
+    async (req: Request, res: Response) => {
+      try {
+        const documentId = req.params.id as string;
+        const fieldId = req.params.fieldId as string;
+        const { verifiedValue, approveAsIs, notes } = req.body;
+
+        const updatedField = await withTenantTransaction(req.tenantContext!, async (client) => {
+          // 1. Fetch current field under tenant lock
+          const currentRes = await client.query(
+            `SELECT id, organization_id, workspace_id, document_id, field_name,
+                    field_value_raw, field_value_normalized, confidence, is_verified, verified_value
+             FROM extracted_fields
+             WHERE id = $1 AND document_id = $2 AND organization_id = $3
+             FOR UPDATE;`,
+            [fieldId, documentId, req.tenantContext!.organizationId]
+          );
+
+          if (currentRes.rows.length === 0) {
+            throw new Error("Extracted field not found");
+          }
+
+          const current = currentRes.rows[0];
+          const finalVerifiedValue = approveAsIs ? current.field_value_normalized : (verifiedValue !== undefined ? verifiedValue : current.field_value_normalized);
+
+          // 2. Update field
+          const updateRes = await client.query(
+            `UPDATE extracted_fields
+             SET is_verified = TRUE,
+                 verified_value = $2,
+                 verified_by_user_id = $3,
+                 verified_at = CURRENT_TIMESTAMP
+             WHERE id = $1
+             RETURNING id, organization_id, workspace_id, document_id, field_name,
+                       field_value_raw, field_value_normalized, confidence,
+                       is_verified, verified_value, verified_by_user_id, verified_at;`,
+            [fieldId, JSON.stringify(finalVerifiedValue), req.tenantContext!.userId]
+          );
+
+          // 3. Log immutable audit entry
+          await client.query(
+            `INSERT INTO audit_logs (
+               organization_id, tenant_slug_snapshot, workspace_id, user_id, action,
+               entity_type, entity_id, previous_state, new_state
+             ) VALUES ($1, 'snapshot', $2, $3, 'FIELD_VERIFIED', 'EXTRACTED_FIELD', $4, $5, $6);`,
+            [
+              req.tenantContext!.organizationId,
+              current.workspace_id,
+              req.tenantContext!.userId,
+              fieldId,
+              JSON.stringify({ is_verified: current.is_verified, verified_value: current.verified_value }),
+              JSON.stringify({ is_verified: true, verified_value: finalVerifiedValue, notes: notes || null }),
+            ]
+          );
+
+          return updateRes.rows[0];
+        });
+
+        res.status(200).json({ field: updatedField });
+      } catch (err: any) {
+        res.status(400).json({ error: err.message });
+      }
+    }
+  );
+
+  // 6.4 Get Document Invariant Validation Report
+  app.get(
+    "/api/v1/documents/:id/invariants",
+    authenticate,
+    requireTenantContext,
+    async (req: Request, res: Response) => {
+      try {
+        const documentId = req.params.id as string;
+        const report = await withTenantTransaction(req.tenantContext!, async (client) => {
+          const docRes = await client.query(
+            `SELECT id, status, category, metadata
+             FROM documents
+             WHERE id = $1 AND organization_id = $2;`,
+            [documentId, req.tenantContext!.organizationId]
+          );
+
+          if (docRes.rows.length === 0) {
+            throw new Error("Document not found");
+          }
+
+          const doc = docRes.rows[0];
+          return {
+            documentId: doc.id,
+            status: doc.status,
+            category: doc.category,
+            intelligence: doc.metadata?.intelligence || null,
+          };
+        });
+
+        res.status(200).json(report);
+      } catch (err: any) {
+        res.status(404).json({ error: err.message });
+      }
+    }
+  );
+
+  // ==========================================================================
   // 6. Phase 3: Background Janitor & Reaper Maintenance APIs
   // ==========================================================================
   app.post("/api/v1/maintenance/janitor", authenticate, async (req: Request, res: Response) => {

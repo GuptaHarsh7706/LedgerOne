@@ -69,6 +69,19 @@ export async function runMigrations() {
             REFERENCES documents(organization_id, workspace_id, id) ON DELETE CASCADE;
         END IF;
 
+        -- Phase 4: Unique constraints for idempotent upserts and extraction metadata
+        ALTER TABLE extracted_fields ADD COLUMN IF NOT EXISTS extraction_metadata JSONB DEFAULT '{}'::jsonb;
+        
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uq_extracted_fields_name') THEN
+          ALTER TABLE extracted_fields ADD CONSTRAINT uq_extracted_fields_name
+            UNIQUE (organization_id, workspace_id, document_id, field_name);
+        END IF;
+
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uq_document_chunks_index') THEN
+          ALTER TABLE document_chunks ADD CONSTRAINT uq_document_chunks_index
+            UNIQUE (organization_id, workspace_id, document_id, chunk_index);
+        END IF;
+
         -- document_jobs
         ALTER TABLE document_jobs DROP CONSTRAINT IF EXISTS document_jobs_organization_id_document_id_fkey;
         ALTER TABLE document_jobs DROP CONSTRAINT IF EXISTS fk_document_jobs_doc_parent;

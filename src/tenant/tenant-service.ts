@@ -225,6 +225,14 @@ export class TenantService {
         throw new Error("Only organization administrators can manage workspace memberships");
       }
 
+      // Ensure target user is also an active member of the parent organization
+      await client.query(
+        `INSERT INTO organization_memberships (organization_id, user_id, role, is_active)
+         VALUES ($1, $2, 'MEMBER', true)
+         ON CONFLICT (organization_id, user_id) DO NOTHING;`,
+        [ctx.organizationId, input.targetUserId]
+      );
+
       const res = await client.query(
         `INSERT INTO workspace_memberships (organization_id, workspace_id, user_id, role, is_active)
          VALUES ($1, $2, $3, $4, true)
