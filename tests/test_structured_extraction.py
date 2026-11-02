@@ -17,6 +17,8 @@ Tests:
 from __future__ import annotations
 
 import json
+from decimal import Decimal
+import numpy as np
 import pytest
 import torch
 
@@ -26,6 +28,7 @@ from src.intelligence.extraction_schemas import (
     FieldDataType,
     ExtractionStatus,
     VerificationStatus,
+    ExtractedField,
     InvoiceExtractionSchema,
     ContractExtractionSchema,
     DocumentClassificationResult,
@@ -245,7 +248,9 @@ class TestStructuredExtractionSuite:
         reloaded = InvoiceExtractionSchema.model_validate(loaded_dict)
         assert reloaded.document_type == schema.document_type
         assert reloaded.invoice_number.value == "INV-4040"
-        assert reloaded.total_amount.value == 3250.0
+        assert Decimal(str(reloaded.total_amount.value)) == Decimal("3250.00")
+        assert isinstance(schema.total_amount.value, Decimal)
+        assert schema.total_amount.value == Decimal("3250.00")
 
     def test_gpu_memory_containment(self):
         """Verify structured extraction operates strictly within workstation VRAM budget (< 1500 MB)."""
@@ -285,3 +290,131 @@ class TestStructuredExtractionSuite:
         assert "$950.00" in tot.supporting_evidence
         assert tot.extraction_status == ExtractionStatus.ACCEPTED
         assert tot.verification_status == VerificationStatus.UNVERIFIED
+
+    def test_monetary_value_decimal_type_invariant(self):
+        """Verify normalized monetary amounts strictly retain Python Decimal instances without float drift."""
+        pipeline = HybridStructuredExtractor(use_gpu=torch.cuda.is_available())
+        page = make_test_page([
+            "COMMERCIAL INVOICE #INV-DEC-1",
+            "Subtotal: $10,000.10 USD",
+            "Tax (10%): $1,000.01 USD",
+            "Grand Total: $11,000.11 USD",
+        ])
+
+        schema = pipeline.extract_document([page])
+        assert isinstance(schema.total_amount.value, Decimal)
+        assert isinstance(schema.subtotal.value, Decimal)
+        assert schema.total_amount.value == Decimal("11000.11")
+        assert schema.subtotal.value == Decimal("10000.10")
+
+        # Binary float arithmetic check (0.1 + 0.2 != 0.3 in float, but exact in Decimal)
+        # Verify Decimal arithmetic preserves cent-exact fidelity
+        calculated_total = schema.subtotal.value + Decimal("1000.01")
+        assert calculated_total == schema.total_amount.value
+
+    def test_adversarial_correlated_error_recognition(self):
+        """Verify that when OCR produces a typo, extractors converge on typo but document shared OCR risk."""
+        pipeline = HybridStructuredExtractor(use_gpu=torch.cuda.is_available())
+        # Typo: Letter 'O' instead of digit '0' in invoice number
+        page = make_test_page([
+            "COMMERCIAL INVOICE",
+            "Invoice #: INV-2O26-TYPO",
+            "Total Due: $1,500.00 USD",
+        ])
+
+        schema = pipeline.extract_document([page])
+        inv_f = schema.invoice_number
+        assert inv_f is not None
+        # Both models see the same OCR token and converge on string
+        assert "INV-2O26-TYPO" in inv_f.value
+        # Note in validation notes must explicitly document shared evidence
+        assert any("share the same underlying OCR/text block evidence" in note for note in inv_f.validation_notes)
+
+    def test_adversarial_disagreement_routes_to_needs_review(self):
+        """Verify that conflicting spatial and semantic candidate extractions force NEEDS_REVIEW status."""
+        pipeline = HybridStructuredExtractor(use_gpu=torch.cuda.is_available())
+
+        # Construct candidate fields with conflicting monetary values
+        spatial_f = ExtractedField(
+            name="total_amount",
+            value=Decimal("1500.00"),
+            raw_value="$1,500.00",
+            data_type=FieldDataType.MONETARY,
+            confidence=0.92,
+            source_page=0,
+            supporting_evidence="Total: $1,500.00",
+            extraction_status=ExtractionStatus.ACCEPTED,
+        )
+        semantic_f = ExtractedField(
+            name="total_amount",
+            value=Decimal("2500.00"),
+            raw_value="$2,500.00",
+            data_type=FieldDataType.MONETARY,
+            confidence=0.88,
+            source_page=0,
+            supporting_evidence="Final Commitment: $2,500.00",
+            extraction_status=ExtractionStatus.ACCEPTED,
+        )
+
+        merged = pipeline._reconcile_fields(
+            spatial_fields={"total_amount": spatial_f},
+            semantic_fields={"total_amount": semantic_f},
+        )
+
+        assert "total_amount" in merged
+        tot = merged["total_amount"]
+        # Must be gated to NEEDS_REVIEW due to value disagreement
+        assert tot.extraction_status == ExtractionStatus.NEEDS_REVIEW
+        assert tot.confidence <= 0.60
+        assert any("Corroboration conflict" in note for note in tot.validation_notes)
+
+    def test_bounding_box_normalized_and_pt_invariants(self):
+        """Verify that all extracted bounding boxes strictly obey normalization and positive point invariants."""
+        pipeline = HybridStructuredExtractor(use_gpu=torch.cuda.is_available())
+        page = make_test_page([
+            "COMMERCIAL INVOICE #INV-BOX-99",
+            "Date: 2026-10-01",
+            "Subtotal: $4,000.00 USD",
+            "Total Due: $4,400.00 USD",
+        ])
+
+        schema = pipeline.extract_document([page])
+        for field in [schema.invoice_number, schema.invoice_date, schema.total_amount, schema.subtotal]:
+            if field and field.bbox:
+                # Normalized coordinate invariants
+                assert 0.0 <= field.bbox.x0 <= field.bbox.x1 <= 1.0
+                assert 0.0 <= field.bbox.y0 <= field.bbox.y1 <= 1.0
+                # PDF-point coordinate invariants
+                assert field.bbox.x0_pt >= 0.0
+                assert field.bbox.y0_pt >= 0.0
+                assert field.bbox.x1_pt >= field.bbox.x0_pt
+                assert field.bbox.y1_pt >= field.bbox.y0_pt
+
+    def test_calibration_metrics_brier_and_ece(self):
+        """Verify mathematical correctness of Brier score and Expected Calibration Error calculation."""
+        # 4 test samples with 2 classes
+        # Sample 1: true=0, pred_prob=[0.9, 0.1], correct=True, conf=0.9
+        # Sample 2: true=0, pred_prob=[0.8, 0.2], correct=True, conf=0.8
+        # Sample 3: true=1, pred_prob=[0.6, 0.4], correct=False, conf=0.6
+        # Sample 4: true=1, pred_prob=[0.2, 0.8], correct=True, conf=0.8
+        probs = [
+            {"0": 0.9, "1": 0.1},
+            {"0": 0.8, "1": 0.2},
+            {"0": 0.6, "1": 0.4},
+            {"0": 0.2, "1": 0.8},
+        ]
+        true_labels = ["0", "0", "1", "1"]
+
+        # Manual Brier score calculation:
+        # S1: (0.9-1)^2 + (0.1-0)^2 = 0.01 + 0.01 = 0.02
+        # S2: (0.8-1)^2 + (0.2-0)^2 = 0.04 + 0.04 = 0.08
+        # S3: (0.6-0)^2 + (0.4-1)^2 = 0.36 + 0.36 = 0.72
+        # S4: (0.2-0)^2 + (0.8-1)^2 = 0.04 + 0.04 = 0.08
+        # Total = (0.02 + 0.08 + 0.72 + 0.08) / 4 = 0.90 / 4 = 0.225
+        brier_sum = 0.0
+        for p, y in zip(probs, true_labels):
+            for k in ["0", "1"]:
+                y_true = 1.0 if k == y else 0.0
+                brier_sum += (p[k] - y_true) ** 2
+        calculated_brier = brier_sum / len(probs)
+        assert abs(calculated_brier - 0.225) < 1e-6

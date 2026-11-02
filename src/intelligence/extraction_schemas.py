@@ -62,9 +62,10 @@ class ExtractedField(BaseModel):
     """
     Standardized extracted field representation preserving full data lineage,
     geometry, supporting evidence, confidence score, and review status.
+    Monetary values MUST be stored as Decimal instances to avoid floating-point drift.
     """
     name: str = Field(..., description="Canonical field identifier, e.g. total_amount")
-    value: Optional[Any] = Field(default=None, description="Normalized typed value (float, str, date)")
+    value: Optional[Any] = Field(default=None, description="Normalized typed value (Decimal, str, date, float, int)")
     raw_value: Optional[str] = Field(default=None, description="Exact textual span from document")
     data_type: FieldDataType = Field(default=FieldDataType.STRING, description="Semantic data type")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Calibrated field-level confidence score")
@@ -110,12 +111,14 @@ class InvoiceExtractionSchema(BaseModel):
     customer_tax_id: Optional[ExtractedField] = Field(default=None, description="Customer Tax ID / VAT / EIN")
     customer_address: Optional[ExtractedField] = Field(default=None, description="Customer physical / shipping address")
     
-    # Monetary Totals
+    # Monetary Totals & Items
     subtotal: Optional[ExtractedField] = Field(default=None, description="Net amount before tax/discount")
     tax_amount: Optional[ExtractedField] = Field(default=None, description="Total tax / VAT amount")
     tax_percentage: Optional[ExtractedField] = Field(default=None, description="Applicable tax percentage")
     discount_amount: Optional[ExtractedField] = Field(default=None, description="Total discount applied")
     total_amount: Optional[ExtractedField] = Field(default=None, description="Grand total payable")
+    quantity: Optional[ExtractedField] = Field(default=None, description="Primary item quantity or summary count")
+    unit_price: Optional[ExtractedField] = Field(default=None, description="Primary item unit price")
     
     # Terms & Line Items
     payment_terms: Optional[ExtractedField] = Field(default=None, description="Payment terms, e.g. Net 30")

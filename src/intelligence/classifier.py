@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 # Canonical classification marker vocabulary with domain weights
 CLASS_MARKERS: Dict[DocumentType, List[Tuple[re.Pattern, float]]] = {
     DocumentType.COMMERCIAL_INVOICE: [
-        (re.compile(r"(?i)\b(?:commercial\s+invoice|tax\s+invoice|invoice\b|factura|rechnung|disbursement\s+certificate|expense\s+reimbursement)\b"), 4.0),
+        (re.compile(r"(?i)\b(?:commercial\s+invoice|tax\s+invoice|invoice\b|factura|rechnung|disbursement\s+(?:certificate|voucher)|expense\s+reimbursement)\b"), 4.0),
         (re.compile(r"(?i)\b(?:invoice\s*(?:#|no\.?|num|number)|certificate\s*#|claim\s*#|certificate\s*#\w+)\b"), 3.5),
         (re.compile(r"(?i)\b(?:bill\s+to|remit\s+to|sold\s+to)\b"), 2.5),
         (re.compile(r"(?i)\b(?:total\s+amount|amount\s+due|balance\s+due|reimbursement\s+total|total\s+certified)\b"), 2.5),
@@ -37,8 +37,8 @@ CLASS_MARKERS: Dict[DocumentType, List[Tuple[re.Pattern, float]]] = {
     ],
     DocumentType.RECEIPT: [
         (re.compile(r"(?i)\b(?:receipt\b|sales\s+receipt|cash\s+receipt|pos\s+receipt|till\s+receipt|store\s+#|bistro|restaurant|cafe|dining)\b"), 4.5),
-        (re.compile(r"(?i)\b(?:cashier|register\s+#|terminal\s+#|pump\s+#|lane\s+#|gratuity|tip)\b"), 3.5),
-        (re.compile(r"(?i)\b(?:change\s+due|cash\s+tendered|card\s+tend|total\s+billed)\b"), 3.0),
+        (re.compile(r"(?i)\b(?:cashier|register\s+#|terminal\s+#|pump\s+#|lane\s+#|gratuity|tip|station\s*#|fuel\s*subtotal)\b"), 3.5),
+        (re.compile(r"(?i)\b(?:change\s+due|cash\s+tendered|card\s+tend|total\s+billed|total\s+tender(?:ed)?)\b"), 3.0),
         (re.compile(r"(?i)\b(?:thank\s+you\s+for\s+(?:your\s+)?(?:business|visit|shopping))\b"), 2.5),
     ],
     DocumentType.PURCHASE_ORDER: [
@@ -67,8 +67,8 @@ CLASS_MARKERS: Dict[DocumentType, List[Tuple[re.Pattern, float]]] = {
     ],
     DocumentType.MULTI_COLUMN_REPORT: [
         (re.compile(r"(?i)\b(?:executive\s+summary|annual\s+report|quarterly\s+report|management\s+discussion|consolidated\s+financial\s+statement|multi-column|ledger|portfolio)\b"), 4.5),
-        (re.compile(r"(?i)\b(?:financial\s+overview|market\s+analysis|table\s+of\s+contents|portfolio\s+review|operating\s+revenue|page\s+1\s+of\s+\d+)\b"), 3.5),
-        (re.compile(r"(?i)\b(?:key\s+performance\s+indicators|kpi|ebitda|year-over-year|two-column|column\s+ledger)\b"), 3.0),
+        (re.compile(r"(?i)\b(?:financial\s+overview|market\s+analysis|table\s+of\s+contents|portfolio\s+review|operating\s+revenue|page\s+1\s+of\s+\d+|consolidated\s*total)\b"), 3.5),
+        (re.compile(r"(?i)\b(?:key\s+performance\s+indicators|kpi|ebitda|year-over-year|two-column|column\s+ledger|department:)\b"), 3.0),
     ],
 }
 

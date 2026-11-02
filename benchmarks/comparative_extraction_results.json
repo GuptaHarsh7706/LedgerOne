@@ -1,0 +1,1013 @@
+{
+  "benchmark_timestamp": "2026-11-02T21:02:37Z",
+  "total_documents": 30,
+  "total_annotations": 177,
+  "device": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+  "cuda_available": true,
+  "comparative_candidates": {
+    "Candidate_A_Spatial": {
+      "total_annotated_fields": 177,
+      "accepted_fields": 110,
+      "correct_accepted_fields": 106,
+      "incorrect_accepted_fields": 4,
+      "abstained_fields": 67,
+      "precision": 0.9636,
+      "recall": 0.5989,
+      "f1_score": 0.7387,
+      "exact_match_accuracy": 0.5989,
+      "coverage": 0.6215,
+      "population_false_acceptance_incidence": 0.0226,
+      "category_breakdown": {
+        "invoice_number": {
+          "total_fields": 23,
+          "accepted": 7,
+          "correct_accepted": 7,
+          "incorrect_accepted": 0,
+          "abstained": 16,
+          "precision": 1.0,
+          "coverage": 0.3043,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 7
+        },
+        "date": {
+          "total_fields": 27,
+          "accepted": 25,
+          "correct_accepted": 25,
+          "incorrect_accepted": 0,
+          "abstained": 2,
+          "precision": 1.0,
+          "coverage": 0.9259,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 25
+        },
+        "tax_id": {
+          "total_fields": 8,
+          "accepted": 7,
+          "correct_accepted": 7,
+          "incorrect_accepted": 0,
+          "abstained": 1,
+          "precision": 1.0,
+          "coverage": 0.875,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 7
+        },
+        "currency_code": {
+          "total_fields": 29,
+          "accepted": 2,
+          "correct_accepted": 2,
+          "incorrect_accepted": 0,
+          "abstained": 27,
+          "precision": 1.0,
+          "coverage": 0.069,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 2
+        },
+        "quantity": {
+          "total_fields": 21,
+          "accepted": 21,
+          "correct_accepted": 20,
+          "incorrect_accepted": 1,
+          "abstained": 0,
+          "precision": 0.9524,
+          "coverage": 1.0,
+          "population_false_acceptance_incidence": 0.0476,
+          "exact_matches": 20
+        },
+        "unit_price": {
+          "total_fields": 16,
+          "accepted": 15,
+          "correct_accepted": 15,
+          "incorrect_accepted": 0,
+          "abstained": 1,
+          "precision": 1.0,
+          "coverage": 0.9375,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 15
+        },
+        "tax_percentage": {
+          "total_fields": 8,
+          "accepted": 1,
+          "correct_accepted": 1,
+          "incorrect_accepted": 0,
+          "abstained": 7,
+          "precision": 1.0,
+          "coverage": 0.125,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 1
+        },
+        "total_amount": {
+          "total_fields": 29,
+          "accepted": 21,
+          "correct_accepted": 18,
+          "incorrect_accepted": 3,
+          "abstained": 8,
+          "precision": 0.8571,
+          "coverage": 0.7241,
+          "population_false_acceptance_incidence": 0.1034,
+          "exact_matches": 18
+        },
+        "subtotal": {
+          "total_fields": 10,
+          "accepted": 8,
+          "correct_accepted": 8,
+          "incorrect_accepted": 0,
+          "abstained": 2,
+          "precision": 1.0,
+          "coverage": 0.8,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 8
+        },
+        "tax_amount": {
+          "total_fields": 6,
+          "accepted": 3,
+          "correct_accepted": 3,
+          "incorrect_accepted": 0,
+          "abstained": 3,
+          "precision": 1.0,
+          "coverage": 0.5,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 3
+        }
+      },
+      "risk_coverage_curve": [
+        {
+          "threshold_tau": 0.5,
+          "accepted_fields": 110,
+          "correct_accepted": 106,
+          "incorrect_accepted": 4,
+          "coverage": 0.6215,
+          "precision": 0.9636,
+          "empirical_risk": 0.0364,
+          "population_false_acceptance_incidence": 0.0226
+        },
+        {
+          "threshold_tau": 0.55,
+          "accepted_fields": 110,
+          "correct_accepted": 106,
+          "incorrect_accepted": 4,
+          "coverage": 0.6215,
+          "precision": 0.9636,
+          "empirical_risk": 0.0364,
+          "population_false_acceptance_incidence": 0.0226
+        },
+        {
+          "threshold_tau": 0.6,
+          "accepted_fields": 110,
+          "correct_accepted": 106,
+          "incorrect_accepted": 4,
+          "coverage": 0.6215,
+          "precision": 0.9636,
+          "empirical_risk": 0.0364,
+          "population_false_acceptance_incidence": 0.0226
+        },
+        {
+          "threshold_tau": 0.65,
+          "accepted_fields": 110,
+          "correct_accepted": 106,
+          "incorrect_accepted": 4,
+          "coverage": 0.6215,
+          "precision": 0.9636,
+          "empirical_risk": 0.0364,
+          "population_false_acceptance_incidence": 0.0226
+        },
+        {
+          "threshold_tau": 0.7,
+          "accepted_fields": 110,
+          "correct_accepted": 106,
+          "incorrect_accepted": 4,
+          "coverage": 0.6215,
+          "precision": 0.9636,
+          "empirical_risk": 0.0364,
+          "population_false_acceptance_incidence": 0.0226
+        },
+        {
+          "threshold_tau": 0.75,
+          "accepted_fields": 110,
+          "correct_accepted": 106,
+          "incorrect_accepted": 4,
+          "coverage": 0.6215,
+          "precision": 0.9636,
+          "empirical_risk": 0.0364,
+          "population_false_acceptance_incidence": 0.0226
+        },
+        {
+          "threshold_tau": 0.8,
+          "accepted_fields": 110,
+          "correct_accepted": 106,
+          "incorrect_accepted": 4,
+          "coverage": 0.6215,
+          "precision": 0.9636,
+          "empirical_risk": 0.0364,
+          "population_false_acceptance_incidence": 0.0226
+        },
+        {
+          "threshold_tau": 0.85,
+          "accepted_fields": 110,
+          "correct_accepted": 106,
+          "incorrect_accepted": 4,
+          "coverage": 0.6215,
+          "precision": 0.9636,
+          "empirical_risk": 0.0364,
+          "population_false_acceptance_incidence": 0.0226
+        },
+        {
+          "threshold_tau": 0.9,
+          "accepted_fields": 110,
+          "correct_accepted": 106,
+          "incorrect_accepted": 4,
+          "coverage": 0.6215,
+          "precision": 0.9636,
+          "empirical_risk": 0.0364,
+          "population_false_acceptance_incidence": 0.0226
+        },
+        {
+          "threshold_tau": 0.95,
+          "accepted_fields": 110,
+          "correct_accepted": 106,
+          "incorrect_accepted": 4,
+          "coverage": 0.6215,
+          "precision": 0.9636,
+          "empirical_risk": 0.0364,
+          "population_false_acceptance_incidence": 0.0226
+        }
+      ]
+    },
+    "Candidate_B_Semantic": {
+      "total_annotated_fields": 177,
+      "accepted_fields": 13,
+      "correct_accepted_fields": 13,
+      "incorrect_accepted_fields": 0,
+      "abstained_fields": 164,
+      "precision": 1.0,
+      "recall": 0.0734,
+      "f1_score": 0.1368,
+      "exact_match_accuracy": 0.0734,
+      "coverage": 0.0734,
+      "population_false_acceptance_incidence": 0.0,
+      "category_breakdown": {
+        "invoice_number": {
+          "total_fields": 23,
+          "accepted": 3,
+          "correct_accepted": 3,
+          "incorrect_accepted": 0,
+          "abstained": 20,
+          "precision": 1.0,
+          "coverage": 0.1304,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 3
+        },
+        "date": {
+          "total_fields": 27,
+          "accepted": 2,
+          "correct_accepted": 2,
+          "incorrect_accepted": 0,
+          "abstained": 25,
+          "precision": 1.0,
+          "coverage": 0.0741,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 2
+        },
+        "tax_id": {
+          "total_fields": 8,
+          "accepted": 2,
+          "correct_accepted": 2,
+          "incorrect_accepted": 0,
+          "abstained": 6,
+          "precision": 1.0,
+          "coverage": 0.25,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 2
+        },
+        "currency_code": {
+          "total_fields": 29,
+          "accepted": 0,
+          "correct_accepted": 0,
+          "incorrect_accepted": 0,
+          "abstained": 29,
+          "precision": 1.0,
+          "coverage": 0.0,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 0
+        },
+        "quantity": {
+          "total_fields": 21,
+          "accepted": 0,
+          "correct_accepted": 0,
+          "incorrect_accepted": 0,
+          "abstained": 21,
+          "precision": 1.0,
+          "coverage": 0.0,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 0
+        },
+        "unit_price": {
+          "total_fields": 16,
+          "accepted": 0,
+          "correct_accepted": 0,
+          "incorrect_accepted": 0,
+          "abstained": 16,
+          "precision": 1.0,
+          "coverage": 0.0,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 0
+        },
+        "tax_percentage": {
+          "total_fields": 8,
+          "accepted": 6,
+          "correct_accepted": 6,
+          "incorrect_accepted": 0,
+          "abstained": 2,
+          "precision": 1.0,
+          "coverage": 0.75,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 6
+        },
+        "total_amount": {
+          "total_fields": 29,
+          "accepted": 0,
+          "correct_accepted": 0,
+          "incorrect_accepted": 0,
+          "abstained": 29,
+          "precision": 1.0,
+          "coverage": 0.0,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 0
+        },
+        "subtotal": {
+          "total_fields": 10,
+          "accepted": 0,
+          "correct_accepted": 0,
+          "incorrect_accepted": 0,
+          "abstained": 10,
+          "precision": 1.0,
+          "coverage": 0.0,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 0
+        },
+        "tax_amount": {
+          "total_fields": 6,
+          "accepted": 0,
+          "correct_accepted": 0,
+          "incorrect_accepted": 0,
+          "abstained": 6,
+          "precision": 1.0,
+          "coverage": 0.0,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 0
+        }
+      },
+      "risk_coverage_curve": [
+        {
+          "threshold_tau": 0.5,
+          "accepted_fields": 16,
+          "correct_accepted": 16,
+          "incorrect_accepted": 0,
+          "coverage": 0.0904,
+          "precision": 1.0,
+          "empirical_risk": 0.0,
+          "population_false_acceptance_incidence": 0.0
+        },
+        {
+          "threshold_tau": 0.55,
+          "accepted_fields": 16,
+          "correct_accepted": 16,
+          "incorrect_accepted": 0,
+          "coverage": 0.0904,
+          "precision": 1.0,
+          "empirical_risk": 0.0,
+          "population_false_acceptance_incidence": 0.0
+        },
+        {
+          "threshold_tau": 0.6,
+          "accepted_fields": 16,
+          "correct_accepted": 16,
+          "incorrect_accepted": 0,
+          "coverage": 0.0904,
+          "precision": 1.0,
+          "empirical_risk": 0.0,
+          "population_false_acceptance_incidence": 0.0
+        },
+        {
+          "threshold_tau": 0.65,
+          "accepted_fields": 16,
+          "correct_accepted": 16,
+          "incorrect_accepted": 0,
+          "coverage": 0.0904,
+          "precision": 1.0,
+          "empirical_risk": 0.0,
+          "population_false_acceptance_incidence": 0.0
+        },
+        {
+          "threshold_tau": 0.7,
+          "accepted_fields": 16,
+          "correct_accepted": 16,
+          "incorrect_accepted": 0,
+          "coverage": 0.0904,
+          "precision": 1.0,
+          "empirical_risk": 0.0,
+          "population_false_acceptance_incidence": 0.0
+        },
+        {
+          "threshold_tau": 0.75,
+          "accepted_fields": 13,
+          "correct_accepted": 13,
+          "incorrect_accepted": 0,
+          "coverage": 0.0734,
+          "precision": 1.0,
+          "empirical_risk": 0.0,
+          "population_false_acceptance_incidence": 0.0
+        },
+        {
+          "threshold_tau": 0.8,
+          "accepted_fields": 10,
+          "correct_accepted": 10,
+          "incorrect_accepted": 0,
+          "coverage": 0.0565,
+          "precision": 1.0,
+          "empirical_risk": 0.0,
+          "population_false_acceptance_incidence": 0.0
+        },
+        {
+          "threshold_tau": 0.85,
+          "accepted_fields": 5,
+          "correct_accepted": 5,
+          "incorrect_accepted": 0,
+          "coverage": 0.0282,
+          "precision": 1.0,
+          "empirical_risk": 0.0,
+          "population_false_acceptance_incidence": 0.0
+        },
+        {
+          "threshold_tau": 0.9,
+          "accepted_fields": 3,
+          "correct_accepted": 3,
+          "incorrect_accepted": 0,
+          "coverage": 0.0169,
+          "precision": 1.0,
+          "empirical_risk": 0.0,
+          "population_false_acceptance_incidence": 0.0
+        },
+        {
+          "threshold_tau": 0.95,
+          "accepted_fields": 1,
+          "correct_accepted": 1,
+          "incorrect_accepted": 0,
+          "coverage": 0.0056,
+          "precision": 1.0,
+          "empirical_risk": 0.0,
+          "population_false_acceptance_incidence": 0.0
+        }
+      ]
+    },
+    "Candidate_C_Hybrid": {
+      "total_annotated_fields": 177,
+      "accepted_fields": 120,
+      "correct_accepted_fields": 119,
+      "incorrect_accepted_fields": 1,
+      "abstained_fields": 57,
+      "precision": 0.9917,
+      "recall": 0.6723,
+      "f1_score": 0.8013,
+      "exact_match_accuracy": 0.5819,
+      "coverage": 0.678,
+      "population_false_acceptance_incidence": 0.0056,
+      "category_breakdown": {
+        "invoice_number": {
+          "total_fields": 23,
+          "accepted": 4,
+          "correct_accepted": 4,
+          "incorrect_accepted": 0,
+          "abstained": 19,
+          "precision": 1.0,
+          "coverage": 0.1739,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 4
+        },
+        "date": {
+          "total_fields": 27,
+          "accepted": 24,
+          "correct_accepted": 24,
+          "incorrect_accepted": 0,
+          "abstained": 3,
+          "precision": 1.0,
+          "coverage": 0.8889,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 24
+        },
+        "tax_id": {
+          "total_fields": 8,
+          "accepted": 6,
+          "correct_accepted": 6,
+          "incorrect_accepted": 0,
+          "abstained": 2,
+          "precision": 1.0,
+          "coverage": 0.75,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 6
+        },
+        "currency_code": {
+          "total_fields": 29,
+          "accepted": 19,
+          "correct_accepted": 19,
+          "incorrect_accepted": 0,
+          "abstained": 10,
+          "precision": 1.0,
+          "coverage": 0.6552,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 3
+        },
+        "quantity": {
+          "total_fields": 21,
+          "accepted": 20,
+          "correct_accepted": 19,
+          "incorrect_accepted": 1,
+          "abstained": 1,
+          "precision": 0.95,
+          "coverage": 0.9524,
+          "population_false_acceptance_incidence": 0.0476,
+          "exact_matches": 19
+        },
+        "unit_price": {
+          "total_fields": 16,
+          "accepted": 14,
+          "correct_accepted": 14,
+          "incorrect_accepted": 0,
+          "abstained": 2,
+          "precision": 1.0,
+          "coverage": 0.875,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 14
+        },
+        "tax_percentage": {
+          "total_fields": 8,
+          "accepted": 6,
+          "correct_accepted": 6,
+          "incorrect_accepted": 0,
+          "abstained": 2,
+          "precision": 1.0,
+          "coverage": 0.75,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 6
+        },
+        "total_amount": {
+          "total_fields": 29,
+          "accepted": 18,
+          "correct_accepted": 18,
+          "incorrect_accepted": 0,
+          "abstained": 11,
+          "precision": 1.0,
+          "coverage": 0.6207,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 18
+        },
+        "subtotal": {
+          "total_fields": 10,
+          "accepted": 6,
+          "correct_accepted": 6,
+          "incorrect_accepted": 0,
+          "abstained": 4,
+          "precision": 1.0,
+          "coverage": 0.6,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 6
+        },
+        "tax_amount": {
+          "total_fields": 6,
+          "accepted": 3,
+          "correct_accepted": 3,
+          "incorrect_accepted": 0,
+          "abstained": 3,
+          "precision": 1.0,
+          "coverage": 0.5,
+          "population_false_acceptance_incidence": 0.0,
+          "exact_matches": 3
+        }
+      },
+      "risk_coverage_curve": [
+        {
+          "threshold_tau": 0.5,
+          "accepted_fields": 123,
+          "correct_accepted": 122,
+          "incorrect_accepted": 1,
+          "coverage": 0.6949,
+          "precision": 0.9919,
+          "empirical_risk": 0.0081,
+          "population_false_acceptance_incidence": 0.0056
+        },
+        {
+          "threshold_tau": 0.55,
+          "accepted_fields": 122,
+          "correct_accepted": 121,
+          "incorrect_accepted": 1,
+          "coverage": 0.6893,
+          "precision": 0.9918,
+          "empirical_risk": 0.0082,
+          "population_false_acceptance_incidence": 0.0056
+        },
+        {
+          "threshold_tau": 0.6,
+          "accepted_fields": 121,
+          "correct_accepted": 120,
+          "incorrect_accepted": 1,
+          "coverage": 0.6836,
+          "precision": 0.9917,
+          "empirical_risk": 0.0083,
+          "population_false_acceptance_incidence": 0.0056
+        },
+        {
+          "threshold_tau": 0.65,
+          "accepted_fields": 121,
+          "correct_accepted": 120,
+          "incorrect_accepted": 1,
+          "coverage": 0.6836,
+          "precision": 0.9917,
+          "empirical_risk": 0.0083,
+          "population_false_acceptance_incidence": 0.0056
+        },
+        {
+          "threshold_tau": 0.7,
+          "accepted_fields": 121,
+          "correct_accepted": 120,
+          "incorrect_accepted": 1,
+          "coverage": 0.6836,
+          "precision": 0.9917,
+          "empirical_risk": 0.0083,
+          "population_false_acceptance_incidence": 0.0056
+        },
+        {
+          "threshold_tau": 0.75,
+          "accepted_fields": 120,
+          "correct_accepted": 119,
+          "incorrect_accepted": 1,
+          "coverage": 0.678,
+          "precision": 0.9917,
+          "empirical_risk": 0.0083,
+          "population_false_acceptance_incidence": 0.0056
+        },
+        {
+          "threshold_tau": 0.8,
+          "accepted_fields": 117,
+          "correct_accepted": 116,
+          "incorrect_accepted": 1,
+          "coverage": 0.661,
+          "precision": 0.9915,
+          "empirical_risk": 0.0085,
+          "population_false_acceptance_incidence": 0.0056
+        },
+        {
+          "threshold_tau": 0.85,
+          "accepted_fields": 114,
+          "correct_accepted": 113,
+          "incorrect_accepted": 1,
+          "coverage": 0.6441,
+          "precision": 0.9912,
+          "empirical_risk": 0.0088,
+          "population_false_acceptance_incidence": 0.0056
+        },
+        {
+          "threshold_tau": 0.9,
+          "accepted_fields": 114,
+          "correct_accepted": 113,
+          "incorrect_accepted": 1,
+          "coverage": 0.6441,
+          "precision": 0.9912,
+          "empirical_risk": 0.0088,
+          "population_false_acceptance_incidence": 0.0056
+        },
+        {
+          "threshold_tau": 0.95,
+          "accepted_fields": 114,
+          "correct_accepted": 113,
+          "incorrect_accepted": 1,
+          "coverage": 0.6441,
+          "precision": 0.9912,
+          "empirical_risk": 0.0088,
+          "population_false_acceptance_incidence": 0.0056
+        }
+      ]
+    }
+  },
+  "document_classification_audit": {
+    "total_documents": 30,
+    "overall_accuracy": 0.9667,
+    "macro_f1": 0.9756,
+    "weighted_f1": 0.9652,
+    "brier_score": 0.1442,
+    "expected_calibration_error": 0.2474,
+    "confusion_matrix_8x8": {
+      "classes": [
+        "COMMERCIAL_INVOICE",
+        "RECEIPT",
+        "PURCHASE_ORDER",
+        "BANK_STATEMENT",
+        "FINANCIAL_SCHEDULE",
+        "LEGAL_CONTRACT",
+        "MULTI_COLUMN_REPORT",
+        "OTHER"
+      ],
+      "matrix": [
+        [
+          9,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          3,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          4,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          3,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          3,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    "per_class_metrics": {
+      "COMMERCIAL_INVOICE": {
+        "true_positive": 9,
+        "false_positive": 1,
+        "false_negative": 0,
+        "support": 9,
+        "precision": 0.9,
+        "recall": 1.0,
+        "f1_score": 0.9474
+      },
+      "RECEIPT": {
+        "true_positive": 3,
+        "false_positive": 0,
+        "false_negative": 0,
+        "support": 3,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0
+      },
+      "PURCHASE_ORDER": {
+        "true_positive": 3,
+        "false_positive": 0,
+        "false_negative": 0,
+        "support": 3,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0
+      },
+      "BANK_STATEMENT": {
+        "true_positive": 3,
+        "false_positive": 0,
+        "false_negative": 0,
+        "support": 3,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0
+      },
+      "FINANCIAL_SCHEDULE": {
+        "true_positive": 4,
+        "false_positive": 0,
+        "false_negative": 0,
+        "support": 4,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0
+      },
+      "LEGAL_CONTRACT": {
+        "true_positive": 3,
+        "false_positive": 0,
+        "false_negative": 0,
+        "support": 3,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0
+      },
+      "MULTI_COLUMN_REPORT": {
+        "true_positive": 3,
+        "false_positive": 0,
+        "false_negative": 1,
+        "support": 4,
+        "precision": 1.0,
+        "recall": 0.75,
+        "f1_score": 0.8571
+      },
+      "OTHER": {
+        "true_positive": 1,
+        "false_positive": 0,
+        "false_negative": 0,
+        "support": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0
+      }
+    },
+    "confidence_distributions": {
+      "correct_predictions": {
+        "count": 29,
+        "mean": 0.7291,
+        "median": 0.7461,
+        "std": 0.1593,
+        "min": 0.1,
+        "max": 0.9573
+      },
+      "incorrect_predictions": {
+        "count": 1,
+        "mean": 0.4345,
+        "median": 0.4345,
+        "std": 0.0,
+        "min": 0.4345,
+        "max": 0.4345
+      }
+    },
+    "reliability_diagram": [
+      {
+        "bin_range": "[0.0, 0.1)",
+        "count": 0,
+        "mean_predicted_confidence": 0.05,
+        "empirical_accuracy": 0.0,
+        "calibration_gap": 0.0
+      },
+      {
+        "bin_range": "[0.1, 0.2)",
+        "count": 1,
+        "mean_predicted_confidence": 0.1,
+        "empirical_accuracy": 1.0,
+        "calibration_gap": 0.9
+      },
+      {
+        "bin_range": "[0.2, 0.3)",
+        "count": 0,
+        "mean_predicted_confidence": 0.25,
+        "empirical_accuracy": 0.0,
+        "calibration_gap": 0.0
+      },
+      {
+        "bin_range": "[0.3, 0.4)",
+        "count": 0,
+        "mean_predicted_confidence": 0.35,
+        "empirical_accuracy": 0.0,
+        "calibration_gap": 0.0
+      },
+      {
+        "bin_range": "[0.4, 0.5)",
+        "count": 2,
+        "mean_predicted_confidence": 0.4537,
+        "empirical_accuracy": 0.5,
+        "calibration_gap": 0.0463
+      },
+      {
+        "bin_range": "[0.5, 0.6)",
+        "count": 1,
+        "mean_predicted_confidence": 0.5224,
+        "empirical_accuracy": 1.0,
+        "calibration_gap": 0.4776
+      },
+      {
+        "bin_range": "[0.6, 0.7)",
+        "count": 4,
+        "mean_predicted_confidence": 0.6482,
+        "empirical_accuracy": 1.0,
+        "calibration_gap": 0.3518
+      },
+      {
+        "bin_range": "[0.7, 0.8)",
+        "count": 13,
+        "mean_predicted_confidence": 0.7441,
+        "empirical_accuracy": 1.0,
+        "calibration_gap": 0.2559
+      },
+      {
+        "bin_range": "[0.8, 0.9)",
+        "count": 6,
+        "mean_predicted_confidence": 0.8274,
+        "empirical_accuracy": 1.0,
+        "calibration_gap": 0.1726
+      },
+      {
+        "bin_range": "[0.9, 1.0)",
+        "count": 3,
+        "mean_predicted_confidence": 0.9394,
+        "empirical_accuracy": 1.0,
+        "calibration_gap": 0.0606
+      }
+    ],
+    "other_rejection_behavior": {
+      "blank_page_classified_as_other": true,
+      "rejection_sink_note": "DocumentType.OTHER acts as rejection fallback for blank, corrupted, or unclassified documents."
+    }
+  },
+  "performance_and_hardware_audit": {
+    "repetitions": 5,
+    "total_warm_inferences": 150,
+    "cold_start_init_duration_s": 14.91,
+    "warm_latency_metrics": {
+      "mean_ms": 26.8,
+      "p50_ms": 27.0,
+      "p95_ms": 34.74,
+      "p99_ms": 40.02,
+      "throughput_docs_per_sec": 37.31
+    },
+    "stage_latency_breakdown": {
+      "stage_1_classification_ms": {
+        "mean_ms": 12.07,
+        "p50_ms": 11.89,
+        "p95_ms": 16.3
+      },
+      "stage_2_spatial_extraction_ms": {
+        "mean_ms": 0.65,
+        "p50_ms": 0.66,
+        "p95_ms": 1.2
+      },
+      "stage_3_semantic_dense_extraction_ms": {
+        "mean_ms": 13.95,
+        "p50_ms": 13.86,
+        "p95_ms": 19.3
+      },
+      "stage_4_corroboration_reconciliation_ms": {
+        "mean_ms": 0.04,
+        "p50_ms": 0.03,
+        "p95_ms": 0.12
+      },
+      "stage_5_schema_validation_ms": {
+        "mean_ms": 0.02,
+        "p50_ms": 0.02,
+        "p95_ms": 0.03
+      },
+      "stage_6_json_serialization_ms": {
+        "mean_ms": 0.07,
+        "p50_ms": 0.06,
+        "p95_ms": 0.13
+      }
+    },
+    "hardware_metrics": {
+      "vram_allocated_mb": 355.36,
+      "vram_peak_allocated_mb": 360.49,
+      "vram_peak_reserved_mb": 398.0,
+      "vram_budget_mb": 1500.0,
+      "vram_compliant": true,
+      "rss_start_mb": 468.64,
+      "rss_peak_mb": 1301.2
+    }
+  }
+}

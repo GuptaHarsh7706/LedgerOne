@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging
 import re
+from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 
@@ -85,6 +86,14 @@ INVOICE_ANCHOR_PATTERNS: Dict[str, Tuple[re.Pattern, FieldDataType]] = {
         re.compile(r"(?i)\b(?:payment\s*terms|terms)\s*[:.]?"),
         FieldDataType.STRING,
     ),
+    "quantity": (
+        re.compile(r"(?i)\b(?:quantity|qty|units?)\s*[:.]?"),
+        FieldDataType.QUANTITY,
+    ),
+    "unit_price": (
+        re.compile(r"(?i)\b(?:unit\s*price|price\s*per\s*unit|unit\s*rate)\s*[:.]?"),
+        FieldDataType.MONETARY,
+    ),
 }
 
 CONTRACT_ANCHOR_PATTERNS: Dict[str, Tuple[re.Pattern, FieldDataType]] = {
@@ -106,16 +115,28 @@ CONTRACT_ANCHOR_PATTERNS: Dict[str, Tuple[re.Pattern, FieldDataType]] = {
     ),
 }
 
-# Semantic queries for dense matching
-SEMANTIC_PROBES: Dict[str, str] = {
-    "vendor_name": "Name of the vendor company seller supplier business organization issuing the invoice",
-    "vendor_address": "Physical street address city postal code headquarters of the vendor company",
-    "customer_name": "Name of the customer client buyer recipient company receiving the invoice",
-    "customer_address": "Billing or shipping address location of the customer buyer",
-    "payment_terms": "Payment terms condition such as Net 30 Net 60 due on receipt wire transfer",
-    "contract_title": "Title or headline of the legal agreement non-disclosure contract",
-    "governing_law": "Governing jurisdiction law of the state country or territory",
-    "termination_clauses": "Termination notice period terms conditions for ending agreement",
+# Semantic queries for dense matching with canonical data types
+SEMANTIC_PROBES: Dict[str, Tuple[str, FieldDataType]] = {
+    "invoice_number": ("Invoice reference identification number voucher bill code", FieldDataType.IDENTIFIER),
+    "invoice_date": ("Invoice date issue date billing transaction date", FieldDataType.DATE),
+    "due_date": ("Payment due date pay by terms due date", FieldDataType.DATE),
+    "vendor_tax_id": ("Vendor tax ID VAT registration number EIN TIN GSTIN", FieldDataType.IDENTIFIER),
+    "currency": ("Currency code abbreviation or symbol USD EUR GBP", FieldDataType.CATEGORICAL),
+    "subtotal": ("Subtotal net amount amount before tax line item sum gross revenue subtotal", FieldDataType.MONETARY),
+    "tax_amount": ("Tax amount sales tax VAT value total tax", FieldDataType.MONETARY),
+    "tax_percentage": ("Tax rate percentage VAT percent rate", FieldDataType.PERCENTAGE),
+    "total_amount": ("Total amount grand total amount due balance due final balance", FieldDataType.MONETARY),
+    "quantity": ("Quantity count volume number of units items ordered", FieldDataType.QUANTITY),
+    "unit_price": ("Unit price price per unit item rate rate per item", FieldDataType.MONETARY),
+    "vendor_name": ("Name of the vendor company seller supplier business organization issuing the invoice", FieldDataType.STRING),
+    "vendor_address": ("Physical street address city postal code headquarters of the vendor company", FieldDataType.STRING),
+    "customer_name": ("Name of the customer client buyer recipient company receiving the invoice", FieldDataType.STRING),
+    "customer_address": ("Billing or shipping address location of the customer buyer", FieldDataType.STRING),
+    "payment_terms": ("Payment terms condition such as Net 30 Net 60 due on receipt wire transfer", FieldDataType.STRING),
+    "contract_title": ("Title or headline of the legal agreement non-disclosure contract", FieldDataType.STRING),
+    "governing_law": ("Governing jurisdiction law of the state country or territory", FieldDataType.STRING),
+    "termination_clauses": ("Termination notice period terms conditions for ending agreement", FieldDataType.STRING),
+    "total_value": ("Contract total value financial consideration maximum liability", FieldDataType.MONETARY),
 }
 
 
@@ -274,7 +295,8 @@ class SpatialAnchorExtractor:
                 raw_text=raw_clean,
                 source_confidence=block_confidence,
             )
-            normalized_value = float(entry.parsed_decimal) if entry.parsed_decimal is not None else None
+            # Preserve exact Python Decimal instance without binary float arithmetic
+            normalized_value = entry.parsed_decimal if entry.parsed_decimal is not None else None
             confidence = entry.confidence
             if entry.validation_status == ValidationStatus.VALID:
                 status = ExtractionStatus.ACCEPTED if confidence >= self.confidence_threshold else ExtractionStatus.NEEDS_REVIEW
@@ -284,6 +306,17 @@ class SpatialAnchorExtractor:
             else:
                 status = ExtractionStatus.NEEDS_REVIEW
                 notes.append(f"Normalizer review routing: {entry.rejection_reason or 'uncertain'}")
+
+        elif data_type == FieldDataType.QUANTITY:
+            qty_m = re.search(r"\b([0-9]+(?:\.[0-9]+)?)\b", raw_clean)
+            if qty_m:
+                val_str = qty_m.group(1)
+                normalized_value = int(val_str) if "." not in val_str else float(val_str)
+                confidence = max(0.85, block_confidence)
+                status = ExtractionStatus.ACCEPTED if confidence >= self.confidence_threshold else ExtractionStatus.NEEDS_REVIEW
+            else:
+                status = ExtractionStatus.NEEDS_REVIEW
+                notes.append("Quantity pattern mismatch")
 
         elif data_type == FieldDataType.PERCENTAGE:
             pct_m = re.search(r"([0-9]+(?:\.[0-9]+)?)\s*%", raw_clean)
@@ -407,7 +440,7 @@ class SemanticDenseExtractor:
 
             # Pre-compute probe embeddings
             probe_keys = list(SEMANTIC_PROBES.keys())
-            probe_texts = [SEMANTIC_PROBES[k] for k in probe_keys]
+            probe_texts = [SEMANTIC_PROBES[k][0] for k in probe_keys]
             raw_embs = self._embedder.encode(probe_texts, normalize_embeddings=True)
             self._probe_embeddings = {
                 k: raw_embs[i] for i, k in enumerate(probe_keys)
@@ -415,6 +448,116 @@ class SemanticDenseExtractor:
         except Exception as exc:
             logger.warning("Failed to initialize SentenceTransformer for semantic extraction: %s", exc)
             self._embedder = None
+
+    def _build_semantic_field(
+        self,
+        field_name: str,
+        raw_text: str,
+        data_type: FieldDataType,
+        bbox: BoundingBox,
+        source_page: int,
+        evidence: str,
+        similarity: float,
+    ) -> Optional[ExtractedField]:
+        """
+        Normalize and validate semantic candidate into a typed ExtractedField.
+        """
+        raw_clean = raw_text.strip()
+        if not raw_clean:
+            return None
+
+        normalized_value: Any = raw_clean
+        confidence = float(np.clip(similarity * 1.35, 0.1, 0.95))
+        status = ExtractionStatus.ACCEPTED if confidence >= 0.70 else ExtractionStatus.NEEDS_REVIEW
+        notes: List[str] = [f"Dense semantic similarity: {similarity:.3f}"]
+
+        if data_type == FieldDataType.MONETARY:
+            if re.search(r"\b\d{4}[-/.]\d{1,2}[-/.]\d{1,2}\b", raw_clean) and not any(c in raw_clean for c in ["$", "€", "£", "USD", "EUR", "GBP"]):
+                return None
+            entry: MonetaryEntry = parse_monetary_entry(
+                raw_text=raw_clean,
+                source_confidence=similarity,
+            )
+            normalized_value = entry.parsed_decimal if entry.parsed_decimal is not None else None
+            confidence = float(np.clip(min(similarity * 1.35, entry.confidence), 0.1, 0.95))
+            if entry.validation_status == ValidationStatus.VALID:
+                status = ExtractionStatus.ACCEPTED if confidence >= 0.70 else ExtractionStatus.NEEDS_REVIEW
+            else:
+                status = ExtractionStatus.NEEDS_REVIEW
+                notes.append(f"Normalizer status ({entry.validation_status.value}): {entry.rejection_reason or 'uncertain'}")
+
+        elif data_type == FieldDataType.DATE:
+            norm_date = SpatialAnchorExtractor._normalize_date(raw_clean)
+            if norm_date:
+                normalized_value = norm_date
+                status = ExtractionStatus.ACCEPTED if confidence >= 0.70 else ExtractionStatus.NEEDS_REVIEW
+            else:
+                status = ExtractionStatus.NEEDS_REVIEW
+                notes.append("Semantic date parse failed")
+
+        elif data_type == FieldDataType.PERCENTAGE:
+            pct_m = re.search(r"([0-9]+(?:\.[0-9]+)?)\s*%", raw_clean)
+            if pct_m:
+                normalized_value = float(pct_m.group(1))
+                status = ExtractionStatus.ACCEPTED if confidence >= 0.70 else ExtractionStatus.NEEDS_REVIEW
+            else:
+                status = ExtractionStatus.NEEDS_REVIEW
+
+        elif data_type == FieldDataType.QUANTITY:
+            qty_m = re.search(r"\b([0-9]+(?:\.[0-9]+)?)\b", raw_clean)
+            if qty_m:
+                val_str = qty_m.group(1)
+                normalized_value = int(val_str) if "." not in val_str else float(val_str)
+                status = ExtractionStatus.ACCEPTED if confidence >= 0.70 else ExtractionStatus.NEEDS_REVIEW
+            else:
+                status = ExtractionStatus.NEEDS_REVIEW
+
+        elif data_type == FieldDataType.CATEGORICAL and field_name == "currency":
+            curr_match = re.search(r"\b(USD|EUR|GBP|CAD|AUD|JPY|CHF|INR)\b|\$|€|£|¥", raw_clean, re.I)
+            if curr_match:
+                token = curr_match.group(0).upper()
+                symbol_map = {"$": "USD", "€": "EUR", "£": "GBP", "¥": "JPY"}
+                normalized_value = symbol_map.get(token, token)
+                status = ExtractionStatus.ACCEPTED
+                confidence = 0.90
+            else:
+                status = ExtractionStatus.ABSTAINED
+
+        elif data_type == FieldDataType.IDENTIFIER:
+            if field_name == "vendor_tax_id":
+                tax_m = re.search(r"\b([A-Z]{2,4}[-_]?[0-9A-Z]{5,15}|[0-9]{2}[-_][0-9]{7})\b", raw_clean)
+                if tax_m:
+                    normalized_value = tax_m.group(1)
+                    status = ExtractionStatus.ACCEPTED if confidence >= 0.70 else ExtractionStatus.NEEDS_REVIEW
+                else:
+                    status = ExtractionStatus.NEEDS_REVIEW
+            else:
+                clean_id_text = re.sub(r"(?i)^(?:invoice|inv|bill|receipt|order|claim|certificate|po|disbursement|voucher)\s*(?:#|no\.?|num(?:ber)?)?\s*[:.]?", "", raw_clean).strip()
+                id_match = re.search(r"([A-Za-z0-9_\-\/]{3,30})", clean_id_text or raw_clean)
+                if id_match and not any(w in id_match.group(1).lower() for w in ["invoice", "total", "amount", "date", "bill"]):
+                    normalized_value = id_match.group(1)
+                    status = ExtractionStatus.ACCEPTED if confidence >= 0.70 else ExtractionStatus.NEEDS_REVIEW
+                else:
+                    status = ExtractionStatus.NEEDS_REVIEW
+
+        elif data_type == FieldDataType.STRING:
+            normalized_value = raw_clean.split("\n")[0].strip()
+            if re.match(r"(?i)^(?:invoice|bill|receipt|statement|purchase order)$", normalized_value):
+                return None
+
+        return ExtractedField(
+            name=field_name,
+            value=normalized_value,
+            raw_value=raw_clean,
+            data_type=data_type,
+            confidence=round(confidence, 4),
+            source_page=source_page,
+            bbox=bbox,
+            supporting_evidence=evidence[:200],
+            extraction_status=status,
+            verification_status=VerificationStatus.UNVERIFIED,
+            validation_notes=notes,
+        )
 
     def extract_semantic_entities(
         self,
@@ -426,7 +569,7 @@ class SemanticDenseExtractor:
         Extract target narrative entities from candidate blocks.
         """
         if fields_to_extract is None:
-            fields_to_extract = ["vendor_name", "customer_name", "payment_terms"]
+            fields_to_extract = list(SEMANTIC_PROBES.keys())
 
         self._init_embedder()
         if self._embedder is None or self._probe_embeddings is None or not blocks:
@@ -445,6 +588,7 @@ class SemanticDenseExtractor:
             if field_name not in self._probe_embeddings:
                 continue
 
+            probe_desc, data_type = SEMANTIC_PROBES[field_name]
             probe_emb = self._probe_embeddings[field_name]
             sims = np.dot(block_embs, probe_emb)
             best_idx = int(np.argmax(sims))
@@ -452,26 +596,19 @@ class SemanticDenseExtractor:
 
             if best_sim >= self.similarity_threshold:
                 best_block = valid_blocks[best_idx]
-                raw_line = best_block.text.strip().split("\n")[0]
-                if re.match(r"(?i)^(?:invoice|bill|receipt|statement|purchase order)$", raw_line):
-                    continue
+                raw_clean = best_block.text.strip()
 
-                conf = float(np.clip(best_sim * 1.1, 0.5, 0.95))
-                status = ExtractionStatus.ACCEPTED if conf >= 0.75 else ExtractionStatus.NEEDS_REVIEW
-
-                extracted[field_name] = ExtractedField(
-                    name=field_name,
-                    value=raw_line,
-                    raw_value=best_block.text.strip(),
-                    data_type=FieldDataType.STRING,
-                    confidence=round(conf, 4),
-                    source_page=page_index,
+                field = self._build_semantic_field(
+                    field_name=field_name,
+                    raw_text=raw_clean,
+                    data_type=data_type,
                     bbox=best_block.bbox,
-                    supporting_evidence=best_block.text.strip()[:200],
-                    extraction_status=status,
-                    verification_status=VerificationStatus.UNVERIFIED,
-                    validation_notes=[f"Dense semantic similarity: {best_sim:.3f}"],
+                    source_page=page_index,
+                    evidence=raw_clean,
+                    similarity=best_sim,
                 )
+                if field is not None:
+                    extracted[field_name] = field
 
         return extracted
 
@@ -513,6 +650,95 @@ class HybridStructuredExtractor:
         else:
             return self._extract_invoice(clf_result, p0_blocks, all_blocks_by_page)
 
+    @staticmethod
+    def _check_values_agree(val_A: Any, val_B: Any, data_type: FieldDataType) -> bool:
+        """Evaluate semantic equivalence between two extracted field candidates."""
+        if val_A is None or val_B is None:
+            return False
+        if data_type == FieldDataType.MONETARY:
+            try:
+                dec_A = val_A if isinstance(val_A, Decimal) else Decimal(str(val_A))
+                dec_B = val_B if isinstance(val_B, Decimal) else Decimal(str(val_B))
+                return abs(dec_A - dec_B) <= Decimal("0.02")
+            except Exception:
+                return str(val_A).strip() == str(val_B).strip()
+        elif data_type in (FieldDataType.PERCENTAGE, FieldDataType.QUANTITY):
+            try:
+                num_A = float(val_A)
+                num_B = float(val_B)
+                return abs(num_A - num_B) <= 0.01
+            except Exception:
+                return str(val_A).strip() == str(val_B).strip()
+        else:
+            str_A = str(val_A).strip().upper()
+            str_B = str(val_B).strip().upper()
+            return (str_A == str_B) or (str_A in str_B) or (str_B in str_A)
+
+    def _reconcile_fields(
+        self,
+        spatial_fields: Dict[str, ExtractedField],
+        semantic_fields: Dict[str, ExtractedField],
+    ) -> Dict[str, ExtractedField]:
+        """
+        Merge spatial anchor and dense semantic extractions with strict corroboration
+        and conflict detection. Disagreement between candidates forces NEEDS_REVIEW.
+        """
+        merged: Dict[str, ExtractedField] = {}
+        all_field_names = set(spatial_fields.keys()) | set(semantic_fields.keys())
+
+        for name in all_field_names:
+            in_spatial = name in spatial_fields
+            in_semantic = name in semantic_fields
+
+            if in_spatial and not in_semantic:
+                merged[name] = spatial_fields[name]
+            elif in_semantic and not in_spatial:
+                merged[name] = semantic_fields[name]
+            else:
+                f_A = spatial_fields[name]
+                f_B = semantic_fields[name]
+                values_agree = self._check_values_agree(f_A.value, f_B.value, f_A.data_type)
+
+                if values_agree:
+                    corroborated_conf = min(0.99, max(f_A.confidence, f_B.confidence) + 0.05)
+                    merged[name] = ExtractedField(
+                        name=name,
+                        value=f_A.value,
+                        raw_value=f_A.raw_value or f_B.raw_value,
+                        data_type=f_A.data_type,
+                        confidence=round(corroborated_conf, 4),
+                        source_page=f_A.source_page,
+                        bbox=f_A.bbox or f_B.bbox,
+                        supporting_evidence=f_A.supporting_evidence,
+                        extraction_status=ExtractionStatus.ACCEPTED if corroborated_conf >= self.confidence_threshold else ExtractionStatus.NEEDS_REVIEW,
+                        verification_status=VerificationStatus.UNVERIFIED,
+                        validation_notes=[
+                            "Corroborated: spatial layout anchor and semantic dense probe agree on value",
+                            f"Spatial confidence: {f_A.confidence:.3f}, Semantic confidence: {f_B.confidence:.3f}",
+                            "Note: Both extractors share the same underlying OCR/text block evidence",
+                        ],
+                    )
+                else:
+                    conflict_conf = min(f_A.confidence, 0.60)
+                    merged[name] = ExtractedField(
+                        name=name,
+                        value=f_A.value,
+                        raw_value=f_A.raw_value,
+                        data_type=f_A.data_type,
+                        confidence=round(conflict_conf, 4),
+                        source_page=f_A.source_page,
+                        bbox=f_A.bbox,
+                        supporting_evidence=f"Spatial: '{f_A.supporting_evidence}' vs Semantic: '{f_B.supporting_evidence}'",
+                        extraction_status=ExtractionStatus.NEEDS_REVIEW,
+                        verification_status=VerificationStatus.UNVERIFIED,
+                        validation_notes=[
+                            f"Corroboration conflict: spatial candidate='{f_A.value}' vs semantic candidate='{f_B.value}'",
+                            "Gated to NEEDS_REVIEW due to cross-model disagreement",
+                            "Note: Both extractors share the same underlying OCR/text block evidence",
+                        ],
+                    )
+        return merged
+
     def _extract_invoice(
         self,
         clf_result: DocumentClassificationResult,
@@ -542,21 +768,19 @@ class HybridStructuredExtractor:
                 if k not in spatial_fields:
                     spatial_fields[k] = v
 
-        # B. Semantic extraction for narrative entities (vendor, customer, payment terms)
+        # B. Semantic extraction for narrative and cross-validation entities
         semantic_fields = self.semantic_extractor.extract_semantic_entities(
             p0_blocks,
             page_index=0,
-            fields_to_extract=["vendor_name", "customer_name", "payment_terms", "vendor_address"],
+            fields_to_extract=[
+                "vendor_name", "customer_name", "payment_terms", "vendor_address",
+                "invoice_number", "invoice_date", "vendor_tax_id", "total_amount",
+                "subtotal", "tax_amount", "tax_percentage", "currency",
+            ],
         )
 
-        # C. Merge and reconcile
-        merged: Dict[str, ExtractedField] = dict(spatial_fields)
-        for k, v in semantic_fields.items():
-            if k not in merged:
-                merged[k] = v
-            else:
-                merged[k].confidence = min(0.99, merged[k].confidence + 0.05)
-                merged[k].validation_notes.append("Corroborated by semantic and spatial extractors")
+        # C. Merge and reconcile with strict corroboration and conflict gating
+        merged = self._reconcile_fields(spatial_fields, semantic_fields)
 
         # Fallback currency deduction from total_amount if currency field was not explicitly labeled
         if "currency" not in merged and "total_amount" in merged:
@@ -599,6 +823,8 @@ class HybridStructuredExtractor:
             tax_percentage=merged.get("tax_percentage"),
             discount_amount=merged.get("discount_amount"),
             total_amount=merged.get("total_amount"),
+            quantity=merged.get("quantity"),
+            unit_price=merged.get("unit_price"),
             payment_terms=merged.get("payment_terms"),
             line_items=[],
             metadata={"classification_evidence": clf_result.evidence_keywords},
@@ -630,10 +856,7 @@ class HybridStructuredExtractor:
             fields_to_extract=["contract_title", "governing_law", "termination_clauses", "payment_terms"],
         )
 
-        merged: Dict[str, ExtractedField] = dict(spatial_fields)
-        for k, v in semantic_fields.items():
-            if k not in merged:
-                merged[k] = v
+        merged = self._reconcile_fields(spatial_fields, semantic_fields)
 
         return ContractExtractionSchema(
             document_type=clf_result.predicted_type,

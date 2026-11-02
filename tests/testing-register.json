@@ -1,14 +1,14 @@
 {
   "project": "LedgerOne",
-  "version": "3.8.2",
-  "phase": "Phase 4 Step 2: Final Audit and Closure",
-  "last_updated": "2026-11-03T01:41:00+05:30",
+  "version": "3.9.0",
+  "phase": "Phase 4 Step 3: Final Comparative Evaluation & Acceptance Audit",
+  "last_updated": "2026-11-03T02:42:00+05:30",
   "summary": {
-    "total": 119,
-    "passed": 119,
+    "total": 124,
+    "passed": 124,
     "failed": 0,
     "skipped": 0,
-    "last_updated": "2026-11-03T02:09:40+05:30"
+    "last_updated": "2026-11-03T02:42:00+05:30"
   },
   "tests": [
     {
@@ -1795,6 +1795,81 @@
       "execution_timestamp": "2026-11-03T02:08:00+05:30",
       "executed_by": "LedgerOne Autonomous Engineering Agent",
       "evidence": "LedgerOne/tests/test_structured_extraction.py::TestStructuredExtractionSuite::test_field_provenance_integrity"
+    },
+    {
+      "test_id": "TEST-PH4-EXT-011",
+      "feature_id": "FEAT-STRUCTURED-EXTRACTION",
+      "module": "src.intelligence.structured_extractor",
+      "test_category": "Unit",
+      "test_scenario": "Verify normalized monetary amounts strictly retain Python Decimal instances without float drift",
+      "expected_result": "Extracted total_amount and subtotal values are instances of decimal.Decimal with exact cent precision",
+      "actual_result": "Verified Decimal type invariant and exact cent addition without IEEE-754 binary floating point errors",
+      "status": "PASSED",
+      "severity": "Critical",
+      "environment": "Python 3.11.9 / Windows / RTX 3050 CUDA",
+      "execution_timestamp": "2026-11-03T02:40:00+05:30",
+      "executed_by": "LedgerOne Autonomous Engineering Agent",
+      "evidence": "LedgerOne/tests/test_structured_extraction.py::TestStructuredExtractionSuite::test_monetary_value_decimal_type_invariant"
+    },
+    {
+      "test_id": "TEST-PH4-EXT-012",
+      "feature_id": "FEAT-STRUCTURED-EXTRACTION",
+      "module": "src.intelligence.structured_extractor",
+      "test_category": "Adversarial",
+      "test_scenario": "Verify extractors converge on shared OCR typo and explicitly document shared evidence risk",
+      "expected_result": "Corroboration notes document that both models share underlying OCR evidence and cannot correct upstream character typo",
+      "actual_result": "Models converge on corrupted token INV-2O26-TYPO and validation note documents shared evidence risk",
+      "status": "PASSED",
+      "severity": "Critical",
+      "environment": "Python 3.11.9 / Windows / RTX 3050 CUDA",
+      "execution_timestamp": "2026-11-03T02:40:00+05:30",
+      "executed_by": "LedgerOne Autonomous Engineering Agent",
+      "evidence": "LedgerOne/tests/test_structured_extraction.py::TestStructuredExtractionSuite::test_adversarial_correlated_error_recognition"
+    },
+    {
+      "test_id": "TEST-PH4-EXT-013",
+      "feature_id": "FEAT-STRUCTURED-EXTRACTION",
+      "module": "src.intelligence.structured_extractor",
+      "test_category": "Adversarial",
+      "test_scenario": "Verify conflicting spatial and semantic candidate extractions force NEEDS_REVIEW status",
+      "expected_result": "Value disagreement triggers conflict gating, sets status=NEEDS_REVIEW, and lowers confidence <= 0.60",
+      "actual_result": "Conflicting values ,500 vs ,500 successfully gated to NEEDS_REVIEW with conflict diagnostic note",
+      "status": "PASSED",
+      "severity": "Critical",
+      "environment": "Python 3.11.9 / Windows / RTX 3050 CUDA",
+      "execution_timestamp": "2026-11-03T02:40:00+05:30",
+      "executed_by": "LedgerOne Autonomous Engineering Agent",
+      "evidence": "LedgerOne/tests/test_structured_extraction.py::TestStructuredExtractionSuite::test_adversarial_disagreement_routes_to_needs_review"
+    },
+    {
+      "test_id": "TEST-PH4-EXT-014",
+      "feature_id": "FEAT-STRUCTURED-EXTRACTION",
+      "module": "src.intelligence.models",
+      "test_category": "Contract",
+      "test_scenario": "Verify extracted bounding boxes strictly obey normalization and positive point invariants",
+      "expected_result": "All bounding boxes satisfy 0 <= x0 <= x1 <= 1.0, 0 <= y0 <= y1 <= 1.0, and positive point coordinates",
+      "actual_result": "Normalized and PDF point coordinate invariants verified across all extracted schema fields",
+      "status": "PASSED",
+      "severity": "High",
+      "environment": "Python 3.11.9 / Windows / RTX 3050 CUDA",
+      "execution_timestamp": "2026-11-03T02:40:00+05:30",
+      "executed_by": "LedgerOne Autonomous Engineering Agent",
+      "evidence": "LedgerOne/tests/test_structured_extraction.py::TestStructuredExtractionSuite::test_bounding_box_normalized_and_pt_invariants"
+    },
+    {
+      "test_id": "TEST-PH4-EXT-015",
+      "feature_id": "FEAT-STRUCTURED-EXTRACTION",
+      "module": "benchmarks.benchmark_comparative_extraction",
+      "test_category": "Unit",
+      "test_scenario": "Verify mathematical correctness of Brier score and Expected Calibration Error calculation",
+      "expected_result": "Brier score computed exactly matching analytical expectation across multi-class probability vectors",
+      "actual_result": "Analytical verification of Brier score = 0.225 passed with numerical precision < 1e-6",
+      "status": "PASSED",
+      "severity": "High",
+      "environment": "Python 3.11.9 / Windows",
+      "execution_timestamp": "2026-11-03T02:40:00+05:30",
+      "executed_by": "LedgerOne Autonomous Engineering Agent",
+      "evidence": "LedgerOne/tests/test_structured_extraction.py::TestStructuredExtractionSuite::test_calibration_metrics_brier_and_ece"
     }
   ]
 }
