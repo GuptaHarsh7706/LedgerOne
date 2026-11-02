@@ -1,0 +1,1478 @@
+{
+  "benchmark_timestamp": "2026-11-02T20:35:32Z",
+  "total_documents": 30,
+  "device": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+  "cuda_available": true,
+  "classification_accuracy": 0.8333,
+  "classification_correct": 25,
+  "classification_total": 30,
+  "class_performance": {
+    "COMMERCIAL_INVOICE": {
+      "tp": 8,
+      "fp": 1,
+      "fn": 1
+    },
+    "RECEIPT": {
+      "tp": 2,
+      "fp": 0,
+      "fn": 1
+    },
+    "PURCHASE_ORDER": {
+      "tp": 3,
+      "fp": 0,
+      "fn": 0
+    },
+    "BANK_STATEMENT": {
+      "tp": 3,
+      "fp": 0,
+      "fn": 0
+    },
+    "FINANCIAL_SCHEDULE": {
+      "tp": 4,
+      "fp": 1,
+      "fn": 1
+    },
+    "LEGAL_CONTRACT": {
+      "tp": 3,
+      "fp": 0,
+      "fn": 0
+    },
+    "MULTI_COLUMN_REPORT": {
+      "tp": 1,
+      "fp": 1,
+      "fn": 2
+    },
+    "OTHER": {
+      "tp": 1,
+      "fp": 2,
+      "fn": 0
+    }
+  },
+  "total_ground_truth_fields": 177,
+  "accepted_extracted_fields": 84,
+  "correct_extracted_fields": 84,
+  "abstained_fields": 93,
+  "needs_review_fields": 0,
+  "accepted_field_precision": 1.0,
+  "field_coverage": 0.4746,
+  "abstention_rate": 0.5254,
+  "schema_compliance_pct": 100.0,
+  "latency_metrics": {
+    "mean_ms": 389.0,
+    "p50_ms": 21.64,
+    "p95_ms": 28.29,
+    "throughput_docs_per_sec": 2.57
+  },
+  "hardware_metrics": {
+    "vram_allocated_mb": 182.05,
+    "vram_peak_allocated_mb": 187.18,
+    "vram_peak_reserved_mb": 212.0,
+    "rss_start_mb": 467.12,
+    "rss_peak_mb": 1266.48
+  },
+  "per_document_results": [
+    {
+      "doc_id": "DEV-01-CLEAN-INVOICE",
+      "category": "Commercial Invoice",
+      "expected_type": "COMMERCIAL_INVOICE",
+      "predicted_type": "COMMERCIAL_INVOICE",
+      "classification_correct": true,
+      "classification_confidence": 0.8231,
+      "latency_ms": 11050.89,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ACCEPTED",
+          "predicted": "INV-2026-8801",
+          "raw_value": "INV-2026-8801",
+          "ground_truth": "INV-2026-8801",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-05-12",
+          "raw_value": "2026-05-12",
+          "ground_truth": "2026-05-12",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "tax_id": {
+          "status": "ACCEPTED",
+          "predicted": "VAT-US889912",
+          "raw_value": "VAT-US889912",
+          "ground_truth": "VAT-US889912",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "tax_percentage": {
+          "status": "ACCEPTED",
+          "predicted": 10.0,
+          "raw_value": "10.00%",
+          "ground_truth": "10.00%",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 11220.0,
+          "raw_value": "$11,220.00 USD",
+          "ground_truth": "$11,220.00",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "DEV-02-THERMAL-RECEIPT",
+      "category": "Thermal Receipt",
+      "expected_type": "RECEIPT",
+      "predicted_type": "RECEIPT",
+      "classification_correct": true,
+      "classification_confidence": 0.7768,
+      "latency_ms": 23.06,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-04-18",
+          "raw_value": "2026-04-18",
+          "ground_truth": "2026-04-18",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "tax_percentage": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 13.83,
+          "raw_value": "Paid: $13.83 USD",
+          "ground_truth": "$13.83",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "DEV-03-PURCHASE-ORDER",
+      "category": "Purchase Order",
+      "expected_type": "PURCHASE_ORDER",
+      "predicted_type": "PURCHASE_ORDER",
+      "classification_correct": true,
+      "classification_confidence": 0.6547,
+      "latency_ms": 25.13,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-06-01",
+          "raw_value": "2026-06-01",
+          "ground_truth": "2026-06-01",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "tax_id": {
+          "status": "ACCEPTED",
+          "predicted": "EIN-12-99881",
+          "raw_value": "EIN-12-99881",
+          "ground_truth": "EIN-12-99881",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "tax_percentage": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ABSENT",
+          "match": false
+        }
+      }
+    },
+    {
+      "doc_id": "DEV-04-BANK-STATEMENT",
+      "category": "Bank Statement",
+      "expected_type": "BANK_STATEMENT",
+      "predicted_type": "BANK_STATEMENT",
+      "classification_correct": true,
+      "classification_confidence": 0.8808,
+      "latency_ms": 21.03,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-03-31",
+          "raw_value": "2026-03-31",
+          "ground_truth": "2026-03-31",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 72300.0,
+          "raw_value": "$72,300.00 USD",
+          "ground_truth": "$72,300.00",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "DEV-05-FINANCIAL-SCHEDULE",
+      "category": "Financial Schedule",
+      "expected_type": "FINANCIAL_SCHEDULE",
+      "predicted_type": "FINANCIAL_SCHEDULE",
+      "classification_correct": true,
+      "classification_confidence": 0.9317,
+      "latency_ms": 25.54,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-01-15",
+          "raw_value": "2026-01-15 Cost: $25,000.00",
+          "ground_truth": "2026-01-15",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "tax_percentage": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 8700.0,
+          "raw_value": "Depreciation Deductible: $8,700.00 USD",
+          "ground_truth": "$8,700.00",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "DEV-06-LEGAL-CONTRACT",
+      "category": "Legal Contract",
+      "expected_type": "LEGAL_CONTRACT",
+      "predicted_type": "LEGAL_CONTRACT",
+      "classification_correct": true,
+      "classification_confidence": 0.7759,
+      "latency_ms": 21.57,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "currency_code": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ABSENT",
+          "match": false
+        }
+      }
+    },
+    {
+      "doc_id": "DEV-07-MULTI-COLUMN",
+      "category": "Multi-Column Report",
+      "expected_type": "MULTI_COLUMN_REPORT",
+      "predicted_type": "COMMERCIAL_INVOICE",
+      "classification_correct": false,
+      "classification_confidence": 0.4345,
+      "latency_ms": 21.93,
+      "schema_valid": true,
+      "fields": {
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 4500.0,
+          "raw_value": "$4,500.00 USD",
+          "ground_truth": "$4,500.00",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "DEV-08-HYBRID-SCAN",
+      "category": "Hybrid Document",
+      "expected_type": "COMMERCIAL_INVOICE",
+      "predicted_type": "COMMERCIAL_INVOICE",
+      "classification_correct": true,
+      "classification_confidence": 0.4729,
+      "latency_ms": 18.41,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ACCEPTED",
+          "predicted": "EXP-772",
+          "raw_value": "EXP-772",
+          "ground_truth": "EXP-772",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-04-10",
+          "raw_value": "2026-04-10",
+          "ground_truth": "2026-04-10",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "tax_percentage": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 604.8,
+          "raw_value": "$604.80 USD",
+          "ground_truth": "$604.80",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "DEV-09-SKEWED-INVOICE",
+      "category": "Low-Contrast / Skewed Scan",
+      "expected_type": "COMMERCIAL_INVOICE",
+      "predicted_type": "COMMERCIAL_INVOICE",
+      "classification_correct": true,
+      "classification_confidence": 0.7269,
+      "latency_ms": 18.34,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ACCEPTED",
+          "predicted": "FR-4019",
+          "raw_value": "FR-4019",
+          "ground_truth": "FR-4019",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-05-18",
+          "raw_value": "2026-05-18",
+          "ground_truth": "2026-05-18",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "tax_percentage": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 3200.0,
+          "raw_value": "$3,200.00 USD",
+          "ground_truth": "$3,200.00",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "DEV-10-STAMP-ANNOTATION",
+      "category": "Document with Stamp/Seal",
+      "expected_type": "OTHER",
+      "predicted_type": "OTHER",
+      "classification_correct": true,
+      "classification_confidence": 0.3,
+      "latency_ms": 19.44,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-06-04",
+          "raw_value": "2026-06-04",
+          "ground_truth": "2026-06-04",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ABSENT",
+          "match": false
+        }
+      }
+    },
+    {
+      "doc_id": "HELD-01-COMMERCIAL-INVOICE",
+      "category": "Commercial Invoice",
+      "expected_type": "COMMERCIAL_INVOICE",
+      "predicted_type": "COMMERCIAL_INVOICE",
+      "classification_correct": true,
+      "classification_confidence": 0.814,
+      "latency_ms": 19.7,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ACCEPTED",
+          "predicted": "EUR-2026-104",
+          "raw_value": "EUR-2026-104",
+          "ground_truth": "EUR-2026-104",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-06-12",
+          "raw_value": "of Supply: 2026-06-12",
+          "ground_truth": "2026-06-12",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "tax_id": {
+          "status": "ACCEPTED",
+          "predicted": "DE-81499210",
+          "raw_value": "DE-81499210",
+          "ground_truth": "DE-81499210",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "EUR",
+          "raw_value": "EUR",
+          "ground_truth": "EUR",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "tax_percentage": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 4522.0,
+          "raw_value": "4,522.00 EUR",
+          "ground_truth": "4,522.00",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "HELD-02-RESTAURANT-RECEIPT",
+      "category": "Thermal Receipt",
+      "expected_type": "RECEIPT",
+      "predicted_type": "RECEIPT",
+      "classification_correct": true,
+      "classification_confidence": 0.7582,
+      "latency_ms": 24.37,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-05-22",
+          "raw_value": "2026-05-22",
+          "ground_truth": "2026-05-22",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "tax_percentage": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 50.75,
+          "raw_value": "$50.75 USD",
+          "ground_truth": "$50.75",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "HELD-03-SUPPLY-PO",
+      "category": "Purchase Order",
+      "expected_type": "PURCHASE_ORDER",
+      "predicted_type": "PURCHASE_ORDER",
+      "classification_correct": true,
+      "classification_confidence": 0.8012,
+      "latency_ms": 28.57,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-04-28",
+          "raw_value": "2026-04-28",
+          "ground_truth": "2026-04-28",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 1420.0,
+          "raw_value": "$1,420.00 USD",
+          "ground_truth": "$1,420.00",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "HELD-04-CHECKING-STATEMENT",
+      "category": "Bank Statement",
+      "expected_type": "BANK_STATEMENT",
+      "predicted_type": "BANK_STATEMENT",
+      "classification_correct": true,
+      "classification_confidence": 0.8165,
+      "latency_ms": 25.77,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-05-31",
+          "raw_value": "2026-05-31",
+          "ground_truth": "2026-05-31",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ABSENT",
+          "match": false
+        }
+      }
+    },
+    {
+      "doc_id": "HELD-05-TAX-SCHEDULE",
+      "category": "Financial Schedule",
+      "expected_type": "FINANCIAL_SCHEDULE",
+      "predicted_type": "FINANCIAL_SCHEDULE",
+      "classification_correct": true,
+      "classification_confidence": 0.9292,
+      "latency_ms": 20.29,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-03-01",
+          "raw_value": "2026-03-01 Cost: $50,000.00",
+          "ground_truth": "2026-03-01",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "ent Year Deduction: $10,000.00 USD",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 0.95
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ABSENT",
+          "match": false
+        }
+      }
+    },
+    {
+      "doc_id": "HELD-06-SERVICE-CONTRACT",
+      "category": "Legal Contract",
+      "expected_type": "LEGAL_CONTRACT",
+      "predicted_type": "LEGAL_CONTRACT",
+      "classification_correct": true,
+      "classification_confidence": 0.7455,
+      "latency_ms": 18.17,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "currency_code": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ABSENT",
+          "match": false
+        }
+      }
+    },
+    {
+      "doc_id": "HELD-07-TWO-COLUMN-LEDGER",
+      "category": "Multi-Column Report",
+      "expected_type": "MULTI_COLUMN_REPORT",
+      "predicted_type": "OTHER",
+      "classification_correct": false,
+      "classification_confidence": 0.3,
+      "latency_ms": 16.82,
+      "schema_valid": true,
+      "fields": {
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 13900.0,
+          "raw_value": "$13,900.00 USD",
+          "ground_truth": "$13,900.00",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "HELD-08-HYBRID-PORTFOLIO",
+      "category": "Hybrid Document",
+      "expected_type": "COMMERCIAL_INVOICE",
+      "predicted_type": "MULTI_COLUMN_REPORT",
+      "classification_correct": false,
+      "classification_confidence": 0.7396,
+      "latency_ms": 19.53,
+      "schema_valid": true,
+      "fields": {
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-03-31",
+          "raw_value": "2026-03-31",
+          "ground_truth": "2026-03-31",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 24025.0,
+          "raw_value": "$24,025.00 USD",
+          "ground_truth": "$24,025.00",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "HELD-09-LOW-CONTRAST-SCAN",
+      "category": "Low-Contrast / Skewed Scan",
+      "expected_type": "COMMERCIAL_INVOICE",
+      "predicted_type": "COMMERCIAL_INVOICE",
+      "classification_correct": true,
+      "classification_confidence": 0.7634,
+      "latency_ms": 25.27,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ACCEPTED",
+          "predicted": "ARC-2019-55",
+          "raw_value": "ARC-2019-55",
+          "ground_truth": "ARC-2019-55",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-02-14",
+          "raw_value": "2026-02-14",
+          "ground_truth": "2026-02-14",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ABSENT",
+          "match": false
+        }
+      }
+    },
+    {
+      "doc_id": "HELD-10-BLANK-PAGE",
+      "category": "Borderless Table / Blank",
+      "expected_type": "FINANCIAL_SCHEDULE",
+      "predicted_type": "OTHER",
+      "classification_correct": false,
+      "classification_confidence": 0.1,
+      "latency_ms": 0.04,
+      "schema_valid": true,
+      "fields": {}
+    },
+    {
+      "doc_id": "EXT-HELD-01-AWS-INVOICE",
+      "category": "Commercial Invoice",
+      "expected_type": "COMMERCIAL_INVOICE",
+      "predicted_type": "COMMERCIAL_INVOICE",
+      "classification_correct": true,
+      "classification_confidence": 0.6147,
+      "latency_ms": 25.09,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ACCEPTED",
+          "predicted": "AWS-INV-99214",
+          "raw_value": "AWS-INV-99214",
+          "ground_truth": "AWS-INV-99214",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-04-15",
+          "raw_value": "2026-04-15",
+          "ground_truth": "2026-04-15",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "tax_id": {
+          "status": "ACCEPTED",
+          "predicted": "US-94-312890",
+          "raw_value": "US-94-312890",
+          "ground_truth": "US-94-312890",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "subtotal": {
+          "status": "ACCEPTED",
+          "predicted": 2050.0,
+          "raw_value": "Amount: $2,050.00 USD",
+          "ground_truth": "$2,050.00",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "tax_amount": {
+          "status": "ACCEPTED",
+          "predicted": 169.13,
+          "raw_value": "(8.25%): $169.13 USD",
+          "ground_truth": "$169.13",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 2219.13,
+          "raw_value": "Invoice Due: $2,219.13 USD",
+          "ground_truth": "$2,219.13",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "EXT-HELD-02-SHELL-POS-RECEIPT",
+      "category": "Thermal Receipt",
+      "expected_type": "RECEIPT",
+      "predicted_type": "FINANCIAL_SCHEDULE",
+      "classification_correct": false,
+      "classification_confidence": 0.1897,
+      "latency_ms": 23.97,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-03-22",
+          "raw_value": "2026-03-22",
+          "ground_truth": "2026-03-22",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "subtotal": {
+          "status": "ACCEPTED",
+          "predicted": 49.49,
+          "raw_value": "$49.49 USD",
+          "ground_truth": "$49.49",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "tax_amount": {
+          "status": "ACCEPTED",
+          "predicted": 3.96,
+          "raw_value": "$3.96 USD",
+          "ground_truth": "$3.96",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 53.45,
+          "raw_value": "Tendered: $53.45 USD",
+          "ground_truth": "$53.45",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "EXT-HELD-03-DELL-PO",
+      "category": "Purchase Order",
+      "expected_type": "PURCHASE_ORDER",
+      "predicted_type": "PURCHASE_ORDER",
+      "classification_correct": true,
+      "classification_confidence": 0.829,
+      "latency_ms": 24.3,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-05-10",
+          "raw_value": "2026-05-10",
+          "ground_truth": "2026-05-10",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "tax_id": {
+          "status": "ACCEPTED",
+          "predicted": "US-74-219088",
+          "raw_value": "US-74-219088",
+          "ground_truth": "US-74-219088",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "subtotal": {
+          "status": "ACCEPTED",
+          "predicted": 10400.0,
+          "raw_value": "$10,400.00 USD",
+          "ground_truth": "$10,400.00",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "tax_amount": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 10750.0,
+          "raw_value": "$10,750.00 USD",
+          "ground_truth": "$10,750.00",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "EXT-HELD-04-BARCLAYS-BANK-STATEMENT",
+      "category": "Bank Statement",
+      "expected_type": "BANK_STATEMENT",
+      "predicted_type": "BANK_STATEMENT",
+      "classification_correct": true,
+      "classification_confidence": 0.5224,
+      "latency_ms": 27.94,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-04-30",
+          "raw_value": "2026-04-30",
+          "ground_truth": "2026-04-30",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "subtotal": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ABSENT",
+          "match": false
+        }
+      }
+    },
+    {
+      "doc_id": "EXT-HELD-05-IRS-4562-DEPRECIATION",
+      "category": "Financial Schedule",
+      "expected_type": "FINANCIAL_SCHEDULE",
+      "predicted_type": "FINANCIAL_SCHEDULE",
+      "classification_correct": true,
+      "classification_confidence": 0.9573,
+      "latency_ms": 21.7,
+      "schema_valid": true,
+      "fields": {
+        "date": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "currency_code": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "subtotal": {
+          "status": "ACCEPTED",
+          "predicted": 15000.0,
+          "raw_value": "Basis: $15,000.00 USD",
+          "ground_truth": "$15,000.00",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "tax_amount": {
+          "status": "ACCEPTED",
+          "predicted": 5000.0,
+          "raw_value": "$5,000.00 USD",
+          "ground_truth": "$5,000.00",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "total_amount": {
+          "status": "ABSENT",
+          "match": false
+        }
+      }
+    },
+    {
+      "doc_id": "EXT-HELD-06-ENTERPRISE-SLA-CONTRACT",
+      "category": "Legal Contract",
+      "expected_type": "LEGAL_CONTRACT",
+      "predicted_type": "LEGAL_CONTRACT",
+      "classification_correct": true,
+      "classification_confidence": 0.7356,
+      "latency_ms": 21.5,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "tax_id": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "currency_code": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "subtotal": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "tax_amount": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ABSENT",
+          "match": false
+        }
+      }
+    },
+    {
+      "doc_id": "EXT-HELD-07-MULTIPAGE-FINANCIAL-P1",
+      "category": "Multi-Column Report",
+      "expected_type": "MULTI_COLUMN_REPORT",
+      "predicted_type": "MULTI_COLUMN_REPORT",
+      "classification_correct": true,
+      "classification_confidence": 0.7528,
+      "latency_ms": 21.4,
+      "schema_valid": true,
+      "fields": {
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-06-30",
+          "raw_value": "2026-06-30",
+          "ground_truth": "2026-06-30",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "subtotal": {
+          "status": "ACCEPTED",
+          "predicted": 250000.0,
+          "raw_value": "$250,000.00 USD",
+          "ground_truth": "$250,000.00",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 250000.0,
+          "raw_value": "$250,000.00 USD",
+          "ground_truth": "$250,000.00",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "EXT-HELD-08-BALANCE-SHEET-TABLE",
+      "category": "Borderless Table / Blank",
+      "expected_type": "FINANCIAL_SCHEDULE",
+      "predicted_type": "FINANCIAL_SCHEDULE",
+      "classification_correct": true,
+      "classification_confidence": 0.736,
+      "latency_ms": 16.57,
+      "schema_valid": true,
+      "fields": {
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-03-31",
+          "raw_value": "2026-03-31",
+          "ground_truth": "2026-03-31",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "ent Assets: $205,000.00 USD",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 0.95
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "subtotal": {
+          "status": "ACCEPTED",
+          "predicted": 120000.0,
+          "raw_value": "$120,000.00",
+          "ground_truth": "$120,000.00",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 205000.0,
+          "raw_value": "$205,000.00 USD",
+          "ground_truth": "$205,000.00",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "doc_id": "EXT-HELD-09-EUROPEAN-VENDOR-INVOICE",
+      "category": "Commercial Invoice",
+      "expected_type": "COMMERCIAL_INVOICE",
+      "predicted_type": "COMMERCIAL_INVOICE",
+      "classification_correct": true,
+      "classification_confidence": 0.7461,
+      "latency_ms": 19.3,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "date": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "tax_id": {
+          "status": "ACCEPTED",
+          "predicted": "DE-129274091",
+          "raw_value": "DE-129274091",
+          "ground_truth": "DE-129274091",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "quantity": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "unit_price": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "subtotal": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "tax_amount": {
+          "status": "ABSENT",
+          "match": false
+        },
+        "total_amount": {
+          "status": "ABSENT",
+          "match": false
+        }
+      }
+    },
+    {
+      "doc_id": "EXT-HELD-10-STAMP-SEAL-CERTIFICATE",
+      "category": "Low-Contrast / Skewed Scan",
+      "expected_type": "COMMERCIAL_INVOICE",
+      "predicted_type": "COMMERCIAL_INVOICE",
+      "classification_correct": true,
+      "classification_confidence": 0.7145,
+      "latency_ms": 24.39,
+      "schema_valid": true,
+      "fields": {
+        "invoice_number": {
+          "status": "ACCEPTED",
+          "predicted": "AC-7701",
+          "raw_value": "AC-7701",
+          "ground_truth": "AC-7701",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "date": {
+          "status": "ACCEPTED",
+          "predicted": "2026-05-30",
+          "raw_value": "2026-05-30",
+          "ground_truth": "2026-05-30",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "tax_id": {
+          "status": "ACCEPTED",
+          "predicted": "US-99-00124",
+          "raw_value": "US-99-00124",
+          "ground_truth": "US-99-00124",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "currency_code": {
+          "status": "ACCEPTED",
+          "predicted": "USD",
+          "raw_value": "$",
+          "ground_truth": "USD",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "subtotal": {
+          "status": "ACCEPTED",
+          "predicted": 75000.0,
+          "raw_value": "Approved Funds: $75,000.00 USD",
+          "ground_truth": "$75,000.00",
+          "matched": true,
+          "confidence": 1.0
+        },
+        "total_amount": {
+          "status": "ACCEPTED",
+          "predicted": 75000.0,
+          "raw_value": "Disbursement: $75,000.00 USD",
+          "ground_truth": "$75,000.00",
+          "matched": true,
+          "confidence": 1.0
+        }
+      }
+    }
+  ]
+}
