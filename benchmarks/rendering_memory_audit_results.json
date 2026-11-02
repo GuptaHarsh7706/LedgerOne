@@ -1,0 +1,518 @@
+{
+  "benchmark_name": "Multi-Process PDFium Memory & Scaling Reconciliation",
+  "workload": "20 pages at 200 DPI (dimensions 1700x2200 pixels)",
+  "dpi": 200,
+  "trials_per_configuration": 5,
+  "results_by_workers": {
+    "1_workers": {
+      "worker_count": 1,
+      "processes_included": 2,
+      "trials_run": 5,
+      "warm_throughput": {
+        "mean": 39.82,
+        "std": 8.0,
+        "min": 35.0,
+        "max": 53.88
+      },
+      "wall_throughput": {
+        "mean": 2.96,
+        "std": 0.43,
+        "min": 2.55,
+        "max": 3.68
+      },
+      "coordinator_rss_mb": {
+        "mean": 455.74,
+        "std": 0.52
+      },
+      "worker_only_aggregate_rss_mb": {
+        "mean": 453.95,
+        "std": 0.22
+      },
+      "aggregate_system_rss_mb": {
+        "mean": 909.69,
+        "std": 0.67,
+        "min": 908.97,
+        "max": 910.51
+      },
+      "per_worker_mean_rss_mb": 453.95,
+      "sample_trial_detail": {
+        "trial": 1,
+        "coordinator_pid": 5032,
+        "coordinator_rss_mb": 455.33,
+        "worker_pids": [
+          11576
+        ],
+        "worker_rss_list": [
+          453.64
+        ],
+        "num_processes_total": 2,
+        "num_worker_processes": 1,
+        "worker_only_rss_mb": 453.64,
+        "aggregate_system_rss_mb": 908.97,
+        "total_pages_rendered": 20,
+        "warm_render_duration_sec": 0.5632,
+        "wall_duration_sec": 7.8523,
+        "warm_throughput_pages_sec": 35.51,
+        "wall_throughput_pages_sec": 2.55
+      },
+      "all_trials": [
+        {
+          "trial": 1,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 455.33,
+          "worker_pids": [
+            11576
+          ],
+          "worker_rss_list": [
+            453.64
+          ],
+          "num_processes_total": 2,
+          "num_worker_processes": 1,
+          "worker_only_rss_mb": 453.64,
+          "aggregate_system_rss_mb": 908.97,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.5632,
+          "wall_duration_sec": 7.8523,
+          "warm_throughput_pages_sec": 35.51,
+          "wall_throughput_pages_sec": 2.55
+        },
+        {
+          "trial": 2,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 455.37,
+          "worker_pids": [
+            13440
+          ],
+          "worker_rss_list": [
+            454.06
+          ],
+          "num_processes_total": 2,
+          "num_worker_processes": 1,
+          "worker_only_rss_mb": 454.06,
+          "aggregate_system_rss_mb": 909.43,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.5715,
+          "wall_duration_sec": 6.7533,
+          "warm_throughput_pages_sec": 35.0,
+          "wall_throughput_pages_sec": 2.96
+        },
+        {
+          "trial": 3,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 455.38,
+          "worker_pids": [
+            3436
+          ],
+          "worker_rss_list": [
+            453.88
+          ],
+          "num_processes_total": 2,
+          "num_worker_processes": 1,
+          "worker_only_rss_mb": 453.88,
+          "aggregate_system_rss_mb": 909.26,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.5152,
+          "wall_duration_sec": 7.2336,
+          "warm_throughput_pages_sec": 38.82,
+          "wall_throughput_pages_sec": 2.76
+        },
+        {
+          "trial": 4,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 456.27,
+          "worker_pids": [
+            5204
+          ],
+          "worker_rss_list": [
+            454.24
+          ],
+          "num_processes_total": 2,
+          "num_worker_processes": 1,
+          "worker_only_rss_mb": 454.24,
+          "aggregate_system_rss_mb": 910.51,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.5576,
+          "wall_duration_sec": 7.016,
+          "warm_throughput_pages_sec": 35.87,
+          "wall_throughput_pages_sec": 2.85
+        },
+        {
+          "trial": 5,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 456.33,
+          "worker_pids": [
+            8832
+          ],
+          "worker_rss_list": [
+            453.95
+          ],
+          "num_processes_total": 2,
+          "num_worker_processes": 1,
+          "worker_only_rss_mb": 453.95,
+          "aggregate_system_rss_mb": 910.28,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.3712,
+          "wall_duration_sec": 5.4388,
+          "warm_throughput_pages_sec": 53.88,
+          "wall_throughput_pages_sec": 3.68
+        }
+      ]
+    },
+    "2_workers": {
+      "worker_count": 2,
+      "processes_included": 3,
+      "trials_run": 5,
+      "warm_throughput": {
+        "mean": 63.39,
+        "std": 3.12,
+        "min": 59.83,
+        "max": 68.42
+      },
+      "wall_throughput": {
+        "mean": 2.89,
+        "std": 0.2,
+        "min": 2.55,
+        "max": 3.04
+      },
+      "coordinator_rss_mb": {
+        "mean": 456.29,
+        "std": 0.03
+      },
+      "worker_only_aggregate_rss_mb": {
+        "mean": 907.97,
+        "std": 0.39
+      },
+      "aggregate_system_rss_mb": {
+        "mean": 1364.27,
+        "std": 0.38,
+        "min": 1363.84,
+        "max": 1364.88
+      },
+      "per_worker_mean_rss_mb": 453.99,
+      "sample_trial_detail": {
+        "trial": 1,
+        "coordinator_pid": 5032,
+        "coordinator_rss_mb": 456.32,
+        "worker_pids": [
+          20852,
+          25756
+        ],
+        "worker_rss_list": [
+          454.05,
+          453.92
+        ],
+        "num_processes_total": 3,
+        "num_worker_processes": 2,
+        "worker_only_rss_mb": 907.97,
+        "aggregate_system_rss_mb": 1364.29,
+        "total_pages_rendered": 20,
+        "warm_render_duration_sec": 0.3168,
+        "wall_duration_sec": 7.8501,
+        "warm_throughput_pages_sec": 63.13,
+        "wall_throughput_pages_sec": 2.55
+      },
+      "all_trials": [
+        {
+          "trial": 1,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 456.32,
+          "worker_pids": [
+            20852,
+            25756
+          ],
+          "worker_rss_list": [
+            454.05,
+            453.92
+          ],
+          "num_processes_total": 3,
+          "num_worker_processes": 2,
+          "worker_only_rss_mb": 907.97,
+          "aggregate_system_rss_mb": 1364.29,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.3168,
+          "wall_duration_sec": 7.8501,
+          "warm_throughput_pages_sec": 63.13,
+          "wall_throughput_pages_sec": 2.55
+        },
+        {
+          "trial": 2,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 456.33,
+          "worker_pids": [
+            10236,
+            17028
+          ],
+          "worker_rss_list": [
+            453.74,
+            454.08
+          ],
+          "num_processes_total": 3,
+          "num_worker_processes": 2,
+          "worker_only_rss_mb": 907.82,
+          "aggregate_system_rss_mb": 1364.15,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.2923,
+          "wall_duration_sec": 6.5712,
+          "warm_throughput_pages_sec": 68.42,
+          "wall_throughput_pages_sec": 3.04
+        },
+        {
+          "trial": 3,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 456.27,
+          "worker_pids": [
+            1380,
+            17392
+          ],
+          "worker_rss_list": [
+            453.95,
+            453.95
+          ],
+          "num_processes_total": 3,
+          "num_worker_processes": 2,
+          "worker_only_rss_mb": 907.9,
+          "aggregate_system_rss_mb": 1364.17,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.3343,
+          "wall_duration_sec": 6.9712,
+          "warm_throughput_pages_sec": 59.83,
+          "wall_throughput_pages_sec": 2.87
+        },
+        {
+          "trial": 4,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 456.27,
+          "worker_pids": [
+            23560,
+            22220
+          ],
+          "worker_rss_list": [
+            453.31,
+            454.26
+          ],
+          "num_processes_total": 3,
+          "num_worker_processes": 2,
+          "worker_only_rss_mb": 907.57,
+          "aggregate_system_rss_mb": 1363.84,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.3177,
+          "wall_duration_sec": 6.7468,
+          "warm_throughput_pages_sec": 62.95,
+          "wall_throughput_pages_sec": 2.96
+        },
+        {
+          "trial": 5,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 456.27,
+          "worker_pids": [
+            10560,
+            11052
+          ],
+          "worker_rss_list": [
+            454.49,
+            454.12
+          ],
+          "num_processes_total": 3,
+          "num_worker_processes": 2,
+          "worker_only_rss_mb": 908.61,
+          "aggregate_system_rss_mb": 1364.88,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.3195,
+          "wall_duration_sec": 6.6324,
+          "warm_throughput_pages_sec": 62.6,
+          "wall_throughput_pages_sec": 3.02
+        }
+      ]
+    },
+    "4_workers": {
+      "worker_count": 4,
+      "processes_included": 5,
+      "trials_run": 5,
+      "warm_throughput": {
+        "mean": 155.35,
+        "std": 12.58,
+        "min": 139.37,
+        "max": 174.67
+      },
+      "wall_throughput": {
+        "mean": 3.2,
+        "std": 0.07,
+        "min": 3.12,
+        "max": 3.28
+      },
+      "coordinator_rss_mb": {
+        "mean": 456.28,
+        "std": 0.0
+      },
+      "worker_only_aggregate_rss_mb": {
+        "mean": 1816.16,
+        "std": 0.29
+      },
+      "aggregate_system_rss_mb": {
+        "mean": 2272.44,
+        "std": 0.29,
+        "min": 2272.11,
+        "max": 2272.86
+      },
+      "per_worker_mean_rss_mb": 454.04,
+      "sample_trial_detail": {
+        "trial": 1,
+        "coordinator_pid": 5032,
+        "coordinator_rss_mb": 456.28,
+        "worker_pids": [
+          16852,
+          12176,
+          26776,
+          24260
+        ],
+        "worker_rss_list": [
+          453.85,
+          453.91,
+          454.04,
+          454.16
+        ],
+        "num_processes_total": 5,
+        "num_worker_processes": 4,
+        "worker_only_rss_mb": 1815.96,
+        "aggregate_system_rss_mb": 2272.24,
+        "total_pages_rendered": 20,
+        "warm_render_duration_sec": 0.1435,
+        "wall_duration_sec": 6.4065,
+        "warm_throughput_pages_sec": 139.37,
+        "wall_throughput_pages_sec": 3.12
+      },
+      "all_trials": [
+        {
+          "trial": 1,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 456.28,
+          "worker_pids": [
+            16852,
+            12176,
+            26776,
+            24260
+          ],
+          "worker_rss_list": [
+            453.85,
+            453.91,
+            454.04,
+            454.16
+          ],
+          "num_processes_total": 5,
+          "num_worker_processes": 4,
+          "worker_only_rss_mb": 1815.96,
+          "aggregate_system_rss_mb": 2272.24,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.1435,
+          "wall_duration_sec": 6.4065,
+          "warm_throughput_pages_sec": 139.37,
+          "wall_throughput_pages_sec": 3.12
+        },
+        {
+          "trial": 2,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 456.28,
+          "worker_pids": [
+            18312,
+            23732,
+            16084,
+            13700
+          ],
+          "worker_rss_list": [
+            454.28,
+            454.27,
+            454.05,
+            453.64
+          ],
+          "num_processes_total": 5,
+          "num_worker_processes": 4,
+          "worker_only_rss_mb": 1816.24,
+          "aggregate_system_rss_mb": 2272.52,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.1145,
+          "wall_duration_sec": 6.0999,
+          "warm_throughput_pages_sec": 174.67,
+          "wall_throughput_pages_sec": 3.28
+        },
+        {
+          "trial": 3,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 456.28,
+          "worker_pids": [
+            17612,
+            22140,
+            17612,
+            6572
+          ],
+          "worker_rss_list": [
+            454.53,
+            454.02,
+            454.54,
+            453.49
+          ],
+          "num_processes_total": 5,
+          "num_worker_processes": 4,
+          "worker_only_rss_mb": 1816.58,
+          "aggregate_system_rss_mb": 2272.86,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.1294,
+          "wall_duration_sec": 6.3167,
+          "warm_throughput_pages_sec": 154.56,
+          "wall_throughput_pages_sec": 3.17
+        },
+        {
+          "trial": 4,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 456.28,
+          "worker_pids": [
+            26508,
+            13004,
+            22976,
+            22040
+          ],
+          "worker_rss_list": [
+            453.98,
+            453.96,
+            454.04,
+            453.85
+          ],
+          "num_processes_total": 5,
+          "num_worker_processes": 4,
+          "worker_only_rss_mb": 1815.83,
+          "aggregate_system_rss_mb": 2272.11,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.1294,
+          "wall_duration_sec": 6.3024,
+          "warm_throughput_pages_sec": 154.56,
+          "wall_throughput_pages_sec": 3.17
+        },
+        {
+          "trial": 5,
+          "coordinator_pid": 5032,
+          "coordinator_rss_mb": 456.29,
+          "worker_pids": [
+            11956,
+            24044,
+            14076,
+            22480
+          ],
+          "worker_rss_list": [
+            454.52,
+            454.32,
+            453.72,
+            453.64
+          ],
+          "num_processes_total": 5,
+          "num_worker_processes": 4,
+          "worker_only_rss_mb": 1816.2,
+          "aggregate_system_rss_mb": 2272.49,
+          "total_pages_rendered": 20,
+          "warm_render_duration_sec": 0.1302,
+          "wall_duration_sec": 6.1046,
+          "warm_throughput_pages_sec": 153.61,
+          "wall_throughput_pages_sec": 3.28
+        }
+      ]
+    }
+  }
+}

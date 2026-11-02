@@ -52,3 +52,33 @@ def test_benchmark_multiprocess_rendering(sample_pdf_bytes):
     assert "2_processes" in result["process_scaling"]
     assert result["process_scaling"]["1_processes"]["error_count"] == 0
     assert result["process_scaling"]["2_processes"]["error_count"] == 0
+
+
+def test_multiprocess_reconciled_memory_accounting(sample_pdf_bytes):
+    """
+    Verify reconciled multiprocess memory accounting:
+    - Explicit tracking of coordinator PID and worker PIDs.
+    - Total processes included = 1 coordinator + N workers.
+    - Reconciled Aggregate System RSS = Coordinator RSS + sum(Worker RSS).
+    - Separation of worker-only RSS from total system aggregate RSS.
+    """
+    result = benchmark_multiprocess_rendering(
+        sample_pdf_bytes,
+        dpi=150,
+        process_counts=[1, 2],
+        pages_per_worker=2,
+    )
+    for pc in [1, 2]:
+        key = f"{pc}_processes"
+        data = result["process_scaling"][key]
+        assert data["processes_included"] == 1 + pc
+        assert data["coordinator_pid"] > 0
+        assert len(data["worker_pids"]) == pc
+        assert all(pid > 0 for pid in data["worker_pids"])
+        assert len(data["worker_rss_list"]) == pc
+        assert data["coordinator_rss_mb"] > 0
+        assert data["worker_only_aggregate_rss_mb"] > 0
+        assert data["aggregate_system_rss_mb"] == pytest.approx(
+            data["coordinator_rss_mb"] + data["worker_only_aggregate_rss_mb"], abs=0.1
+        )
+

@@ -1,11 +1,11 @@
 {
   "project": "LedgerOne",
-  "version": "3.7.0",
-  "phase": "Phase 4 Step 2: Final Financial Evaluation Reconciliation",
-  "last_updated": "2026-11-03T00:48:00+05:30",
+  "version": "3.8.0",
+  "phase": "Phase 4 Step 2: Final Audit and Closure",
+  "last_updated": "2026-11-03T01:10:00+05:30",
   "summary": {
-    "total_tests": 107,
-    "passed": 107,
+    "total_tests": 109,
+    "passed": 109,
     "failed": 0,
     "blocked": 0,
     "skipped": 0,
@@ -1616,6 +1616,36 @@
       "execution_timestamp": "2026-11-03T00:30:00+05:30",
       "executed_by": "LedgerOne Autonomous Engineering Agent",
       "evidence": "LedgerOne/tests/test_reading_order.py::test_non_table_body_concordance_isolation"
+    },
+    {
+      "test_id": "TEST-PH4-TBL-006",
+      "feature_id": "FEAT-TABLE-STRUCTURE",
+      "module": "src.intelligence.table_structure",
+      "test_category": "Unit",
+      "test_scenario": "Verify affine coordinate frame invariance: rigid translation and scaling preserve exact evaluation results",
+      "expected_result": "Row F1, Col F1, Cell Adjacency F1, Content Association Acc identical to 1e-4 under affine transform",
+      "actual_result": "Complete affine invariance verified across translated and non-uniformly scaled geometry",
+      "status": "PASSED",
+      "severity": "Critical",
+      "environment": "Python 3.11.9 / Windows",
+      "execution_timestamp": "2026-11-03T01:08:00+05:30",
+      "executed_by": "LedgerOne Autonomous Engineering Agent",
+      "evidence": "LedgerOne/tests/test_table_structure.py::test_affine_coordinate_frame_invariance"
+    },
+    {
+      "test_id": "TEST-PH4-REN-003",
+      "feature_id": "FEAT-PDF-RENDERING",
+      "module": "src.intelligence.rendering",
+      "test_category": "Performance",
+      "test_scenario": "Verify reconciled multiprocess memory accounting across coordinator and worker processes",
+      "expected_result": "Explicit tracking of coordinator PID and worker PIDs; Aggregate System RSS = Coordinator + sum(Workers)",
+      "actual_result": "Reconciled formula verified: processes_included = 1 + N, aggregate_system_rss_mb equals coordinator + workers",
+      "status": "PASSED",
+      "severity": "Critical",
+      "environment": "Python 3.11.9 / Windows",
+      "execution_timestamp": "2026-11-03T01:08:00+05:30",
+      "executed_by": "LedgerOne Autonomous Engineering Agent",
+      "evidence": "LedgerOne/tests/test_multiprocess_rendering.py::test_multiprocess_reconciled_memory_accounting"
     }
   ]
 }

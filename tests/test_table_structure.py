@@ -158,3 +158,57 @@ def test_incorrect_cell_content_association_penalizes_accuracy():
     assert metrics_swapped["content_association"]["matched_cells"] == 4
     assert metrics_swapped["content_association"]["total_cells"] == 6
     assert metrics_swapped["composite_table_structure_f1"] < 0.85
+
+
+def test_affine_coordinate_frame_invariance():
+    """
+    Verify coordinate frame invariance:
+    Applying rigid translation and uniform/non-uniform scaling to both prediction
+    and reference geometry preserves exact evaluation results (precision, recall, F1, accuracy).
+    """
+    extractor = TableStructureExtractor()
+    items = [
+        (BoundingBox(x0=0.10, y0=0.10, x1=0.30, y1=0.20, x0_pt=60, y0_pt=32, x1_pt=180, y1_pt=64), "A1"),
+        (BoundingBox(x0=0.40, y0=0.10, x1=0.60, y1=0.20, x0_pt=240, y0_pt=32, x1_pt=360, y1_pt=64), "B1"),
+        (BoundingBox(x0=0.10, y0=0.30, x1=0.30, y1=0.40, x0_pt=60, y0_pt=96, x1_pt=180, y1_pt=128), "A2"),
+        (BoundingBox(x0=0.40, y0=0.30, x1=0.60, y1=0.40, x0_pt=240, y0_pt=96, x1_pt=360, y1_pt=128), "B2"),
+    ]
+    gt_table = extractor.extract_table_region(items)
+    pred_table = extractor.extract_table_region(items)
+    base_eval = evaluate_table_structure(pred_table, gt_table)
+
+    # Apply translation dx=0.08, dy=0.04 and non-uniform scaling sx=0.75, sy=0.85
+    def transform_box(b, dx=0.08, dy=0.04, sx=0.75, sy=0.85):
+        return BoundingBox(
+            x0=round(b.x0 * sx + dx, 4),
+            y0=round(b.y0 * sy + dy, 4),
+            x1=round(b.x1 * sx + dx, 4),
+            y1=round(b.y1 * sy + dy, 4),
+            x0_pt=round(b.x0_pt * sx + dx * 600, 2),
+            y0_pt=round(b.y0_pt * sy + dy * 320, 2),
+            x1_pt=round(b.x1_pt * sx + dx * 600, 2),
+            y1_pt=round(b.y1_pt * sy + dy * 320, 2),
+        )
+
+    t_pred = TableRegion(
+        region_id=pred_table.region_id,
+        bbox=transform_box(pred_table.bbox),
+        rows=[TableRow(row_index=r.row_index, bbox=transform_box(r.bbox), cells=[TableCell(row_index=c.row_index, col_index=c.col_index, bbox=transform_box(c.bbox), text=c.text) for c in r.cells]) for r in pred_table.rows],
+        columns=[TableColumn(col_index=c.col_index, bbox=transform_box(c.bbox)) for c in pred_table.columns],
+        cells=[TableCell(row_index=c.row_index, col_index=c.col_index, bbox=transform_box(c.bbox), text=c.text) for c in pred_table.cells],
+    )
+    t_gt = TableRegion(
+        region_id=gt_table.region_id,
+        bbox=transform_box(gt_table.bbox),
+        rows=[TableRow(row_index=r.row_index, bbox=transform_box(r.bbox), cells=[TableCell(row_index=c.row_index, col_index=c.col_index, bbox=transform_box(c.bbox), text=c.text) for c in r.cells]) for r in gt_table.rows],
+        columns=[TableColumn(col_index=c.col_index, bbox=transform_box(c.bbox)) for c in gt_table.columns],
+        cells=[TableCell(row_index=c.row_index, col_index=c.col_index, bbox=transform_box(c.bbox), text=c.text) for c in gt_table.cells],
+    )
+
+    transformed_eval = evaluate_table_structure(t_pred, t_gt)
+    assert abs(base_eval["row_metrics"]["f1"] - transformed_eval["row_metrics"]["f1"]) < 1e-4
+    assert abs(base_eval["column_metrics"]["f1"] - transformed_eval["column_metrics"]["f1"]) < 1e-4
+    assert abs(base_eval["cell_adjacency_metrics"]["f1"] - transformed_eval["cell_adjacency_metrics"]["f1"]) < 1e-4
+    assert abs(base_eval["content_association"]["accuracy"] - transformed_eval["content_association"]["accuracy"]) < 1e-4
+    assert abs(base_eval["composite_table_structure_f1"] - transformed_eval["composite_table_structure_f1"]) < 1e-4
+

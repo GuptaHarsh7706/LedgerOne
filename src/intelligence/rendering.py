@@ -415,11 +415,11 @@ def evaluate_pdfium_lock_contention(
     }
 
 
-def _multiprocess_render_worker(args: Tuple[bytes, int, int]) -> Tuple[int, float, float, float]:
+def _multiprocess_render_worker(args: Tuple[bytes, int, int]) -> Tuple[int, float, float, float, int]:
     """
     Independent worker process function for PDF rendering.
     Maintains an isolated C++ PDFium runtime and font cache per process.
-    Returns: (pages_rendered, render_duration_sec, peak_rss_mb, init_duration_sec)
+    Returns: (pages_rendered, render_duration_sec, peak_rss_mb, init_duration_sec, worker_pid)
     """
     pdf_bytes, dpi, max_pages = args
     import time
@@ -427,6 +427,7 @@ def _multiprocess_render_worker(args: Tuple[bytes, int, int]) -> Tuple[int, floa
     from src.intelligence.rendering import PDFRenderer
 
     p = psutil.Process()
+    worker_pid = p.pid
     t_start_init = time.perf_counter()
     renderer = PDFRenderer(default_dpi=dpi)
     t_render_start = time.perf_counter()
@@ -437,7 +438,7 @@ def _multiprocess_render_worker(args: Tuple[bytes, int, int]) -> Tuple[int, floa
         page.close()
     render_dur = max(1e-6, time.perf_counter() - t_render_start)
     rss_peak = p.memory_info().rss / (1024 * 1024)
-    return (count, render_dur, rss_peak, init_dur)
+    return (count, render_dur, rss_peak, init_dur, worker_pid)
 
 
 def benchmark_multiprocess_rendering(
@@ -484,7 +485,17 @@ def benchmark_multiprocess_rendering(
         warm_speedup = round(float(warm_throughput / max(1e-6, base_warm_throughput)), 2)
         wall_speedup = round(float(wall_clock_throughput / max(1e-6, base_wall_throughput)), 2)
 
+        worker_sum_rss = sum(r[2] for r in worker_results)
+        aggregate_system_rss = round(rss_end + worker_sum_rss, 2)
+        worker_only_rss = round(worker_sum_rss, 2)
+
         scaling_results[f"{pc}_processes"] = {
+            "worker_count": pc,
+            "processes_included": 1 + pc,
+            "coordinator_pid": parent_proc.pid,
+            "coordinator_rss_mb": round(rss_end, 2),
+            "worker_pids": [r[4] for r in worker_results],
+            "worker_rss_list": [round(r[2], 2) for r in worker_results],
             "total_pages": total_pages,
             "duration_seconds": round(wall_clock_sec, 4),
             "warm_render_duration_seconds": round(max_worker_render_dur, 4),
@@ -496,8 +507,9 @@ def benchmark_multiprocess_rendering(
             "warm_speedup": warm_speedup,
             "wall_clock_speedup": wall_speedup,
             "per_worker_peak_rss_mb": round(max(r[2] for r in worker_results), 2),
-            "coordinator_rss_mb": round(rss_end, 2),
-            "aggregate_process_memory_mb": round(rss_end + sum(r[2] for r in worker_results), 2),
+            "worker_only_aggregate_rss_mb": worker_only_rss,
+            "aggregate_system_rss_mb": aggregate_system_rss,
+            "aggregate_process_memory_mb": aggregate_system_rss,
             "peak_rss_mb": round(max(r[2] for r in worker_results), 2),
             "scaling_efficiency": round(warm_speedup / pc, 4),
             "error_count": 0,
