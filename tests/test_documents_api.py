@@ -138,7 +138,19 @@ async def test_document_lifecycle_and_rbac(client, db_pool):
     intent_doc_id = intent_data["document"]["id"]
     assert intent_data["document"]["status"] == "UPLOAD_PENDING"
 
-    # Complete upload
+    # 6b. Attempt complete upload before file is uploaded to storage -> 404 Not Found
+    unuploaded_res = await client.post(
+        f"/api/v1/organizations/{org_id}/workspaces/{ws_id}/documents/{intent_doc_id}/complete-upload",
+        headers={**admin_headers, "X-Organization-ID": str(org_id)},
+    )
+    assert unuploaded_res.status_code == 404
+    assert "Uploaded object not found in storage" in unuploaded_res.json()["error"]["message"]
+
+    # Simulate client uploading the file to S3 via presigned URL
+    from src.storage.s3 import storage_manager
+    storage_manager.upload_bytes(key=intent_data["document"]["s3_key"], data=intent_pdf)
+
+    # Complete upload succeeds now that object exists in storage
     complete_res = await client.post(
         f"/api/v1/organizations/{org_id}/workspaces/{ws_id}/documents/{intent_doc_id}/complete-upload",
         headers={**admin_headers, "X-Organization-ID": str(org_id)},

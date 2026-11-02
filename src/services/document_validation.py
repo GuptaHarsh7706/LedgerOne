@@ -6,12 +6,77 @@ import hashlib
 import io
 import mimetypes
 from typing import Any, Dict, Optional, Tuple
+import zipfile
 from PIL import Image
 import pypdfium2
 
 from src.exceptions import ValidationError
 
 MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024  # 50 MB
+MAX_ZIP_ENTRIES = 1000
+MAX_DECOMPRESSED_SIZE_BYTES = 100 * 1024 * 1024  # 100 MB
+MAX_COMPRESSION_RATIO = 100.0
+
+
+def validate_zip_archive_safety(data: bytes, ext: str) -> None:
+    """
+    Safely inspect ZIP-based Office OpenXML packages (DOCX, XLSX) before processing.
+    Guards against ZIP bombs, path traversal, recursive archives, and corrupt OpenXML structures.
+    """
+    try:
+        with zipfile.ZipFile(io.BytesIO(data)) as zf:
+            entries = zf.infolist()
+            if len(entries) > MAX_ZIP_ENTRIES:
+                raise ValidationError(
+                    f"Decompression security limit exceeded: archive has {len(entries)} entries (max: {MAX_ZIP_ENTRIES})",
+                    details={"entry_count": len(entries), "max_entries": MAX_ZIP_ENTRIES},
+                )
+
+            total_uncompressed = 0
+            for entry in entries:
+                # Check for path traversal in entry filenames
+                if ".." in entry.filename or entry.filename.startswith("/"):
+                    raise ValidationError(
+                        f"Zip entry contains dangerous path traversal pattern: {entry.filename}",
+                        details={"entry_filename": entry.filename},
+                    )
+                total_uncompressed += entry.file_size
+
+            if total_uncompressed > MAX_DECOMPRESSED_SIZE_BYTES:
+                raise ValidationError(
+                    f"Decompression security limit exceeded: decompressed size {total_uncompressed} bytes exceeds safety limit {MAX_DECOMPRESSED_SIZE_BYTES} bytes (100 MB)",
+                    details={"uncompressed_bytes": total_uncompressed, "max_bytes": MAX_DECOMPRESSED_SIZE_BYTES},
+                )
+
+            compressed_len = max(1, len(data))
+            ratio = total_uncompressed / compressed_len
+            if ratio > MAX_COMPRESSION_RATIO:
+                raise ValidationError(
+                    f"Abnormal compression ratio detected: {ratio:.1f}:1 exceeds threshold {MAX_COMPRESSION_RATIO}:1 (potential Zip bomb)",
+                    details={"compression_ratio": ratio, "max_ratio": MAX_COMPRESSION_RATIO},
+                )
+
+            # Validate mandatory OpenXML structure
+            names = set(zf.namelist())
+            if "[Content_Types].xml" not in names:
+                raise ValidationError(
+                    "Invalid Office OpenXML package: missing [Content_Types].xml manifest",
+                    details={"extension": ext},
+                )
+
+            if ext == "docx" and "word/document.xml" not in names:
+                raise ValidationError(
+                    "Invalid DOCX structure: missing word/document.xml",
+                    details={"extension": ext},
+                )
+            elif ext == "xlsx" and "xl/workbook.xml" not in names:
+                raise ValidationError(
+                    "Invalid XLSX structure: missing xl/workbook.xml",
+                    details={"extension": ext},
+                )
+
+    except zipfile.BadZipFile:
+        raise ValidationError(f"Corrupt or invalid ZIP-based Office archive (.{ext})")
 
 # Magic number signatures
 MAGIC_SIGNATURES: Dict[str, bytes] = {
@@ -145,5 +210,14 @@ def validate_document_file(
                 metadata["page_count"] = getattr(img, "n_frames", 1)
         except Exception:
             raise ValidationError("Corrupt or invalid image file structure", details={"filename": filename})
+
+    elif detected_mime in {
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }:
+        ext = filename.lower().split(".")[-1] if "." in filename else ""
+        validate_zip_archive_safety(data, ext)
+        metadata["archive_format"] = "OpenXML"
+        metadata["is_zip_package"] = True
 
     return detected_mime, sha256, metadata

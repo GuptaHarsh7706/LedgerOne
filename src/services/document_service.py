@@ -179,6 +179,13 @@ class DocumentService:
             if doc["upload_lease_expires_at"] and doc["upload_lease_expires_at"] < datetime.now(timezone.utc):
                 raise ConflictError("Upload lease has expired. Please re-initiate upload intent.")
 
+            # Verify object actually exists in S3 storage before confirming
+            if not storage_manager.object_exists(doc["s3_key"]):
+                raise NotFoundError(
+                    "Uploaded object not found in storage. Ensure file was uploaded to the presigned URL before completion.",
+                    details={"s3_key": doc["s3_key"]},
+                )
+
             # Update status to QUEUED
             updated_doc = await conn.fetchrow(
                 """
@@ -484,6 +491,91 @@ class DocumentService:
             if not row:
                 raise NotFoundError("Deleted document not found", details={"document_id": str(doc_uuid)})
             return dict(row)
+
+    async def transition_document_status(
+        self,
+        org_id: uuid.UUID | str,
+        workspace_id: uuid.UUID | str,
+        document_id: uuid.UUID | str,
+        target_status: str,
+        error_message: Optional[str] = None,
+        actor_id: Optional[uuid.UUID | str] = None,
+        actor_role: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Controlled document lifecycle state transitions with failure, retry,
+        and terminal completion accounting.
+        """
+        org_uuid = uuid.UUID(str(org_id))
+        ws_uuid = uuid.UUID(str(workspace_id))
+        doc_uuid = uuid.UUID(str(document_id))
+
+        if target_status not in DOCUMENT_STATES:
+            raise ValidationError(
+                f"Invalid target status: '{target_status}'. Must be one of: {DOCUMENT_STATES}",
+                details={"target_status": target_status},
+            )
+
+        context = TenantContext(
+            org_id=org_uuid,
+            workspace_id=ws_uuid,
+            user_id=uuid.UUID(str(actor_id)) if actor_id else None,
+            user_role=actor_role or "DOCUMENT_MANAGER",
+        )
+
+        async with transactional_tenant_session(self.pool, context=context, enforce_app_role=True) as conn:
+            doc = await conn.fetchrow(
+                """
+                SELECT id, status, metadata
+                FROM documents
+                WHERE organization_id = $1 AND workspace_id = $2 AND id = $3 AND is_deleted = FALSE
+                """,
+                org_uuid,
+                ws_uuid,
+                doc_uuid,
+            )
+            if not doc:
+                raise NotFoundError("Document not found", details={"document_id": str(doc_uuid)})
+
+            current_status = doc["status"]
+
+            # Terminal states cannot be transitioned unless retry or administrative re-extraction
+            if current_status in {"COMPLETED", "CANCELLED"} and target_status != "QUEUED":
+                raise ConflictError(
+                    f"Document is in terminal status '{current_status}' and cannot transition to '{target_status}'",
+                    details={"current_status": current_status, "target_status": target_status},
+                )
+
+            # Metadata updates on failure / retry
+            meta = doc["metadata"] or {}
+            if isinstance(meta, str):
+                import json
+                try:
+                    meta = json.loads(meta)
+                except Exception:
+                    meta = {}
+
+            if error_message:
+                meta["last_error"] = error_message
+                meta["error_timestamp"] = datetime.now(timezone.utc).isoformat()
+
+            import json
+            meta_json = json.dumps(meta)
+
+            updated = await conn.fetchrow(
+                """
+                UPDATE documents
+                SET status = $4, metadata = $5::jsonb, updated_at = CURRENT_TIMESTAMP
+                WHERE organization_id = $1 AND workspace_id = $2 AND id = $3
+                RETURNING id, organization_id, workspace_id, filename, status, metadata, updated_at
+                """,
+                org_uuid,
+                ws_uuid,
+                doc_uuid,
+                target_status,
+                meta_json,
+            )
+            return dict(updated)
 
 
 document_service = DocumentService()

@@ -6,10 +6,12 @@ import io
 import time
 from typing import Any, Dict, Optional
 import boto3
+from botocore.config import Config
 import botocore.exceptions
 import structlog
 
 from src.config import get_settings
+from src.dns import init_dns_resolver
 
 logger = structlog.get_logger(__name__)
 
@@ -29,13 +31,21 @@ class StorageManager:
             if not self.settings.AWS_ACCESS_KEY_ID or not self.settings.AWS_SECRET_ACCESS_KEY:
                 return None
 
+            init_dns_resolver()
             session = boto3.session.Session()
+            s3_config = Config(
+                s3={"addressing_style": "path"},
+                signature_version="s3v4",
+                connect_timeout=5,
+                read_timeout=15,
+            )
             self._client = session.client(
                 service_name="s3",
                 aws_access_key_id=self.settings.AWS_ACCESS_KEY_ID,
                 aws_secret_access_key=self.settings.AWS_SECRET_ACCESS_KEY,
                 endpoint_url=self.settings.AWS_ENDPOINT_URL_S3,
                 region_name=self.settings.AWS_REGION,
+                config=s3_config,
             )
         return self._client
 
