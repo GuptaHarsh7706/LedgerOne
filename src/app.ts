@@ -10,7 +10,12 @@ import {
   uploadDocument,
   getDocument,
   listDocuments,
+  s3,
+  streamToBuffer,
 } from "./storage.js";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import path from "node:path";
+import fs from "node:fs";
 import { config } from "./config.js";
 import { AuthService } from "./auth/auth-service.js";
 import { TenantService } from "./tenant/tenant-service.js";
@@ -21,11 +26,12 @@ import {
   requireTenantContext,
   requireRoles,
 } from "./middleware/auth-middleware.js";
-import { withTenantTransaction } from "./db/tenant-context.js";
+import { withTenantTransaction, adminPool } from "./db/tenant-context.js";
 
 export function createApp() {
   const app = express();
   app.use(express.json());
+  app.use(express.static(path.resolve(process.cwd(), "public")));
 
   const authService = new AuthService();
   const tenantService = new TenantService();
@@ -428,6 +434,189 @@ export function createApp() {
     }
   );
 
+  // 5.3 Document Content & Streaming API (Tenant RLS Scoped)
+  app.get(
+    "/api/v1/documents/:id/content",
+    authenticate,
+    requireTenantContext,
+    async (req: Request, res: Response) => {
+      try {
+        const documentId = req.params.id as string;
+        const doc = await withTenantTransaction(req.tenantContext!, async (client) => {
+          const result = await client.query(
+            `SELECT id, organization_id, workspace_id, filename, s3_key, mime_type
+             FROM documents
+             WHERE id = $1 AND organization_id = $2;`,
+            [documentId, req.tenantContext!.organizationId]
+          );
+          return result.rows[0] || null;
+        });
+
+        if (!doc) {
+          return res.status(404).json({ error: "Document not found" });
+        }
+
+        try {
+          const s3Res = await s3.send(
+            new GetObjectCommand({
+              Bucket: config.storage.bucket,
+              Key: doc.s3_key,
+            })
+          );
+          const buffer = await streamToBuffer(s3Res.Body);
+          const isText = doc.mime_type.startsWith("text/") || doc.mime_type === "application/json";
+          
+          if (isText) {
+            res.status(200).json({
+              content: buffer.toString("utf-8"),
+              mimeType: doc.mime_type,
+              filename: doc.filename,
+              sizeBytes: buffer.length,
+            });
+          } else {
+            res.status(200).json({
+              dataUrl: `data:${doc.mime_type};base64,${buffer.toString("base64")}`,
+              content: buffer.toString("utf-8"),
+              mimeType: doc.mime_type,
+              filename: doc.filename,
+              sizeBytes: buffer.length,
+            });
+          }
+        } catch (s3Err: any) {
+          // If S3 key missing, assemble content from persisted chunks
+          const chunks = await withTenantTransaction(req.tenantContext!, async (client) => {
+            const cRes = await client.query(
+              `SELECT content FROM document_chunks WHERE document_id = $1 AND organization_id = $2 ORDER BY chunk_index ASC;`,
+              [documentId, req.tenantContext!.organizationId]
+            );
+            return cRes.rows.map((r) => r.content).join("\n");
+          });
+          res.status(200).json({
+            content: chunks || `[Document ${doc.filename}]`,
+            mimeType: doc.mime_type,
+            filename: doc.filename,
+            isFallback: true,
+          });
+        }
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+
+  // 5.4 Approve Document & Mark COMPLETED (Reviewer Gate)
+  app.post(
+    "/api/v1/documents/:id/approve",
+    authenticate,
+    requireTenantContext,
+    requireRoles(["ORGANIZATION_ADMIN", "WORKSPACE_ADMIN", "DOCUMENT_MANAGER", "REVIEWER"]),
+    async (req: Request, res: Response) => {
+      try {
+        const documentId = req.params.id as string;
+        const { notes } = req.body || {};
+
+        // 1. Verify document exists under caller's tenant context (RLS check)
+        const doc = await withTenantTransaction(req.tenantContext!, async (client) => {
+          const docRes = await client.query(
+            `SELECT id, organization_id, workspace_id, status, category, filename
+             FROM documents
+             WHERE id = $1 AND organization_id = $2;`,
+            [documentId, req.tenantContext!.organizationId]
+          );
+
+          if (docRes.rows.length === 0) {
+            throw new Error("Document not found");
+          }
+
+          return docRes.rows[0];
+        });
+
+        // 2. Transactionally perform approval transition, field verification, and audit logging
+        const client = await adminPool.connect();
+        try {
+          await client.query("BEGIN;");
+
+          const updateRes = await client.query(
+            `UPDATE documents
+             SET status = 'COMPLETED',
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE id = $1 AND organization_id = $2
+             RETURNING id, organization_id, workspace_id, filename, status, updated_at;`,
+            [documentId, req.tenantContext!.organizationId]
+          );
+
+          // Mark unverified fields as verified
+          await client.query(
+            `UPDATE extracted_fields
+             SET is_verified = TRUE,
+                 verified_value = COALESCE(verified_value, field_value_normalized),
+                 verified_by_user_id = $2,
+                 verified_at = CURRENT_TIMESTAMP
+             WHERE document_id = $1 AND organization_id = $3 AND is_verified = FALSE;`,
+            [documentId, req.tenantContext!.userId, req.tenantContext!.organizationId]
+          );
+
+          // Log immutable audit entry
+          await client.query(
+            `INSERT INTO audit_logs (
+               organization_id, tenant_slug_snapshot, workspace_id, user_id, action,
+               entity_type, entity_id, previous_state, new_state
+             ) VALUES ($1, 'snapshot', $2, $3, 'DOCUMENT_APPROVED', 'DOCUMENT', $4, $5, $6);`,
+            [
+              req.tenantContext!.organizationId,
+              doc.workspace_id,
+              req.tenantContext!.userId,
+              documentId,
+              JSON.stringify({ status: doc.status }),
+              JSON.stringify({ status: "COMPLETED", approvedBy: req.tenantContext!.userId, notes: notes || null }),
+            ]
+          );
+
+          await client.query("COMMIT;");
+          res.status(200).json({ document: updateRes.rows[0], message: "Document approved and marked COMPLETED" });
+        } catch (txErr) {
+          await client.query("ROLLBACK;");
+          throw txErr;
+        } finally {
+          client.release();
+        }
+      } catch (err: any) {
+        res.status(400).json({ error: err.message });
+      }
+    }
+  );
+
+  // 5.5 Document Audit Trail History
+  app.get(
+    "/api/v1/documents/:id/audit-trail",
+    authenticate,
+    requireTenantContext,
+    async (req: Request, res: Response) => {
+      try {
+        const documentId = req.params.id as string;
+        const auditEntries = await withTenantTransaction(req.tenantContext!, async (client) => {
+          const result = await client.query(
+            `SELECT a.id, a.action, a.entity_type, a.entity_id, a.previous_state, a.new_state,
+                    a.created_at, u.email as user_email, u.full_name as user_name
+             FROM audit_logs a
+             LEFT JOIN users u ON a.user_id = u.id
+             WHERE a.organization_id = $1 
+               AND (a.entity_id = $2 OR a.entity_id IN (
+                 SELECT ef.id FROM extracted_fields ef WHERE ef.document_id = $2 AND ef.organization_id = $1
+               ))
+             ORDER BY a.created_at DESC;`,
+            [req.tenantContext!.organizationId, documentId]
+          );
+          return result.rows;
+        });
+
+        res.status(200).json({ auditTrail: auditEntries });
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+
   app.get(
     "/api/v1/jobs/:id",
     authenticate,
@@ -646,6 +835,21 @@ export function createApp() {
       res.status(200).json(result);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ==========================================================================
+  // 7. Phase 5: Human Verification UI SPA Fallback
+  // ==========================================================================
+  app.use((req: Request, res: Response) => {
+    if (req.path.startsWith("/api/")) {
+      return res.status(404).json({ error: "Endpoint not found" });
+    }
+    const indexPath = path.resolve(process.cwd(), "public", "index.html");
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(200).send("LedgerOne API Server Running");
     }
   });
 

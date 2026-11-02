@@ -20,6 +20,15 @@ export const s3 = new S3Client({
   },
 });
 
+export async function streamToBuffer(stream: any): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    stream.on("data", (chunk: any) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+    stream.on("error", reject);
+    stream.on("end", () => resolve(Buffer.concat(chunks)));
+  });
+}
+
 export async function checkStorageHealth(): Promise<{ ok: boolean; bucket: string; objectCount: number }> {
   const command = new ListObjectsV2Command({
     Bucket: config.storage.bucket,

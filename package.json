@@ -8,13 +8,14 @@
     "start": "node dist/index.js",
     "worker": "tsx src/workers/ingestion-worker.ts",
     "dev": "tsx src/index.ts",
-    "test": "tsx test/verify-services.ts && tsx test/adversarial-security.test.ts && tsx test/queue-and-upload.test.ts && tsx test/s3-multipart.test.ts && tsx test/auth-and-workspaces.test.ts && tsx test/ingestion-worker.test.ts && tsx test/document-intelligence.test.ts",
+    "test": "tsx test/verify-services.ts && tsx test/adversarial-security.test.ts && tsx test/queue-and-upload.test.ts && tsx test/s3-multipart.test.ts && tsx test/auth-and-workspaces.test.ts && tsx test/ingestion-worker.test.ts && tsx test/document-intelligence.test.ts && tsx test/human-verification-ui.test.ts",
     "test:auth": "tsx test/auth-and-workspaces.test.ts",
     "test:security": "tsx test/adversarial-security.test.ts",
     "test:queue": "tsx test/queue-and-upload.test.ts",
     "test:worker": "tsx test/ingestion-worker.test.ts",
     "test:s3": "tsx test/s3-multipart.test.ts",
-    "test:intel": "tsx test/document-intelligence.test.ts"
+    "test:intel": "tsx test/document-intelligence.test.ts",
+    "test:ui": "tsx test/human-verification-ui.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1161.0",
