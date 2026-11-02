@@ -8,6 +8,7 @@ import { adminPool } from "../db/tenant-context.js";
 import { DocumentTextExtractor } from "../intelligence/text-extractor.js";
 import { FinancialFieldExtractor } from "../intelligence/field-extractor.js";
 import { FinancialInvariantEngine } from "../intelligence/invariant-engine.js";
+import { defaultEmbeddingEngine } from "../search/embedding-engine.js";
 import crypto from "node:crypto";
 
 async function streamToBuffer(stream: any): Promise<Buffer> {
@@ -119,17 +120,21 @@ export class IngestionWorker {
       // 4. Extract Text & Geometry Layout Chunks
       const textExtraction = await this.textExtractor.extract(docBuffer, doc.mime_type, doc.filename);
 
-      // Persist chunks idempotently with composite parent-child keys
+      // Persist chunks idempotently with composite parent-child keys and dense vector embeddings
       for (const chunk of textExtraction.chunks) {
+        const embedding = defaultEmbeddingEngine.embed(chunk.content);
+        const embeddingPg = defaultEmbeddingEngine.formatForPgVector(embedding);
+
         await adminPool.query(
           `INSERT INTO document_chunks (
-             organization_id, workspace_id, document_id, chunk_index, page_number, bounding_box, content
-           ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+             organization_id, workspace_id, document_id, chunk_index, page_number, bounding_box, content, embedding
+           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8::vector)
            ON CONFLICT (organization_id, workspace_id, document_id, chunk_index)
            DO UPDATE SET
              content = EXCLUDED.content,
              bounding_box = EXCLUDED.bounding_box,
-             page_number = EXCLUDED.page_number;`,
+             page_number = EXCLUDED.page_number,
+             embedding = EXCLUDED.embedding;`,
           [
             doc.organization_id,
             doc.workspace_id,
@@ -138,6 +143,7 @@ export class IngestionWorker {
             chunk.pageNumber,
             JSON.stringify(chunk.boundingBox),
             chunk.content,
+            embeddingPg,
           ]
         );
       }

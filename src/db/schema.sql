@@ -192,6 +192,8 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 CREATE INDEX IF NOT EXISTS idx_audit_org_created ON audit_logs(organization_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_doc_jobs_claim ON document_jobs(status, run_at, priority DESC, id ASC) WHERE status = 'QUEUED';
 CREATE INDEX IF NOT EXISTS idx_doc_chunks_vector ON document_chunks USING hnsw (embedding vector_cosine_ops);
+CREATE INDEX IF NOT EXISTS idx_doc_chunks_tsv ON document_chunks USING gin (tsv_content);
+CREATE INDEX IF NOT EXISTS idx_doc_chunks_tenant_lookup ON document_chunks(organization_id, workspace_id, document_id);
 CREATE INDEX IF NOT EXISTS idx_documents_tenant_ws ON documents(organization_id, workspace_id, status);
 
 -- ============================================================================

@@ -27,6 +27,9 @@ import {
   requireRoles,
 } from "./middleware/auth-middleware.js";
 import { withTenantTransaction, adminPool } from "./db/tenant-context.js";
+import { defaultHybridSearchEngine } from "./search/hybrid-search.js";
+import { defaultGroundedQAEngine } from "./search/grounded-qa.js";
+import { HELD_OUT_BENCHMARK_SAMPLES, BenchmarkEvaluator } from "./search/eval-benchmark.js";
 
 export function createApp() {
   const app = express();
@@ -839,7 +842,247 @@ export function createApp() {
   });
 
   // ==========================================================================
-  // 7. Phase 5: Human Verification UI SPA Fallback
+  // 7. Phase 6: Grounded Q&A & Hybrid Search (P0) APIs
+  // ==========================================================================
+
+  // 7.1 Workspace Hybrid / Dense / Lexical Search
+  app.post(
+    "/api/v1/workspaces/:workspaceId/search",
+    authenticate,
+    requireTenantContext,
+    async (req: Request, res: Response) => {
+      try {
+        const workspaceId = req.params.workspaceId as string;
+        const {
+          query,
+          mode = "hybrid",
+          limit = 10,
+          documentId,
+          minScore,
+          k,
+          denseWeight,
+          lexicalWeight,
+        } = req.body || {};
+
+        if (!query || typeof query !== "string" || query.trim().length === 0) {
+          return res.status(400).json({ error: "Missing or invalid 'query' parameter" });
+        }
+
+        const orgId = req.tenantContext!.organizationId;
+
+        const results = await withTenantTransaction(req.tenantContext!, async (client) => {
+          if (mode === "dense") {
+            return await defaultHybridSearchEngine.searchDense(orgId, query, {
+              workspaceId,
+              documentId,
+              limit,
+              poolClient: client,
+            });
+          } else if (mode === "lexical") {
+            return await defaultHybridSearchEngine.searchLexical(orgId, query, {
+              workspaceId,
+              documentId,
+              limit,
+              poolClient: client,
+            });
+          } else {
+            return await defaultHybridSearchEngine.searchHybrid(orgId, query, {
+              workspaceId,
+              documentId,
+              limit,
+              minScore,
+              k,
+              denseWeight,
+              lexicalWeight,
+              poolClient: client,
+            });
+          }
+        });
+
+        res.status(200).json(results);
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+
+  // 7.2 Workspace Grounded Q&A
+  app.post(
+    "/api/v1/workspaces/:workspaceId/qa",
+    authenticate,
+    requireTenantContext,
+    async (req: Request, res: Response) => {
+      try {
+        const workspaceId = req.params.workspaceId as string;
+        const { question, documentId, strictAbstention, minConfidence } = req.body || {};
+
+        if (!question || typeof question !== "string" || question.trim().length === 0) {
+          return res.status(400).json({ error: "Missing or invalid 'question' parameter" });
+        }
+
+        const orgId = req.tenantContext!.organizationId;
+
+        const qaResponse = await withTenantTransaction(req.tenantContext!, async (client) => {
+          return await defaultGroundedQAEngine.answerQuestion(orgId, {
+            question,
+            workspaceId,
+            documentId,
+            strictAbstention,
+            minConfidence,
+            poolClient: client,
+          });
+        });
+
+        res.status(200).json(qaResponse);
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+
+  // 7.3 Single Document Grounded Q&A
+  app.post(
+    "/api/v1/documents/:id/qa",
+    authenticate,
+    requireTenantContext,
+    async (req: Request, res: Response) => {
+      try {
+        const documentId = req.params.id as string;
+        const { question, strictAbstention, minConfidence } = req.body || {};
+
+        if (!question || typeof question !== "string" || question.trim().length === 0) {
+          return res.status(400).json({ error: "Missing or invalid 'question' parameter" });
+        }
+
+        const orgId = req.tenantContext!.organizationId;
+
+        const qaResponse = await withTenantTransaction(req.tenantContext!, async (client) => {
+          // Check document exists and belongs to tenant
+          const docRes = await client.query(
+            `SELECT id, workspace_id FROM documents WHERE id = $1 AND organization_id = $2;`,
+            [documentId, orgId]
+          );
+
+          if (docRes.rows.length === 0) {
+            throw new Error("Document not found");
+          }
+
+          const workspaceId = docRes.rows[0].workspace_id;
+
+          return await defaultGroundedQAEngine.answerQuestion(orgId, {
+            question,
+            workspaceId,
+            documentId,
+            strictAbstention,
+            minConfidence,
+            poolClient: client,
+          });
+        });
+
+        res.status(200).json(qaResponse);
+      } catch (err: any) {
+        res.status(err.message === "Document not found" ? 404 : 500).json({ error: err.message });
+      }
+    }
+  );
+
+  // 7.4 Search & Q&A Held-Out Evaluation Benchmark Endpoint
+  app.get(
+    "/api/v1/workspaces/:workspaceId/search/benchmark",
+    authenticate,
+    requireTenantContext,
+    requireRoles(["ORGANIZATION_ADMIN", "WORKSPACE_ADMIN", "ANALYST"]),
+    async (req: Request, res: Response) => {
+      try {
+        const workspaceId = req.params.workspaceId as string;
+        const orgId = req.tenantContext!.organizationId;
+
+        const benchmarkResults = await withTenantTransaction(req.tenantContext!, async (client) => {
+          const retrievalLatencies: number[] = [];
+          const generationLatencies: number[] = [];
+          const citationsEvaluated: Array<{ chunkId: string; pageNumber: number; boundingBox: [number, number, number, number] }> = [];
+          const validChunkIds = new Set<string>();
+
+          // Fetch valid chunk ids for this workspace
+          const chunkRes = await client.query(
+            `SELECT id FROM document_chunks WHERE organization_id = $1 AND workspace_id = $2;`,
+            [orgId, workspaceId]
+          );
+          for (const row of chunkRes.rows) {
+            validChunkIds.add(row.id);
+          }
+
+          let correctAbstentions = 0;
+          let unanswerableCount = 0;
+          let answerableCount = 0;
+          let correctAnswers = 0;
+          let supportedCitations = 0;
+          let totalCitations = 0;
+
+          for (const sample of HELD_OUT_BENCHMARK_SAMPLES) {
+            const qa = await defaultGroundedQAEngine.answerQuestion(orgId, {
+              question: sample.question,
+              workspaceId,
+              poolClient: client,
+            });
+
+            retrievalLatencies.push(qa.retrievalDurationMs);
+            generationLatencies.push(qa.generationDurationMs);
+
+            if (sample.expectedAbstention) {
+              unanswerableCount++;
+              if (qa.abstained) correctAbstentions++;
+            } else {
+              answerableCount++;
+              if (!qa.abstained) {
+                correctAnswers++;
+                if (sample.expectedAnswerSubstring && qa.answer.includes(sample.expectedAnswerSubstring)) {
+                  // exact substring grounded
+                }
+              }
+            }
+
+            for (const cit of qa.citations) {
+              totalCitations++;
+              citationsEvaluated.push(cit);
+              const supportScore = BenchmarkEvaluator.evaluateCitationSupport(cit.snippet, qa.answer);
+              if (supportScore >= 0.8) supportedCitations++;
+            }
+          }
+
+          const citationValidityRate = BenchmarkEvaluator.evaluateCitationValidity(citationsEvaluated, validChunkIds);
+          const citationSupportRate = totalCitations > 0 ? Number((supportedCitations / totalCitations).toFixed(4)) : 1.0;
+          const abstentionAccuracy = unanswerableCount > 0 ? Number((correctAbstentions / unanswerableCount).toFixed(4)) : 1.0;
+          const retrievalP95 = BenchmarkEvaluator.computeP95(retrievalLatencies);
+          const generationP95 = BenchmarkEvaluator.computeP95(generationLatencies);
+
+          return {
+            totalSamples: HELD_OUT_BENCHMARK_SAMPLES.length,
+            answerableCount,
+            unanswerableCount,
+            citationValidityRate,
+            citationSupportRate,
+            abstentionAccuracy,
+            retrievalP95Ms: retrievalP95,
+            generationP95Ms: generationP95,
+            targetsSatisfied: {
+              citationValidityTargetMet: citationValidityRate === 1.0,
+              citationSupportTargetMet: citationSupportRate >= 0.90,
+              abstentionAccuracyTargetMet: abstentionAccuracy >= 0.92,
+              retrievalP95TargetMet: retrievalP95 <= 200,
+            },
+          };
+        });
+
+        res.status(200).json(benchmarkResults);
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+
+  // ==========================================================================
+  // 8. Phase 5: Human Verification UI SPA Fallback
   // ==========================================================================
   app.use((req: Request, res: Response) => {
     if (req.path.startsWith("/api/")) {
