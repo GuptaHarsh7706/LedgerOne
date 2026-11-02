@@ -1,7 +1,0 @@
-# ==============================================================================
-# LedgerOne: Background Worker & Caching Tier Requirements
-# Redis distributed caching & rate limiting with PostgreSQL transactional queueing
-# ==============================================================================
--r database.txt
--r storage.txt
-redis>=5.2.0,<6.0.0

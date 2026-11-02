@@ -1,9 +1,0 @@
-# ==============================================================================
-# LedgerOne: Base Runtime Requirements
-# Core shared data structures, settings, configuration and utilities
-# ==============================================================================
-pydantic>=2.10.0,<3.0.0
-pydantic-settings>=2.6.0,<3.0.0
-python-dotenv>=1.0.1
-tenacity>=9.0.0
-dnspython>=2.7.0
