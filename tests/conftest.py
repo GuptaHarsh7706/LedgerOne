@@ -30,9 +30,9 @@ async def app_instance():
 
     await db_manager.connect(
         dsn=dsn,
-        min_size=2,
+        min_size=1,
         max_size=5,
-        timeout=20.0,
+        timeout=30.0,
     )
 
     yield app

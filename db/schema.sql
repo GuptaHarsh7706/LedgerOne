@@ -292,6 +292,11 @@ CREATE POLICY rls_org_select ON organizations
   USING (
     id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
     OR NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+    OR id IN (
+      SELECT om.organization_id FROM organization_memberships om
+      WHERE om.user_id = NULLIF(current_setting('app.current_user_id', true), '')::uuid
+        AND om.is_active = true
+    )
   );
 
 DROP POLICY IF EXISTS rls_org_insert ON organizations;
@@ -730,3 +735,41 @@ TO ledgerone_app;
 
 GRANT SELECT, INSERT ON audit_logs TO ledgerone_app;
 REVOKE UPDATE, DELETE ON audit_logs FROM ledgerone_app;
+
+
+-- ============================================================================
+-- 9. REFRESH TOKENS & SESSION MANAGEMENT (PHASE 2)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash VARCHAR(255) NOT NULL UNIQUE,
+  family_id UUID NOT NULL,
+  is_revoked BOOLEAN NOT NULL DEFAULT FALSE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  revoked_at TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user ON refresh_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_family ON refresh_tokens(family_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_hash ON refresh_tokens(token_hash);
+
+ALTER TABLE refresh_tokens ENABLE ROW LEVEL SECURITY;
+ALTER TABLE refresh_tokens FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS rls_refresh_tokens_all ON refresh_tokens;
+CREATE POLICY rls_refresh_tokens_all ON refresh_tokens
+  FOR ALL
+  USING (
+    user_id = NULLIF(current_setting('app.current_user_id', true), '')::uuid
+    OR NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+    OR NULLIF(current_setting('app.current_user_id', true), '') IS NULL
+  )
+  WITH CHECK (
+    user_id = NULLIF(current_setting('app.current_user_id', true), '')::uuid
+    OR NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+    OR NULLIF(current_setting('app.current_user_id', true), '') IS NULL
+  );
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON refresh_tokens TO ledgerone_app;

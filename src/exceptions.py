@@ -35,6 +35,21 @@ class DatabaseError(LedgerOneException):
     error_code = "DATABASE_ERROR"
 
 
+class AuthenticationError(LedgerOneException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    error_code = "AUTHENTICATION_REQUIRED"
+
+
+class AuthorizationError(LedgerOneException):
+    status_code = status.HTTP_403_FORBIDDEN
+    error_code = "INSUFFICIENT_PERMISSIONS"
+
+
+class ConflictError(LedgerOneException):
+    status_code = status.HTTP_409_CONFLICT
+    error_code = "RESOURCE_CONFLICT"
+
+
 class TenantIsolationError(LedgerOneException):
     status_code = status.HTTP_403_FORBIDDEN
     error_code = "TENANT_ISOLATION_ERROR"

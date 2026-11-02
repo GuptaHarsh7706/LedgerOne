@@ -61,6 +61,15 @@ class Settings(BaseSettings):
     AWS_REGION: str = Field(default="ap-southeast-1", description="S3 AWS Region")
     S3_BUCKET_ASSETS: str = Field(default="assets", description="Primary document assets bucket")
 
+    # JWT Authentication & Tokens
+    JWT_SECRET_KEY: str = Field(
+        default="ledgerone-dev-secret-key-replace-in-production-must-be-32-chars",
+        description="Secret key for signing JWT tokens",
+    )
+    JWT_ALGORITHM: str = Field(default="HS256", description="Algorithm for JWT signature")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=15, description="Access token expiration in minutes")
+    REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=7, description="Refresh token expiration in days")
+
     # CORS
     CORS_ORIGINS: List[str] = Field(default=["*"], description="Allowed CORS origins")
 
