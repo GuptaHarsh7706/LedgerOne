@@ -2,6 +2,7 @@
   "schema_version": "1.0.0",
   "register_title": "LedgerOne Financial Document Benchmark Dataset Provenance Register",
   "curation_standard": "Phase 4 Step 2 Formal Validation Standard",
+  "provenance_disclaimer": "All 30 benchmark documents are clean-room synthetic artifacts. Splits 'development' (10 docs) and 'synthetic_held_out' (10 docs) were generated using internal development templates. Split 'external_held_out' (10 docs, EXT-HELD-01 through EXT-HELD-10) comprises independently authored synthetic template reconstructions inspired by public enterprise schemas (AWS, Shell POS, Dell PO, Chase, IRS 1040, Vanguard, DIN 5008, CPA audit). Zero claim of genuine customer production data is made.",
   "total_documents": 30,
   "splits_summary": {
     "development": 10,

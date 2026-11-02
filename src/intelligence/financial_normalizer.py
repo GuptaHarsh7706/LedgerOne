@@ -61,6 +61,14 @@ ISO_CURRENCY_CODES = {
     "USD", "EUR", "GBP", "JPY", "INR", "CAD", "AUD", "CHF", "SGD", "HKD", "NZD", "SEK", "NOK"
 }
 
+# Standard non-currency accounting keywords allowed in financial lines
+ACCOUNTING_KEYWORDS = {
+    "INV", "TOTAL", "SUBTOTAL", "TAX", "DUE", "AMOUNT", "BAL", "BALANCE",
+    "PAY", "PAYMENT", "NET", "FEE", "QTY", "RATE", "CR", "DR", "VAT", "GST",
+    "REF", "NO", "POS", "SUM", "PER", "FOR", "END", "OCT", "NOV", "DEC",
+    "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP"
+}
+
 
 def parse_monetary_entry(
     raw_text: str,
@@ -94,21 +102,60 @@ def parse_monetary_entry(
             confidence=0.0,
         )
 
-    # 1. Currency Detection
-    detected_symbol: Optional[str] = None
-    detected_code: Optional[str] = default_currency
+    # Check for illegal slash separator in numeric expression (e.g. $ 10/00000 or 10/00/00)
+    if re.search(r"\d+/\d+", raw_str):
+        return MonetaryEntry(
+            raw_text=raw_text,
+            validation_status=ValidationStatus.AMBIGUOUS,
+            rejection_reason=f"Illegal or ambiguous slash separator in numeric expression: '{raw_str}'",
+            confidence=source_confidence * 0.2,
+        )
 
-    for sym, code in CURRENCY_SYMBOL_MAP.items():
-        if sym in raw_str:
-            detected_symbol = sym
-            if not detected_code:
-                detected_code = code
-            break
+    # 1. Currency Detection & Conflict Validation
+    found_symbols = [sym for sym in CURRENCY_SYMBOL_MAP.keys() if sym in raw_str]
+    if len(found_symbols) > 1:
+        return MonetaryEntry(
+            raw_text=raw_text,
+            validation_status=ValidationStatus.AMBIGUOUS,
+            rejection_reason=f"Multiple conflicting currency symbols detected: {found_symbols}",
+            confidence=source_confidence * 0.2,
+        )
+
+    detected_symbol: Optional[str] = found_symbols[0] if found_symbols else None
+    detected_code: Optional[str] = default_currency
 
     for iso in ISO_CURRENCY_CODES:
         if re.search(r"\b" + re.escape(iso) + r"\b", raw_str, re.IGNORECASE):
             detected_code = iso.upper()
             break
+
+    # Conflict between detected symbol and detected ISO code
+    if detected_symbol and detected_code:
+        expected_code = CURRENCY_SYMBOL_MAP.get(detected_symbol)
+        if expected_code and expected_code != detected_code:
+            return MonetaryEntry(
+                raw_text=raw_text,
+                currency_symbol=detected_symbol,
+                currency_code=detected_code,
+                validation_status=ValidationStatus.AMBIGUOUS,
+                rejection_reason=f"Conflicting currency symbol '{detected_symbol}' ({expected_code}) and code '{detected_code}' detected",
+                confidence=source_confidence * 0.2,
+            )
+
+    if detected_symbol and not detected_code:
+        detected_code = CURRENCY_SYMBOL_MAP.get(detected_symbol)
+
+    # Detect unrecognized or corrupted 3-letter currency code adjacent to number (e.g. 205.00 OSD)
+    m_unknown = re.search(r'(?:[\d.,\'-]+\s+([A-Z]{3})\b|\b([A-Z]{3})\s+[\d.,\'-]+)', raw_str)
+    if m_unknown:
+        cand_code = m_unknown.group(1) or m_unknown.group(2)
+        if cand_code not in ISO_CURRENCY_CODES and cand_code not in ACCOUNTING_KEYWORDS:
+            return MonetaryEntry(
+                raw_text=raw_text,
+                validation_status=ValidationStatus.NEEDS_REVIEW,
+                rejection_reason=f"Unrecognized or corrupted currency code '{cand_code}' detected",
+                confidence=source_confidence * 0.3,
+            )
 
     # 2. Accounting Negative & Credit / Debit Analysis
     is_negative = False
@@ -144,6 +191,10 @@ def parse_monetary_entry(
     # Leading minus: -123.45 or -$123.45
     if cleaned_tokens.startswith("-"):
         is_negative = True
+        cleaned_tokens = cleaned_tokens[1:].strip()
+
+    # Leading plus: +123.45 or +$123.45
+    if cleaned_tokens.startswith("+"):
         cleaned_tokens = cleaned_tokens[1:].strip()
 
     # Extract primary numeric candidate:
@@ -421,6 +472,7 @@ def evaluate_field_with_safe_abstention(
     raw_ocr_field_text: str,
     ground_truth_field_text: str,
     is_monetary_field: bool = True,
+    source_confidence: float = 1.0,
 ) -> Dict[str, Any]:
     """
     Evaluate a predicted field against ground truth with safe abstention routing.
@@ -429,6 +481,7 @@ def evaluate_field_with_safe_abstention(
     - Incorrect or ambiguous monetary values MUST be abstained from automatic acceptance.
     - Abstaining routes to ValidationStatus.AMBIGUOUS or NEEDS_REVIEW.
     - Precision is evaluated strictly over accepted fields.
+    - Propagates source OCR confidence for risk-coverage curves.
     """
     if not is_monetary_field:
         # Non-monetary exact string match (verbatim match preserving case and punctuation)
@@ -441,10 +494,11 @@ def evaluate_field_with_safe_abstention(
             "status": ValidationStatus.VALID if matched else ValidationStatus.NEEDS_REVIEW,
             "raw_predicted": raw_ocr_field_text,
             "ground_truth": ground_truth_field_text,
+            "confidence": source_confidence,
         }
 
     # Parse candidate via safe monetary engine
-    pred_entry = parse_monetary_entry(raw_ocr_field_text)
+    pred_entry = parse_monetary_entry(raw_ocr_field_text, source_confidence=source_confidence)
     gt_entry = parse_monetary_entry(ground_truth_field_text)
 
     # If predicted entry was marked AMBIGUOUS or INVALID by the normalizer, abstain!
@@ -457,6 +511,7 @@ def evaluate_field_with_safe_abstention(
             "raw_predicted": raw_ocr_field_text,
             "ground_truth": ground_truth_field_text,
             "entry": pred_entry,
+            "confidence": pred_entry.confidence,
         }
 
     # If accepted, compare parsed decimal values and currencies
@@ -486,4 +541,5 @@ def evaluate_field_with_safe_abstention(
         "parsed_decimal_predicted": str(pred_entry.parsed_decimal) if pred_entry.parsed_decimal else None,
         "parsed_decimal_gt": str(gt_entry.parsed_decimal) if gt_entry.parsed_decimal else None,
         "entry": pred_entry,
+        "confidence": pred_entry.confidence,
     }

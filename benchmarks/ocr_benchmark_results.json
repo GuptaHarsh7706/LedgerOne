@@ -1,5 +1,5 @@
 {
-  "benchmark_timestamp": "2026-11-02T23:12:27+0530",
+  "benchmark_timestamp": "2026-11-03T00:02:43+0530",
   "hardware_environment": {
     "cuda_available": true,
     "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
@@ -79,19 +79,19 @@
   "stage_1_recognition_only": {
     "BaselinePatternRecognizer (CPU Heuristic)": {
       "device": "cpu",
-      "model_load_duration_seconds": 10.17,
+      "model_load_duration_seconds": 9.36,
       "single_item_latency_ms": {
-        "p50": 9.7,
-        "p95": 16.18,
-        "mean": 10.35,
-        "reconciled_sequential_throughput_lines_sec": 96.58
+        "p50": 13.09,
+        "p95": 20.01,
+        "mean": 12.65,
+        "reconciled_sequential_throughput_lines_sec": 79.03
       },
       "batch_scaling": {
         "batch_size_1": {
           "items_evaluated": 172,
-          "total_wall_clock_seconds": 2.2438,
-          "throughput_lines_per_sec": 76.66,
-          "effective_latency_ms_per_line": 13.05,
+          "total_wall_clock_seconds": 2.3928,
+          "throughput_lines_per_sec": 71.88,
+          "effective_latency_ms_per_line": 13.91,
           "mean_cer": 0.8745,
           "mean_wer": 1.0,
           "gpu_memory": null
@@ -123,7 +123,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 1.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "date": {
             "total_fields": 27,
@@ -135,7 +136,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 1.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_id": {
             "total_fields": 8,
@@ -147,7 +149,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 1.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "currency_code": {
             "total_fields": 29,
@@ -159,7 +162,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 1.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "quantity": {
             "total_fields": 21,
@@ -171,7 +175,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.5238,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.4762
+            "abstention_rate": 0.4762,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "unit_price": {
             "total_fields": 16,
@@ -183,7 +188,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 1.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_percentage": {
             "total_fields": 8,
@@ -195,7 +201,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 1.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "total_amount": {
             "total_fields": 29,
@@ -207,7 +214,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 1.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "subtotal": {
             "total_fields": 10,
@@ -219,7 +227,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 1.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_amount": {
             "total_fields": 6,
@@ -231,7 +240,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 1.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           }
         },
         "per_document_category": {
@@ -348,204 +358,276 @@
         },
         "risk_vs_coverage_curve": [
           {
+            "confidence_threshold": 0.0,
+            "automatically_accepted": 11,
+            "abstained": 166,
+            "correct_accepted": 11,
+            "false_accepts": 0,
+            "false_rejects": 0,
+            "accepted_precision": 1.0,
+            "coverage": 0.0621,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
             "confidence_threshold": 0.4,
             "automatically_accepted": 11,
             "abstained": 166,
+            "correct_accepted": 11,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
             "coverage": 0.0621,
-            "false_acceptance_rate": 0.0
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.5,
             "automatically_accepted": 11,
             "abstained": 166,
+            "correct_accepted": 11,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
             "coverage": 0.0621,
-            "false_acceptance_rate": 0.0
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.6,
             "automatically_accepted": 11,
             "abstained": 166,
+            "correct_accepted": 11,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
             "coverage": 0.0621,
-            "false_acceptance_rate": 0.0
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.7,
             "automatically_accepted": 11,
             "abstained": 166,
+            "correct_accepted": 11,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
             "coverage": 0.0621,
-            "false_acceptance_rate": 0.0
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.75,
+            "automatically_accepted": 11,
+            "abstained": 166,
+            "correct_accepted": 11,
+            "false_accepts": 0,
+            "false_rejects": 0,
+            "accepted_precision": 1.0,
+            "coverage": 0.0621,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.8,
             "automatically_accepted": 11,
             "abstained": 166,
+            "correct_accepted": 11,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
             "coverage": 0.0621,
-            "false_acceptance_rate": 0.0
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.85,
+            "automatically_accepted": 11,
+            "abstained": 166,
+            "correct_accepted": 11,
+            "false_accepts": 0,
+            "false_rejects": 0,
+            "accepted_precision": 1.0,
+            "coverage": 0.0621,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.9,
             "automatically_accepted": 11,
             "abstained": 166,
+            "correct_accepted": 11,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
             "coverage": 0.0621,
-            "false_acceptance_rate": 0.0
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.95,
             "automatically_accepted": 11,
             "abstained": 166,
+            "correct_accepted": 11,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
             "coverage": 0.0621,
-            "false_acceptance_rate": 0.0
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           }
         ]
       }
     },
     "TrOCR (CPU FP32)": {
       "device": "cpu",
-      "model_load_duration_seconds": 10.17,
+      "model_load_duration_seconds": 9.36,
       "single_item_latency_ms": {
-        "p50": 480.98,
-        "p95": 840.01,
-        "mean": 596.0,
-        "reconciled_sequential_throughput_lines_sec": 1.68
+        "p50": 457.61,
+        "p95": 757.02,
+        "mean": 504.05,
+        "reconciled_sequential_throughput_lines_sec": 1.98
       },
       "batch_scaling": {
         "batch_size_1": {
-          "items_evaluated": 5,
-          "total_wall_clock_seconds": 3.0615,
-          "throughput_lines_per_sec": 1.63,
-          "effective_latency_ms_per_line": 612.3,
-          "mean_cer": 0.3146,
-          "mean_wer": 0.5,
+          "items_evaluated": 20,
+          "total_wall_clock_seconds": 10.0811,
+          "throughput_lines_per_sec": 1.98,
+          "effective_latency_ms_per_line": 504.06,
+          "mean_cer": 0.2794,
+          "mean_wer": 0.4831,
           "gpu_memory": null
         },
         "batch_size_4": {
-          "items_evaluated": 5,
-          "total_wall_clock_seconds": 2.5735,
-          "throughput_lines_per_sec": 1.94,
-          "effective_latency_ms_per_line": 514.69,
-          "mean_cer": 0.3146,
-          "mean_wer": 0.5,
+          "items_evaluated": 20,
+          "total_wall_clock_seconds": 7.7246,
+          "throughput_lines_per_sec": 2.59,
+          "effective_latency_ms_per_line": 386.23,
+          "mean_cer": 0.2794,
+          "mean_wer": 0.4831,
           "gpu_memory": null
         }
       },
       "financial_fields_evaluation": {
         "overall_summary": {
           "total_fields": 177,
-          "raw_exact_matches": 0,
-          "raw_exact_match_rate": 0.0,
-          "automatically_accepted_fields": 0,
-          "correct_accepted_fields": 0,
+          "raw_exact_matches": 22,
+          "raw_exact_match_rate": 0.1243,
+          "automatically_accepted_fields": 22,
+          "correct_accepted_fields": 22,
           "incorrect_accepted_fields": 0,
-          "abstained_fields": 177,
-          "abstention_rate": 1.0,
+          "abstained_fields": 155,
+          "abstention_rate": 0.8757,
           "accepted_precision": 1.0,
-          "coverage": 0.0,
+          "coverage": 0.1243,
           "false_acceptance_rate": 0.0,
           "target_98_percent_achieved": true
         },
         "per_field_category": {
           "invoice_number": {
             "total_fields": 23,
-            "raw_exact_matches": 0,
-            "automatically_accepted_fields": 0,
-            "correct_accepted_fields": 0,
+            "raw_exact_matches": 3,
+            "automatically_accepted_fields": 3,
+            "correct_accepted_fields": 3,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 23,
+            "abstained_fields": 20,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
+            "coverage": 0.1304,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 0.8696,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "date": {
             "total_fields": 27,
-            "raw_exact_matches": 0,
-            "automatically_accepted_fields": 0,
-            "correct_accepted_fields": 0,
+            "raw_exact_matches": 3,
+            "automatically_accepted_fields": 3,
+            "correct_accepted_fields": 3,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 27,
+            "abstained_fields": 24,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
+            "coverage": 0.1111,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 0.8889,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_id": {
             "total_fields": 8,
-            "raw_exact_matches": 0,
-            "automatically_accepted_fields": 0,
-            "correct_accepted_fields": 0,
+            "raw_exact_matches": 2,
+            "automatically_accepted_fields": 2,
+            "correct_accepted_fields": 2,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 8,
+            "abstained_fields": 6,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
+            "coverage": 0.25,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 0.75,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "currency_code": {
             "total_fields": 29,
-            "raw_exact_matches": 0,
-            "automatically_accepted_fields": 0,
-            "correct_accepted_fields": 0,
+            "raw_exact_matches": 3,
+            "automatically_accepted_fields": 3,
+            "correct_accepted_fields": 3,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 29,
+            "abstained_fields": 26,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
+            "coverage": 0.1034,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 0.8966,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "quantity": {
             "total_fields": 21,
-            "raw_exact_matches": 0,
-            "automatically_accepted_fields": 0,
-            "correct_accepted_fields": 0,
+            "raw_exact_matches": 3,
+            "automatically_accepted_fields": 3,
+            "correct_accepted_fields": 3,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 21,
+            "abstained_fields": 18,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
+            "coverage": 0.1429,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 0.8571,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "unit_price": {
             "total_fields": 16,
-            "raw_exact_matches": 0,
-            "automatically_accepted_fields": 0,
-            "correct_accepted_fields": 0,
+            "raw_exact_matches": 3,
+            "automatically_accepted_fields": 3,
+            "correct_accepted_fields": 3,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 16,
+            "abstained_fields": 13,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
+            "coverage": 0.1875,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 0.8125,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_percentage": {
             "total_fields": 8,
-            "raw_exact_matches": 0,
-            "automatically_accepted_fields": 0,
-            "correct_accepted_fields": 0,
+            "raw_exact_matches": 3,
+            "automatically_accepted_fields": 3,
+            "correct_accepted_fields": 3,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 8,
+            "abstained_fields": 5,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
+            "coverage": 0.375,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 0.625,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "total_amount": {
             "total_fields": 29,
-            "raw_exact_matches": 0,
-            "automatically_accepted_fields": 0,
-            "correct_accepted_fields": 0,
+            "raw_exact_matches": 2,
+            "automatically_accepted_fields": 2,
+            "correct_accepted_fields": 2,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 29,
+            "abstained_fields": 27,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
+            "coverage": 0.069,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 0.931,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "subtotal": {
             "total_fields": 10,
@@ -557,7 +639,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 1.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_amount": {
             "total_fields": 6,
@@ -569,38 +652,39 @@
             "accepted_precision": 1.0,
             "coverage": 0.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 1.0
+            "abstention_rate": 1.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           }
         },
         "per_document_category": {
           "Commercial Invoice": {
             "total": 34,
-            "accepted": 0,
-            "abstained": 34,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
+            "accepted": 7,
+            "abstained": 27,
+            "accepted_matched": 7,
+            "raw_matched": 7,
+            "raw_exact_match_rate": 0.2059,
+            "abstention_rate": 0.7941,
             "accepted_precision": 1.0
           },
           "Thermal Receipt": {
             "total": 22,
-            "accepted": 0,
-            "abstained": 22,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
+            "accepted": 7,
+            "abstained": 15,
+            "accepted_matched": 7,
+            "raw_matched": 7,
+            "raw_exact_match_rate": 0.3182,
+            "abstention_rate": 0.6818,
             "accepted_precision": 1.0
           },
           "Purchase Order": {
             "total": 23,
-            "accepted": 0,
-            "abstained": 23,
-            "accepted_matched": 0,
-            "raw_matched": 0,
-            "raw_exact_match_rate": 0.0,
-            "abstention_rate": 1.0,
+            "accepted": 8,
+            "abstained": 15,
+            "accepted_matched": 8,
+            "raw_matched": 8,
+            "raw_exact_match_rate": 0.3478,
+            "abstention_rate": 0.6522,
             "accepted_precision": 1.0
           },
           "Bank Statement": {
@@ -686,79 +770,143 @@
         },
         "risk_vs_coverage_curve": [
           {
-            "confidence_threshold": 0.4,
-            "automatically_accepted": 0,
-            "abstained": 177,
+            "confidence_threshold": 0.0,
+            "automatically_accepted": 22,
+            "abstained": 155,
+            "correct_accepted": 22,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.1243,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.4,
+            "automatically_accepted": 22,
+            "abstained": 155,
+            "correct_accepted": 22,
+            "false_accepts": 0,
+            "false_rejects": 0,
+            "accepted_precision": 1.0,
+            "coverage": 0.1243,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.5,
-            "automatically_accepted": 0,
-            "abstained": 177,
+            "automatically_accepted": 22,
+            "abstained": 155,
+            "correct_accepted": 22,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.1243,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.6,
-            "automatically_accepted": 0,
-            "abstained": 177,
+            "automatically_accepted": 22,
+            "abstained": 155,
+            "correct_accepted": 22,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.1243,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.7,
-            "automatically_accepted": 0,
-            "abstained": 177,
+            "automatically_accepted": 22,
+            "abstained": 155,
+            "correct_accepted": 22,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.1243,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.75,
+            "automatically_accepted": 22,
+            "abstained": 155,
+            "correct_accepted": 22,
+            "false_accepts": 0,
+            "false_rejects": 0,
+            "accepted_precision": 1.0,
+            "coverage": 0.1243,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.8,
-            "automatically_accepted": 0,
-            "abstained": 177,
+            "automatically_accepted": 22,
+            "abstained": 155,
+            "correct_accepted": 22,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.1243,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.85,
+            "automatically_accepted": 21,
+            "abstained": 156,
+            "correct_accepted": 21,
+            "false_accepts": 0,
+            "false_rejects": 1,
+            "accepted_precision": 1.0,
+            "coverage": 0.1186,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0056
           },
           {
             "confidence_threshold": 0.9,
-            "automatically_accepted": 0,
-            "abstained": 177,
+            "automatically_accepted": 20,
+            "abstained": 157,
+            "correct_accepted": 20,
+            "false_accepts": 0,
+            "false_rejects": 2,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.113,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0113
           },
           {
             "confidence_threshold": 0.95,
-            "automatically_accepted": 0,
-            "abstained": 177,
+            "automatically_accepted": 6,
+            "abstained": 171,
+            "correct_accepted": 6,
+            "false_accepts": 0,
+            "false_rejects": 16,
             "accepted_precision": 1.0,
-            "coverage": 0.0,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.0339,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0904
           }
         ]
       }
     },
     "TrOCR (RTX 3050 GPU FP16)": {
       "device": "cuda",
-      "model_load_duration_seconds": 1.09,
+      "model_load_duration_seconds": 1.35,
       "single_item_latency_ms": {
-        "p50": 140.64,
-        "p95": 233.84,
-        "mean": 154.43,
-        "reconciled_sequential_throughput_lines_sec": 6.48
+        "p50": 139.62,
+        "p95": 238.95,
+        "mean": 150.87,
+        "reconciled_sequential_throughput_lines_sec": 6.63
       },
       "batch_scaling": {
         "batch_size_1": {
           "items_evaluated": 172,
-          "total_wall_clock_seconds": 28.8484,
-          "throughput_lines_per_sec": 5.96,
-          "effective_latency_ms_per_line": 167.72,
+          "total_wall_clock_seconds": 27.7311,
+          "throughput_lines_per_sec": 6.2,
+          "effective_latency_ms_per_line": 161.23,
           "mean_cer": 0.3772,
           "mean_wer": 0.5867,
           "gpu_memory": {
@@ -775,9 +923,9 @@
         },
         "batch_size_4": {
           "items_evaluated": 172,
-          "total_wall_clock_seconds": 10.4872,
-          "throughput_lines_per_sec": 16.4,
-          "effective_latency_ms_per_line": 60.97,
+          "total_wall_clock_seconds": 10.1517,
+          "throughput_lines_per_sec": 16.94,
+          "effective_latency_ms_per_line": 59.02,
           "mean_cer": 0.377,
           "mean_wer": 0.5852,
           "gpu_memory": {
@@ -794,9 +942,9 @@
         },
         "batch_size_8": {
           "items_evaluated": 172,
-          "total_wall_clock_seconds": 6.0714,
-          "throughput_lines_per_sec": 28.33,
-          "effective_latency_ms_per_line": 35.3,
+          "total_wall_clock_seconds": 5.9713,
+          "throughput_lines_per_sec": 28.8,
+          "effective_latency_ms_per_line": 34.72,
           "mean_cer": 0.3772,
           "mean_wer": 0.5867,
           "gpu_memory": {
@@ -838,7 +986,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.9565,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0435
+            "abstention_rate": 0.0435,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "date": {
             "total_fields": 27,
@@ -850,7 +999,8 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_id": {
             "total_fields": 8,
@@ -862,7 +1012,8 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "currency_code": {
             "total_fields": 29,
@@ -874,7 +1025,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.9655,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0345
+            "abstention_rate": 0.0345,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "quantity": {
             "total_fields": 21,
@@ -886,7 +1038,8 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "unit_price": {
             "total_fields": 16,
@@ -898,7 +1051,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.875,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.125
+            "abstention_rate": 0.125,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_percentage": {
             "total_fields": 8,
@@ -910,7 +1064,8 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "total_amount": {
             "total_fields": 29,
@@ -922,7 +1077,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.6552,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.3448
+            "abstention_rate": 0.3448,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "subtotal": {
             "total_fields": 10,
@@ -934,7 +1090,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.6,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.4
+            "abstention_rate": 0.4,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_amount": {
             "total_fields": 6,
@@ -946,7 +1103,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.6667,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.3333
+            "abstention_rate": 0.3333,
+            "ground_truth_match_rate_on_accepted": 1.0
           }
         },
         "per_document_category": {
@@ -1063,60 +1221,124 @@
         },
         "risk_vs_coverage_curve": [
           {
+            "confidence_threshold": 0.0,
+            "automatically_accepted": 157,
+            "abstained": 20,
+            "correct_accepted": 157,
+            "false_accepts": 0,
+            "false_rejects": 0,
+            "accepted_precision": 1.0,
+            "coverage": 0.887,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
             "confidence_threshold": 0.4,
             "automatically_accepted": 157,
             "abstained": 20,
+            "correct_accepted": 157,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
             "coverage": 0.887,
-            "false_acceptance_rate": 0.0
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.5,
             "automatically_accepted": 157,
             "abstained": 20,
+            "correct_accepted": 157,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
             "coverage": 0.887,
-            "false_acceptance_rate": 0.0
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.6,
             "automatically_accepted": 157,
             "abstained": 20,
+            "correct_accepted": 157,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
             "coverage": 0.887,
-            "false_acceptance_rate": 0.0
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.7,
             "automatically_accepted": 157,
             "abstained": 20,
+            "correct_accepted": 157,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
             "coverage": 0.887,
-            "false_acceptance_rate": 0.0
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.75,
+            "automatically_accepted": 157,
+            "abstained": 20,
+            "correct_accepted": 157,
+            "false_accepts": 0,
+            "false_rejects": 0,
+            "accepted_precision": 1.0,
+            "coverage": 0.887,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.8,
-            "automatically_accepted": 157,
-            "abstained": 20,
+            "automatically_accepted": 154,
+            "abstained": 23,
+            "correct_accepted": 154,
+            "false_accepts": 0,
+            "false_rejects": 3,
             "accepted_precision": 1.0,
-            "coverage": 0.887,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.8701,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0169
+          },
+          {
+            "confidence_threshold": 0.85,
+            "automatically_accepted": 144,
+            "abstained": 33,
+            "correct_accepted": 144,
+            "false_accepts": 0,
+            "false_rejects": 13,
+            "accepted_precision": 1.0,
+            "coverage": 0.8136,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0734
           },
           {
             "confidence_threshold": 0.9,
-            "automatically_accepted": 157,
-            "abstained": 20,
+            "automatically_accepted": 105,
+            "abstained": 72,
+            "correct_accepted": 105,
+            "false_accepts": 0,
+            "false_rejects": 52,
             "accepted_precision": 1.0,
-            "coverage": 0.887,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.5932,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.2938
           },
           {
             "confidence_threshold": 0.95,
-            "automatically_accepted": 157,
-            "abstained": 20,
+            "automatically_accepted": 29,
+            "abstained": 148,
+            "correct_accepted": 29,
+            "false_accepts": 0,
+            "false_rejects": 128,
             "accepted_precision": 1.0,
-            "coverage": 0.887,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.1638,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.7232
           }
         ]
       }
@@ -1126,11 +1348,11 @@
     "morphological_line_detector": {
       "status": "Provisional Baseline",
       "latency_ms": {
-        "p50": 0.59,
-        "p95": 1.15,
-        "mean": 0.75
+        "p50": 0.82,
+        "p95": 1.61,
+        "mean": 0.99
       },
-      "throughput_pages_per_sec": 1325.8,
+      "throughput_pages_per_sec": 1013.2,
       "multi_threshold_metrics": {
         "iou_40": {
           "avg_f1": 0.9468
@@ -1148,11 +1370,11 @@
     "projection_profile_detector": {
       "status": "Comparative Baseline",
       "latency_ms": {
-        "p50": 0.61,
-        "p95": 1.29,
-        "mean": 0.65
+        "p50": 0.68,
+        "p95": 1.16,
+        "mean": 0.72
       },
-      "throughput_pages_per_sec": 1539.7,
+      "throughput_pages_per_sec": 1397.1,
       "multi_threshold_metrics": {
         "iou_40": {
           "avg_f1": 0.8188
@@ -2048,30 +2270,41 @@
       "device": "cuda",
       "documents_evaluated": 10,
       "latency_ms": {
-        "p50": 250.26,
-        "p95": 323.93,
-        "mean": 242.53
+        "p50": 251.75,
+        "p95": 313.88,
+        "mean": 249.14
       },
-      "throughput_pages_per_sec": 4.12,
-      "mean_cer": 0.3765,
-      "mean_wer": 0.6316,
+      "throughput_pages_per_sec": 4.01,
+      "mean_cer": 0.3815,
+      "mean_wer": 0.6509,
       "reading_order": {
-        "concordant_pairs": 132,
-        "total_annotated_pairs": 132,
-        "pairwise_concordance_accuracy": 1.0
+        "methodology": "Hungarian 1-to-1 Bipartite Matching (scipy.optimize.linear_sum_assignment)",
+        "concordant_pairs": 137,
+        "discordant_pairs": 0,
+        "total_annotated_pairs": 137,
+        "total_reference_pairs": 137,
+        "pairwise_concordance_accuracy": 1.0,
+        "matched_concordance_accuracy": 1.0,
+        "strict_concordance_accuracy": 1.0,
+        "mean_alignment_precision": 0.9607,
+        "mean_alignment_recall": 1.0,
+        "unmatched_predictions_count": 2,
+        "unmatched_references_count": 0,
+        "non_table_concordance": 1.0,
+        "table_concordance": 1.0
       },
       "financial_fields": {
         "overall_summary": {
           "total_fields": 55,
-          "raw_exact_matches": 49,
-          "raw_exact_match_rate": 0.8909,
-          "automatically_accepted_fields": 49,
-          "correct_accepted_fields": 49,
+          "raw_exact_matches": 46,
+          "raw_exact_match_rate": 0.8364,
+          "automatically_accepted_fields": 46,
+          "correct_accepted_fields": 46,
           "incorrect_accepted_fields": 0,
-          "abstained_fields": 6,
-          "abstention_rate": 0.1091,
+          "abstained_fields": 9,
+          "abstention_rate": 0.1636,
           "accepted_precision": 1.0,
-          "coverage": 0.8909,
+          "coverage": 0.8364,
           "false_acceptance_rate": 0.0,
           "target_98_percent_achieved": true
         },
@@ -2086,19 +2319,21 @@
             "accepted_precision": 1.0,
             "coverage": 0.8889,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.1111
+            "abstention_rate": 0.1111,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "date": {
             "total_fields": 9,
-            "raw_exact_matches": 9,
-            "automatically_accepted_fields": 9,
-            "correct_accepted_fields": 9,
+            "raw_exact_matches": 8,
+            "automatically_accepted_fields": 8,
+            "correct_accepted_fields": 8,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 0,
+            "abstained_fields": 1,
             "accepted_precision": 1.0,
-            "coverage": 1.0,
+            "coverage": 0.8889,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.1111,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_id": {
             "total_fields": 2,
@@ -2110,7 +2345,8 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "currency_code": {
             "total_fields": 10,
@@ -2122,7 +2358,8 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "quantity": {
             "total_fields": 5,
@@ -2134,19 +2371,21 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "unit_price": {
             "total_fields": 4,
-            "raw_exact_matches": 4,
-            "automatically_accepted_fields": 4,
-            "correct_accepted_fields": 4,
+            "raw_exact_matches": 3,
+            "automatically_accepted_fields": 3,
+            "correct_accepted_fields": 3,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 0,
+            "abstained_fields": 1,
             "accepted_precision": 1.0,
-            "coverage": 1.0,
+            "coverage": 0.75,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.25,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_percentage": {
             "total_fields": 6,
@@ -2158,19 +2397,21 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "total_amount": {
             "total_fields": 10,
-            "raw_exact_matches": 5,
-            "automatically_accepted_fields": 5,
-            "correct_accepted_fields": 5,
+            "raw_exact_matches": 4,
+            "automatically_accepted_fields": 4,
+            "correct_accepted_fields": 4,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 5,
+            "abstained_fields": 6,
             "accepted_precision": 1.0,
-            "coverage": 0.5,
+            "coverage": 0.4,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.5
+            "abstention_rate": 0.6,
+            "ground_truth_match_rate_on_accepted": 1.0
           }
         },
         "per_document_category": {
@@ -2186,12 +2427,12 @@
           },
           "Thermal Receipt": {
             "total": 7,
-            "accepted": 6,
-            "abstained": 1,
-            "accepted_matched": 6,
-            "raw_matched": 6,
-            "raw_exact_match_rate": 0.8571,
-            "abstention_rate": 0.1429,
+            "accepted": 3,
+            "abstained": 4,
+            "accepted_matched": 3,
+            "raw_matched": 3,
+            "raw_exact_match_rate": 0.4286,
+            "abstention_rate": 0.5714,
             "accepted_precision": 1.0
           },
           "Purchase Order": {
@@ -2277,60 +2518,124 @@
         },
         "risk_vs_coverage_curve": [
           {
-            "confidence_threshold": 0.4,
-            "automatically_accepted": 49,
-            "abstained": 6,
+            "confidence_threshold": 0.0,
+            "automatically_accepted": 46,
+            "abstained": 9,
+            "correct_accepted": 46,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.8909,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.8364,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.4,
+            "automatically_accepted": 46,
+            "abstained": 9,
+            "correct_accepted": 46,
+            "false_accepts": 0,
+            "false_rejects": 0,
+            "accepted_precision": 1.0,
+            "coverage": 0.8364,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.5,
-            "automatically_accepted": 49,
-            "abstained": 6,
+            "automatically_accepted": 46,
+            "abstained": 9,
+            "correct_accepted": 46,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.8909,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.8364,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.6,
-            "automatically_accepted": 49,
-            "abstained": 6,
+            "automatically_accepted": 46,
+            "abstained": 9,
+            "correct_accepted": 46,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.8909,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.8364,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.7,
-            "automatically_accepted": 49,
-            "abstained": 6,
+            "automatically_accepted": 46,
+            "abstained": 9,
+            "correct_accepted": 46,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.8909,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.8364,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.75,
+            "automatically_accepted": 46,
+            "abstained": 9,
+            "correct_accepted": 46,
+            "false_accepts": 0,
+            "false_rejects": 0,
+            "accepted_precision": 1.0,
+            "coverage": 0.8364,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.8,
-            "automatically_accepted": 49,
-            "abstained": 6,
+            "automatically_accepted": 45,
+            "abstained": 10,
+            "correct_accepted": 45,
+            "false_accepts": 0,
+            "false_rejects": 1,
             "accepted_precision": 1.0,
-            "coverage": 0.8909,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.8182,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0182
+          },
+          {
+            "confidence_threshold": 0.85,
+            "automatically_accepted": 43,
+            "abstained": 12,
+            "correct_accepted": 43,
+            "false_accepts": 0,
+            "false_rejects": 3,
+            "accepted_precision": 1.0,
+            "coverage": 0.7818,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0545
           },
           {
             "confidence_threshold": 0.9,
-            "automatically_accepted": 49,
-            "abstained": 6,
+            "automatically_accepted": 35,
+            "abstained": 20,
+            "correct_accepted": 35,
+            "false_accepts": 0,
+            "false_rejects": 11,
             "accepted_precision": 1.0,
-            "coverage": 0.8909,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.6364,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.2
           },
           {
             "confidence_threshold": 0.95,
-            "automatically_accepted": 49,
-            "abstained": 6,
+            "automatically_accepted": 13,
+            "abstained": 42,
+            "correct_accepted": 13,
+            "false_accepts": 0,
+            "false_rejects": 33,
             "accepted_precision": 1.0,
-            "coverage": 0.8909,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.2364,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.6
           }
         ]
       }
@@ -2340,30 +2645,41 @@
       "device": "cuda",
       "documents_evaluated": 10,
       "latency_ms": {
-        "p50": 240.87,
-        "p95": 303.89,
-        "mean": 226.54
+        "p50": 248.78,
+        "p95": 294.77,
+        "mean": 225.88
       },
-      "throughput_pages_per_sec": 4.41,
-      "mean_cer": 0.4117,
+      "throughput_pages_per_sec": 4.43,
+      "mean_cer": 0.4141,
       "mean_wer": 0.675,
       "reading_order": {
+        "methodology": "Hungarian 1-to-1 Bipartite Matching (scipy.optimize.linear_sum_assignment)",
         "concordant_pairs": 134,
+        "discordant_pairs": 0,
         "total_annotated_pairs": 134,
-        "pairwise_concordance_accuracy": 1.0
+        "total_reference_pairs": 134,
+        "pairwise_concordance_accuracy": 1.0,
+        "matched_concordance_accuracy": 1.0,
+        "strict_concordance_accuracy": 1.0,
+        "mean_alignment_precision": 0.9841,
+        "mean_alignment_recall": 1.0,
+        "unmatched_predictions_count": 1,
+        "unmatched_references_count": 0,
+        "non_table_concordance": 1.0,
+        "table_concordance": 1.0
       },
       "financial_fields": {
         "overall_summary": {
           "total_fields": 48,
-          "raw_exact_matches": 40,
-          "raw_exact_match_rate": 0.8333,
-          "automatically_accepted_fields": 41,
-          "correct_accepted_fields": 41,
+          "raw_exact_matches": 39,
+          "raw_exact_match_rate": 0.8125,
+          "automatically_accepted_fields": 40,
+          "correct_accepted_fields": 40,
           "incorrect_accepted_fields": 0,
-          "abstained_fields": 7,
-          "abstention_rate": 0.1458,
+          "abstained_fields": 8,
+          "abstention_rate": 0.1667,
           "accepted_precision": 1.0,
-          "coverage": 0.8542,
+          "coverage": 0.8333,
           "false_acceptance_rate": 0.0,
           "target_98_percent_achieved": true
         },
@@ -2378,19 +2694,21 @@
             "accepted_precision": 1.0,
             "coverage": 0.7143,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.2857
+            "abstention_rate": 0.2857,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "date": {
             "total_fields": 8,
-            "raw_exact_matches": 8,
-            "automatically_accepted_fields": 8,
-            "correct_accepted_fields": 8,
+            "raw_exact_matches": 7,
+            "automatically_accepted_fields": 7,
+            "correct_accepted_fields": 7,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 0,
+            "abstained_fields": 1,
             "accepted_precision": 1.0,
-            "coverage": 1.0,
+            "coverage": 0.875,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.125,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_id": {
             "total_fields": 1,
@@ -2402,7 +2720,8 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "currency_code": {
             "total_fields": 9,
@@ -2414,7 +2733,8 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "quantity": {
             "total_fields": 7,
@@ -2426,7 +2746,8 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "unit_price": {
             "total_fields": 5,
@@ -2438,7 +2759,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.6,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.4
+            "abstention_rate": 0.4,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_percentage": {
             "total_fields": 2,
@@ -2450,7 +2772,8 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "total_amount": {
             "total_fields": 9,
@@ -2462,7 +2785,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.6667,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.3333
+            "abstention_rate": 0.3333,
+            "ground_truth_match_rate_on_accepted": 1.0
           }
         },
         "per_document_category": {
@@ -2548,12 +2872,12 @@
           },
           "Low-Contrast / Skewed Scan": {
             "total": 6,
-            "accepted": 3,
-            "abstained": 3,
-            "accepted_matched": 3,
-            "raw_matched": 3,
-            "raw_exact_match_rate": 0.5,
-            "abstention_rate": 0.5,
+            "accepted": 2,
+            "abstained": 4,
+            "accepted_matched": 2,
+            "raw_matched": 2,
+            "raw_exact_match_rate": 0.3333,
+            "abstention_rate": 0.6667,
             "accepted_precision": 1.0
           },
           "Borderless Table / Blank": {
@@ -2569,60 +2893,124 @@
         },
         "risk_vs_coverage_curve": [
           {
-            "confidence_threshold": 0.4,
-            "automatically_accepted": 41,
-            "abstained": 7,
+            "confidence_threshold": 0.0,
+            "automatically_accepted": 40,
+            "abstained": 8,
+            "correct_accepted": 40,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.8542,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.8333,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.4,
+            "automatically_accepted": 40,
+            "abstained": 8,
+            "correct_accepted": 40,
+            "false_accepts": 0,
+            "false_rejects": 0,
+            "accepted_precision": 1.0,
+            "coverage": 0.8333,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.5,
-            "automatically_accepted": 41,
-            "abstained": 7,
+            "automatically_accepted": 40,
+            "abstained": 8,
+            "correct_accepted": 40,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.8542,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.8333,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.6,
-            "automatically_accepted": 41,
-            "abstained": 7,
+            "automatically_accepted": 40,
+            "abstained": 8,
+            "correct_accepted": 40,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.8542,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.8333,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.7,
-            "automatically_accepted": 41,
-            "abstained": 7,
+            "automatically_accepted": 40,
+            "abstained": 8,
+            "correct_accepted": 40,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.8542,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.8333,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.75,
+            "automatically_accepted": 40,
+            "abstained": 8,
+            "correct_accepted": 40,
+            "false_accepts": 0,
+            "false_rejects": 0,
+            "accepted_precision": 1.0,
+            "coverage": 0.8333,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.8,
-            "automatically_accepted": 41,
-            "abstained": 7,
+            "automatically_accepted": 36,
+            "abstained": 12,
+            "correct_accepted": 36,
+            "false_accepts": 0,
+            "false_rejects": 4,
             "accepted_precision": 1.0,
-            "coverage": 0.8542,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.75,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0833
+          },
+          {
+            "confidence_threshold": 0.85,
+            "automatically_accepted": 33,
+            "abstained": 15,
+            "correct_accepted": 33,
+            "false_accepts": 0,
+            "false_rejects": 7,
+            "accepted_precision": 1.0,
+            "coverage": 0.6875,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.1458
           },
           {
             "confidence_threshold": 0.9,
-            "automatically_accepted": 41,
-            "abstained": 7,
+            "automatically_accepted": 24,
+            "abstained": 24,
+            "correct_accepted": 24,
+            "false_accepts": 0,
+            "false_rejects": 16,
             "accepted_precision": 1.0,
-            "coverage": 0.8542,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.5,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.3333
           },
           {
             "confidence_threshold": 0.95,
-            "automatically_accepted": 41,
-            "abstained": 7,
+            "automatically_accepted": 11,
+            "abstained": 37,
+            "correct_accepted": 11,
+            "false_accepts": 0,
+            "false_rejects": 29,
             "accepted_precision": 1.0,
-            "coverage": 0.8542,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.2292,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.6042
           }
         ]
       }
@@ -2632,30 +3020,41 @@
       "device": "cuda",
       "documents_evaluated": 10,
       "latency_ms": {
-        "p50": 284.12,
-        "p95": 346.46,
-        "mean": 284.74
+        "p50": 279.0,
+        "p95": 307.56,
+        "mean": 277.86
       },
-      "throughput_pages_per_sec": 3.51,
-      "mean_cer": 0.4197,
-      "mean_wer": 0.7004,
+      "throughput_pages_per_sec": 3.6,
+      "mean_cer": 0.4156,
+      "mean_wer": 0.6831,
       "reading_order": {
+        "methodology": "Hungarian 1-to-1 Bipartite Matching (scipy.optimize.linear_sum_assignment)",
         "concordant_pairs": 167,
+        "discordant_pairs": 0,
         "total_annotated_pairs": 167,
-        "pairwise_concordance_accuracy": 1.0
+        "total_reference_pairs": 171,
+        "pairwise_concordance_accuracy": 1.0,
+        "matched_concordance_accuracy": 1.0,
+        "strict_concordance_accuracy": 0.9766,
+        "mean_alignment_precision": 0.98,
+        "mean_alignment_recall": 0.98,
+        "unmatched_predictions_count": 1,
+        "unmatched_references_count": 1,
+        "non_table_concordance": 1.0,
+        "table_concordance": 1.0
       },
       "financial_fields": {
         "overall_summary": {
           "total_fields": 74,
           "raw_exact_matches": 51,
           "raw_exact_match_rate": 0.6892,
-          "automatically_accepted_fields": 53,
-          "correct_accepted_fields": 53,
+          "automatically_accepted_fields": 52,
+          "correct_accepted_fields": 52,
           "incorrect_accepted_fields": 0,
-          "abstained_fields": 21,
-          "abstention_rate": 0.2838,
+          "abstained_fields": 22,
+          "abstention_rate": 0.2973,
           "accepted_precision": 1.0,
-          "coverage": 0.7162,
+          "coverage": 0.7027,
           "false_acceptance_rate": 0.0,
           "target_98_percent_achieved": true
         },
@@ -2670,7 +3069,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.8571,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.1429
+            "abstention_rate": 0.1429,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "date": {
             "total_fields": 10,
@@ -2682,7 +3082,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.9,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.1
+            "abstention_rate": 0.1,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_id": {
             "total_fields": 5,
@@ -2694,7 +3095,8 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "currency_code": {
             "total_fields": 10,
@@ -2706,43 +3108,47 @@
             "accepted_precision": 1.0,
             "coverage": 1.0,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.0,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "quantity": {
             "total_fields": 9,
-            "raw_exact_matches": 9,
-            "automatically_accepted_fields": 9,
-            "correct_accepted_fields": 9,
+            "raw_exact_matches": 8,
+            "automatically_accepted_fields": 8,
+            "correct_accepted_fields": 8,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 0,
+            "abstained_fields": 1,
             "accepted_precision": 1.0,
-            "coverage": 1.0,
+            "coverage": 0.8889,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.0
+            "abstention_rate": 0.1111,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "unit_price": {
             "total_fields": 7,
             "raw_exact_matches": 5,
-            "automatically_accepted_fields": 6,
-            "correct_accepted_fields": 6,
+            "automatically_accepted_fields": 5,
+            "correct_accepted_fields": 5,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 1,
+            "abstained_fields": 2,
             "accepted_precision": 1.0,
-            "coverage": 0.8571,
+            "coverage": 0.7143,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.1429
+            "abstention_rate": 0.2857,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "subtotal": {
             "total_fields": 10,
-            "raw_exact_matches": 2,
-            "automatically_accepted_fields": 3,
-            "correct_accepted_fields": 3,
+            "raw_exact_matches": 3,
+            "automatically_accepted_fields": 4,
+            "correct_accepted_fields": 4,
             "incorrect_accepted_fields": 0,
-            "abstained_fields": 7,
+            "abstained_fields": 6,
             "accepted_precision": 1.0,
-            "coverage": 0.3,
+            "coverage": 0.4,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.7
+            "abstention_rate": 0.6,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "tax_amount": {
             "total_fields": 6,
@@ -2754,7 +3160,8 @@
             "accepted_precision": 1.0,
             "coverage": 0.1667,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.8333
+            "abstention_rate": 0.8333,
+            "ground_truth_match_rate_on_accepted": 1.0
           },
           "total_amount": {
             "total_fields": 10,
@@ -2766,18 +3173,19 @@
             "accepted_precision": 1.0,
             "coverage": 0.4,
             "false_acceptance_rate": 0.0,
-            "abstention_rate": 0.6
+            "abstention_rate": 0.6,
+            "ground_truth_match_rate_on_accepted": 1.0
           }
         },
         "per_document_category": {
           "Commercial Invoice": {
             "total": 18,
-            "accepted": 14,
-            "abstained": 4,
-            "accepted_matched": 14,
+            "accepted": 13,
+            "abstained": 5,
+            "accepted_matched": 13,
             "raw_matched": 13,
             "raw_exact_match_rate": 0.7222,
-            "abstention_rate": 0.2222,
+            "abstention_rate": 0.2778,
             "accepted_precision": 1.0
           },
           "Thermal Receipt": {
@@ -2863,60 +3271,124 @@
         },
         "risk_vs_coverage_curve": [
           {
-            "confidence_threshold": 0.4,
-            "automatically_accepted": 53,
-            "abstained": 21,
+            "confidence_threshold": 0.0,
+            "automatically_accepted": 52,
+            "abstained": 22,
+            "correct_accepted": 52,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.7162,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.7027,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.4,
+            "automatically_accepted": 52,
+            "abstained": 22,
+            "correct_accepted": 52,
+            "false_accepts": 0,
+            "false_rejects": 0,
+            "accepted_precision": 1.0,
+            "coverage": 0.7027,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.5,
-            "automatically_accepted": 53,
-            "abstained": 21,
+            "automatically_accepted": 52,
+            "abstained": 22,
+            "correct_accepted": 52,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.7162,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.7027,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.6,
-            "automatically_accepted": 53,
-            "abstained": 21,
+            "automatically_accepted": 52,
+            "abstained": 22,
+            "correct_accepted": 52,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.7162,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.7027,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.7,
-            "automatically_accepted": 53,
-            "abstained": 21,
+            "automatically_accepted": 52,
+            "abstained": 22,
+            "correct_accepted": 52,
+            "false_accepts": 0,
+            "false_rejects": 0,
             "accepted_precision": 1.0,
-            "coverage": 0.7162,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.7027,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
+          },
+          {
+            "confidence_threshold": 0.75,
+            "automatically_accepted": 52,
+            "abstained": 22,
+            "correct_accepted": 52,
+            "false_accepts": 0,
+            "false_rejects": 0,
+            "accepted_precision": 1.0,
+            "coverage": 0.7027,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0
           },
           {
             "confidence_threshold": 0.8,
-            "automatically_accepted": 53,
-            "abstained": 21,
+            "automatically_accepted": 48,
+            "abstained": 26,
+            "correct_accepted": 48,
+            "false_accepts": 0,
+            "false_rejects": 4,
             "accepted_precision": 1.0,
-            "coverage": 0.7162,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.6486,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.0541
+          },
+          {
+            "confidence_threshold": 0.85,
+            "automatically_accepted": 42,
+            "abstained": 32,
+            "correct_accepted": 42,
+            "false_accepts": 0,
+            "false_rejects": 10,
+            "accepted_precision": 1.0,
+            "coverage": 0.5676,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.1351
           },
           {
             "confidence_threshold": 0.9,
-            "automatically_accepted": 53,
-            "abstained": 21,
+            "automatically_accepted": 27,
+            "abstained": 47,
+            "correct_accepted": 27,
+            "false_accepts": 0,
+            "false_rejects": 25,
             "accepted_precision": 1.0,
-            "coverage": 0.7162,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.3649,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.3378
           },
           {
             "confidence_threshold": 0.95,
-            "automatically_accepted": 53,
-            "abstained": 21,
+            "automatically_accepted": 9,
+            "abstained": 65,
+            "correct_accepted": 9,
+            "false_accepts": 0,
+            "false_rejects": 43,
             "accepted_precision": 1.0,
-            "coverage": 0.7162,
-            "false_acceptance_rate": 0.0
+            "coverage": 0.1216,
+            "false_acceptance_rate": 0.0,
+            "false_rejection_rate": 0.5811
           }
         ]
       }
@@ -2930,24 +3402,24 @@
       "scaling": {
         "1_threads": {
           "total_pages": 5,
-          "duration_seconds": 0.1845,
-          "throughput_pages_sec": 27.1,
+          "duration_seconds": 0.1696,
+          "throughput_pages_sec": 29.49,
           "speedup_vs_single_thread": 1.0,
           "lock_contention_ratio": 0.0
         },
         "2_threads": {
           "total_pages": 10,
-          "duration_seconds": 0.369,
-          "throughput_pages_sec": 27.1,
-          "speedup_vs_single_thread": 1.0,
-          "lock_contention_ratio": 0.5
+          "duration_seconds": 0.3535,
+          "throughput_pages_sec": 28.29,
+          "speedup_vs_single_thread": 0.96,
+          "lock_contention_ratio": 0.5203
         },
         "4_threads": {
           "total_pages": 20,
-          "duration_seconds": 0.6889,
-          "throughput_pages_sec": 29.03,
-          "speedup_vs_single_thread": 1.07,
-          "lock_contention_ratio": 0.7322
+          "duration_seconds": 0.7098,
+          "throughput_pages_sec": 28.18,
+          "speedup_vs_single_thread": 0.96,
+          "lock_contention_ratio": 0.7611
         }
       },
       "architectural_recommendation": "Multi-threaded in-process rendering is serialized by PDFIUM_LOCK to guarantee native C++ safety. For true horizontal multi-core throughput scaling without lock contention, production deployments must employ a multi-process architecture (ProcessPoolExecutor / separate worker container instances)."
@@ -2958,56 +3430,63 @@
       "process_scaling": {
         "1_processes": {
           "total_pages": 5,
-          "duration_seconds": 4.3708,
-          "warm_render_duration_seconds": 0.2057,
-          "spawn_overhead_seconds": 4.1651,
-          "warm_throughput_pages_sec": 24.31,
-          "wall_clock_throughput_pages_sec": 1.14,
-          "throughput_pages_sec": 24.31,
+          "duration_seconds": 5.0054,
+          "warm_render_duration_seconds": 0.1992,
+          "spawn_overhead_seconds": 4.8061,
+          "warm_throughput_pages_sec": 25.1,
+          "wall_clock_throughput_pages_sec": 1.0,
+          "throughput_pages_sec": 25.1,
           "speedup_vs_single_process": 1.0,
           "warm_speedup": 1.0,
           "wall_clock_speedup": 1.0,
-          "peak_rss_mb": 416.56,
-          "parent_rss_mb": 1731.35,
+          "peak_rss_mb": 454.27,
+          "parent_rss_mb": 1729.53,
           "error_count": 0
         },
         "2_processes": {
           "total_pages": 10,
-          "duration_seconds": 4.1611,
-          "warm_render_duration_seconds": 0.2073,
-          "spawn_overhead_seconds": 3.9538,
-          "warm_throughput_pages_sec": 48.23,
-          "wall_clock_throughput_pages_sec": 2.4,
-          "throughput_pages_sec": 48.23,
-          "speedup_vs_single_process": 1.98,
-          "warm_speedup": 1.98,
+          "duration_seconds": 4.7353,
+          "warm_render_duration_seconds": 0.1963,
+          "spawn_overhead_seconds": 4.5391,
+          "warm_throughput_pages_sec": 50.95,
+          "wall_clock_throughput_pages_sec": 2.11,
+          "throughput_pages_sec": 50.95,
+          "speedup_vs_single_process": 2.03,
+          "warm_speedup": 2.03,
           "wall_clock_speedup": 2.11,
-          "peak_rss_mb": 417.4,
-          "parent_rss_mb": 1731.32,
+          "peak_rss_mb": 455.06,
+          "parent_rss_mb": 1729.53,
           "error_count": 0
         },
         "4_processes": {
           "total_pages": 20,
-          "duration_seconds": 4.7001,
-          "warm_render_duration_seconds": 0.2264,
-          "spawn_overhead_seconds": 4.4736,
-          "warm_throughput_pages_sec": 88.33,
-          "wall_clock_throughput_pages_sec": 4.26,
-          "throughput_pages_sec": 88.33,
-          "speedup_vs_single_process": 3.63,
-          "warm_speedup": 3.63,
-          "wall_clock_speedup": 3.74,
-          "peak_rss_mb": 417.14,
-          "parent_rss_mb": 1731.35,
+          "duration_seconds": 5.4133,
+          "warm_render_duration_seconds": 0.2627,
+          "spawn_overhead_seconds": 5.1506,
+          "warm_throughput_pages_sec": 76.12,
+          "wall_clock_throughput_pages_sec": 3.69,
+          "throughput_pages_sec": 76.12,
+          "speedup_vs_single_process": 3.03,
+          "warm_speedup": 3.03,
+          "wall_clock_speedup": 3.69,
+          "peak_rss_mb": 455.54,
+          "parent_rss_mb": 1728.92,
           "error_count": 0
         }
+      },
+      "workload_specification": {
+        "page_count": 20,
+        "dpi": 200,
+        "dimensions": "1700x2200",
+        "mathematical_reconciliation": "R_warm * T_warm = N and R_wall * T_wall = N confirmed across all worker configurations",
+        "failure_rate": 0.0
       }
     }
   },
   "stage_6_error_propagation_and_remediations": {
     "recognition_only_cer": 0.3772,
-    "end_to_end_external_cer": 0.4197,
-    "error_propagation_delta": 0.0425,
+    "end_to_end_external_cer": 0.4156,
+    "error_propagation_delta": 0.0384,
     "monetary_recognition_root_causes": [
       {
         "root_cause": "TrOCR Decimal Point Dropping ($11,22000 vs $11,220.00)",

@@ -1,11 +1,11 @@
 {
   "project": "LedgerOne",
-  "version": "3.5.0",
-  "phase": "Phase 4 Step 2: Final Validation Gate Revalidation",
-  "last_updated": "2026-11-02T23:15:00+05:30",
+  "version": "3.6.0",
+  "phase": "Phase 4 Step 2: Evidence Integrity & Final Acceptance Remediation",
+  "last_updated": "2026-11-03T00:05:00+05:30",
   "summary": {
-    "total_tests": 93,
-    "passed": 93,
+    "total_tests": 95,
+    "passed": 95,
     "failed": 0,
     "blocked": 0,
     "skipped": 0,
@@ -1406,6 +1406,36 @@
       "execution_timestamp": "2026-11-02T21:28:00+05:30",
       "executed_by": "LedgerOne Autonomous Engineering Agent",
       "evidence": "LedgerOne/tests/test_multiprocess_rendering.py::test_benchmark_multiprocess_rendering"
+    },
+    {
+      "test_id": "TEST-PH4-TBL-004",
+      "feature_id": "FEAT-TABLE-STRUCTURE",
+      "module": "src.intelligence.table_structure",
+      "test_category": "Adversarial",
+      "test_scenario": "Verify merged/misassigned columns penalize column precision, recall, and horizontal adjacency F1",
+      "expected_result": "Column F1 < 0.50, Recall < 0.50, Horizontal Adjacency F1 = 0.0, Composite F1 < 0.50",
+      "actual_result": "Column F1 dropped to 0.40, Horizontal Adjacency F1 dropped to 0.0; adversarial error strictly penalized",
+      "status": "PASSED",
+      "severity": "Critical",
+      "environment": "Python 3.11.9 / Windows",
+      "execution_timestamp": "2026-11-02T23:54:30+05:30",
+      "executed_by": "LedgerOne Autonomous Engineering Agent",
+      "evidence": "LedgerOne/tests/test_table_structure.py::test_incorrect_column_assignment_penalizes_metrics"
+    },
+    {
+      "test_id": "TEST-PH4-TBL-005",
+      "feature_id": "FEAT-TABLE-STRUCTURE",
+      "module": "src.intelligence.table_structure",
+      "test_category": "Adversarial",
+      "test_scenario": "Verify displaced/swapped text blocks penalize content association accuracy below 1.0",
+      "expected_result": "Content association accuracy drops to 0.6667 (4/6 cells); Composite F1 < 0.85",
+      "actual_result": "Accuracy penalized to exactly 0.6667; Composite F1 penalized to 0.7738",
+      "status": "PASSED",
+      "severity": "Critical",
+      "environment": "Python 3.11.9 / Windows",
+      "execution_timestamp": "2026-11-02T23:54:30+05:30",
+      "executed_by": "LedgerOne Autonomous Engineering Agent",
+      "evidence": "LedgerOne/tests/test_table_structure.py::test_incorrect_cell_content_association_penalizes_accuracy"
     }
   ]
 }

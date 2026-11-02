@@ -88,3 +88,73 @@ def test_evaluate_table_structure_perfect_match():
     assert metrics["column_metrics"]["f1"] == 1.0
     assert metrics["cell_adjacency_metrics"]["f1"] == 1.0
     assert metrics["composite_table_structure_f1"] == 1.0
+
+
+def test_incorrect_column_assignment_penalizes_metrics():
+    """
+    Adversarial test: verify that merging or misassigning columns strictly penalizes
+    column precision, recall, and horizontal cell adjacency F1.
+    """
+    extractor = TableStructureExtractor()
+    items_gt = [
+        (BoundingBox(x0=0.1, y0=0.1, x1=0.3, y1=0.2, x0_pt=50, y0_pt=50, x1_pt=150, y1_pt=100), "Item"),
+        (BoundingBox(x0=0.4, y0=0.1, x1=0.6, y1=0.2, x0_pt=200, y0_pt=50, x1_pt=300, y1_pt=100), "Qty"),
+        (BoundingBox(x0=0.7, y0=0.1, x1=0.9, y1=0.2, x0_pt=350, y0_pt=50, x1_pt=450, y1_pt=100), "Total"),
+        (BoundingBox(x0=0.1, y0=0.3, x1=0.3, y1=0.4, x0_pt=50, y0_pt=150, x1_pt=150, y1_pt=200), "Widget"),
+        (BoundingBox(x0=0.4, y0=0.3, x1=0.6, y1=0.4, x0_pt=200, y0_pt=150, x1_pt=300, y1_pt=200), "5"),
+        (BoundingBox(x0=0.7, y0=0.3, x1=0.9, y1=0.4, x0_pt=350, y0_pt=150, x1_pt=450, y1_pt=200), "$100.00"),
+    ]
+    gt_table = extractor.extract_table_region(items_gt)
+
+    # Erroneous prediction: columns 1 and 2 merged into a single wide column
+    items_pred_merged = [
+        (BoundingBox(x0=0.1, y0=0.1, x1=0.3, y1=0.2, x0_pt=50, y0_pt=50, x1_pt=150, y1_pt=100), "Item"),
+        (BoundingBox(x0=0.4, y0=0.1, x1=0.9, y1=0.2, x0_pt=200, y0_pt=50, x1_pt=450, y1_pt=100), "Qty Total"),
+        (BoundingBox(x0=0.1, y0=0.3, x1=0.3, y1=0.4, x0_pt=50, y0_pt=150, x1_pt=150, y1_pt=200), "Widget"),
+        (BoundingBox(x0=0.4, y0=0.3, x1=0.9, y1=0.4, x0_pt=200, y0_pt=150, x1_pt=450, y1_pt=200), "5 $100.00"),
+    ]
+    pred_merged_table = extractor.extract_table_region(items_pred_merged)
+    metrics_merged = evaluate_table_structure(pred_merged_table, gt_table)
+
+    # Column F1 is penalized from 1.0 to 0.40
+    assert metrics_merged["column_metrics"]["f1"] < 0.50
+    assert metrics_merged["column_metrics"]["recall"] < 0.50
+    # Horizontal cell adjacency is completely destroyed (f1 = 0.0)
+    assert metrics_merged["cell_adjacency_metrics"]["horizontal"]["f1"] == 0.0
+    # Composite structure score is penalized below 0.50
+    assert metrics_merged["composite_table_structure_f1"] < 0.50
+
+
+def test_incorrect_cell_content_association_penalizes_accuracy():
+    """
+    Adversarial test: verify that displaced or swapped text blocks strictly penalize
+    content association accuracy below 1.0.
+    """
+    extractor = TableStructureExtractor()
+    items_gt = [
+        (BoundingBox(x0=0.1, y0=0.1, x1=0.3, y1=0.2, x0_pt=50, y0_pt=50, x1_pt=150, y1_pt=100), "Item"),
+        (BoundingBox(x0=0.4, y0=0.1, x1=0.6, y1=0.2, x0_pt=200, y0_pt=50, x1_pt=300, y1_pt=100), "Qty"),
+        (BoundingBox(x0=0.7, y0=0.1, x1=0.9, y1=0.2, x0_pt=350, y0_pt=50, x1_pt=450, y1_pt=100), "Total"),
+        (BoundingBox(x0=0.1, y0=0.3, x1=0.3, y1=0.4, x0_pt=50, y0_pt=150, x1_pt=150, y1_pt=200), "Widget"),
+        (BoundingBox(x0=0.4, y0=0.3, x1=0.6, y1=0.4, x0_pt=200, y0_pt=150, x1_pt=300, y1_pt=200), "5"),
+        (BoundingBox(x0=0.7, y0=0.3, x1=0.9, y1=0.4, x0_pt=350, y0_pt=150, x1_pt=450, y1_pt=200), "$100.00"),
+    ]
+    gt_table = extractor.extract_table_region(items_gt)
+
+    # Erroneous prediction: Qty and Total values are horizontally swapped
+    items_pred_swapped = [
+        (BoundingBox(x0=0.1, y0=0.1, x1=0.3, y1=0.2, x0_pt=50, y0_pt=50, x1_pt=150, y1_pt=100), "Item"),
+        (BoundingBox(x0=0.4, y0=0.1, x1=0.6, y1=0.2, x0_pt=200, y0_pt=50, x1_pt=300, y1_pt=100), "Qty"),
+        (BoundingBox(x0=0.7, y0=0.1, x1=0.9, y1=0.2, x0_pt=350, y0_pt=50, x1_pt=450, y1_pt=100), "Total"),
+        (BoundingBox(x0=0.1, y0=0.3, x1=0.3, y1=0.4, x0_pt=50, y0_pt=150, x1_pt=150, y1_pt=200), "Widget"),
+        (BoundingBox(x0=0.4, y0=0.3, x1=0.6, y1=0.4, x0_pt=200, y0_pt=150, x1_pt=300, y1_pt=200), "$100.00"),
+        (BoundingBox(x0=0.7, y0=0.3, x1=0.9, y1=0.4, x0_pt=350, y0_pt=150, x1_pt=450, y1_pt=200), "5"),
+    ]
+    pred_swapped_table = extractor.extract_table_region(items_pred_swapped)
+    metrics_swapped = evaluate_table_structure(pred_swapped_table, gt_table)
+
+    # Content association accuracy is strictly penalized (4/6 = 0.6667)
+    assert metrics_swapped["content_association"]["accuracy"] == pytest.approx(0.6667, abs=1e-3)
+    assert metrics_swapped["content_association"]["matched_cells"] == 4
+    assert metrics_swapped["content_association"]["total_cells"] == 6
+    assert metrics_swapped["composite_table_structure_f1"] < 0.85
