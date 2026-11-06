@@ -150,6 +150,17 @@ from src.intelligence.extraction_schemas import (
     LineItemSchema,
     VerificationStatus,
 )
+from src.intelligence.verification_schemas import (
+    FieldCorrectionRequest,
+    LineItemCorrectionRequest,
+    InvariantOverrideRequest,
+    DocumentRejectRequest,
+    DocumentReopenRequest,
+    ReviewQueueItemResponse,
+    DocumentReviewDetailResponse,
+    ExtractedFieldReviewItem,
+    InvariantReviewItem,
+)
 
 __all__ = [
     "BoundingBox",
@@ -276,4 +287,14 @@ __all__ = [
     # Step 5: Pipeline Orchestration & Worker Daemon
     "DocumentPipelineOrchestrator",
     "WorkerDaemon",
+    # Phase 5: Verification & Reviewer Schemas
+    "FieldCorrectionRequest",
+    "LineItemCorrectionRequest",
+    "InvariantOverrideRequest",
+    "DocumentRejectRequest",
+    "DocumentReopenRequest",
+    "ReviewQueueItemResponse",
+    "DocumentReviewDetailResponse",
+    "ExtractedFieldReviewItem",
+    "InvariantReviewItem",
 ]

@@ -528,7 +528,7 @@ CREATE POLICY rls_documents_update ON documents
     organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
     AND (
       NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
-      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'DOCUMENT_MANAGER')
+      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'DOCUMENT_MANAGER', 'REVIEWER')
     )
   )
   WITH CHECK (
@@ -629,7 +629,7 @@ CREATE POLICY rls_extracted_fields_insert ON extracted_fields
     organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
     AND (
       NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
-      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'DOCUMENT_MANAGER')
+      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'DOCUMENT_MANAGER', 'REVIEWER')
     )
   );
 
