@@ -56,9 +56,27 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.error("Failed to connect to database during startup", error=str(exc))
         # Keep application alive to serve liveness and report degraded readiness
 
+    # 4. Optional background worker daemon startup
+    worker = None
+    if settings.WORKER_ENABLED and db_manager._pool is not None:
+        from src.intelligence.worker_daemon import WorkerDaemon
+        worker = WorkerDaemon(
+            pool=db_manager.pool,
+            max_concurrent_jobs=settings.WORKER_CONCURRENCY,
+            poll_interval_seconds=settings.WORKER_POLL_INTERVAL,
+            lease_duration_seconds=settings.WORKER_LEASE_SECONDS,
+            reaper_interval_seconds=settings.WORKER_REAPER_INTERVAL,
+        )
+        worker.start()
+        app.state.worker = worker
+
     yield
 
-    # 4. Graceful shutdown: close database connection pool
+    # 5. Graceful shutdown: stop worker daemon if active
+    if worker is not None:
+        await worker.stop()
+
+    # 6. Graceful shutdown: close database connection pool
     logger.info("Shutting down LedgerOne Application")
     await db_manager.disconnect()
 

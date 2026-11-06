@@ -75,6 +75,11 @@ class ServiceUnavailableError(LedgerOneException):
     error_code = "SERVICE_UNAVAILABLE"
 
 
+class ProcessingError(LedgerOneException):
+    status_code = 422
+    error_code = "PROCESSING_ERROR"
+
+
 def format_error_response(
     code: str,
     message: str,

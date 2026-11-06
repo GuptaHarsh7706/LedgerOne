@@ -137,6 +137,8 @@ from src.intelligence.hybrid_structured_extractor import (
     extract_tables_from_blocks,
     table_region_to_table_block,
 )
+from src.intelligence.pipeline_orchestrator import DocumentPipelineOrchestrator
+from src.intelligence.worker_daemon import WorkerDaemon
 from src.intelligence.extraction_schemas import (
     ContractExtractionSchema,
     DocumentClassificationResult,
@@ -271,4 +273,7 @@ __all__ = [
     "FieldDataType",
     "ExtractionStatus",
     "VerificationStatus",
+    # Step 5: Pipeline Orchestration & Worker Daemon
+    "DocumentPipelineOrchestrator",
+    "WorkerDaemon",
 ]
