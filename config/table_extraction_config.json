@@ -1,0 +1,10 @@
+{
+  "config_version": "v1.0.0",
+  "primary_threshold": 0.8,
+  "margin_threshold": 0.05,
+  "dev_macro_f1": 0.7755,
+  "dev_collision_count": 0,
+  "quarantined_split": "development",
+  "doc_count": 10,
+  "sha256_checksum": "11a8bed7688f8caa1bf3cc665d673859588ea9b014297aff484f792ccf07e774"
+}

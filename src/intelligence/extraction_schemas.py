@@ -87,6 +87,129 @@ class LineItemSchema(BaseModel):
     tax_rate: Optional[ExtractedField] = Field(default=None, description="Line-level tax percentage")
     item_code: Optional[ExtractedField] = Field(default=None, description="SKU or product code")
 
+    @classmethod
+    def from_line_item_field(cls, field: Any) -> LineItemSchema:
+        """Convert an immutable LineItemField or dictionary into a LineItemSchema."""
+        from src.intelligence.table_contracts import LineItemField
+        if isinstance(field, LineItemField):
+            desc_val = field.description
+            qty_val = field.quantity
+            up_val = field.unit_price
+            tot_val = field.line_total
+            tax_val = field.tax_rate
+            code_val = field.item_code
+            conf = field.confidence
+            page = getattr(field, "source_page", getattr(field, "page_number", 0))
+            bbox = field.bbox
+            line_no = field.line_number
+        elif isinstance(field, dict):
+            desc_val = field.get("description", "")
+            qty_val = field.get("quantity")
+            up_val = field.get("unit_price")
+            tot_val = field.get("line_total") or field.get("total_price")
+            tax_val = field.get("tax_rate")
+            code_val = field.get("item_code")
+            conf = float(field.get("confidence", 1.0))
+            page = int(field.get("source_page", 0))
+            bbox = field.get("bbox")
+            line_no = int(field.get("line_number", 1))
+        else:
+            raise TypeError(f"Unsupported type for from_line_item_field: {type(field)}")
+
+        return cls(
+            line_number=line_no,
+            description=ExtractedField(
+                name="description",
+                value=desc_val,
+                raw_value=str(desc_val),
+                data_type=FieldDataType.STRING,
+                confidence=conf,
+                source_page=page,
+                bbox=bbox,
+                extraction_status=ExtractionStatus.ACCEPTED if conf >= 0.75 else ExtractionStatus.NEEDS_REVIEW,
+            ),
+            quantity=ExtractedField(
+                name="quantity",
+                value=qty_val,
+                raw_value=str(qty_val) if qty_val is not None else None,
+                data_type=FieldDataType.QUANTITY,
+                confidence=conf,
+                source_page=page,
+                bbox=bbox,
+                extraction_status=ExtractionStatus.ACCEPTED if conf >= 0.75 else ExtractionStatus.NEEDS_REVIEW,
+            ) if qty_val is not None else None,
+            unit_price=ExtractedField(
+                name="unit_price",
+                value=up_val,
+                raw_value=str(up_val) if up_val is not None else None,
+                data_type=FieldDataType.MONETARY,
+                confidence=conf,
+                source_page=page,
+                bbox=bbox,
+                extraction_status=ExtractionStatus.ACCEPTED if conf >= 0.75 else ExtractionStatus.NEEDS_REVIEW,
+            ) if up_val is not None else None,
+            total_price=ExtractedField(
+                name="total_price",
+                value=tot_val,
+                raw_value=str(tot_val) if tot_val is not None else None,
+                data_type=FieldDataType.MONETARY,
+                confidence=conf,
+                source_page=page,
+                bbox=bbox,
+                extraction_status=ExtractionStatus.ACCEPTED if conf >= 0.75 else ExtractionStatus.NEEDS_REVIEW,
+            ) if tot_val is not None else None,
+            tax_rate=ExtractedField(
+                name="tax_rate",
+                value=tax_val,
+                raw_value=str(tax_val) if tax_val is not None else None,
+                data_type=FieldDataType.PERCENTAGE,
+                confidence=conf,
+                source_page=page,
+                bbox=bbox,
+                extraction_status=ExtractionStatus.ACCEPTED if conf >= 0.75 else ExtractionStatus.NEEDS_REVIEW,
+            ) if tax_val is not None else None,
+            item_code=ExtractedField(
+                name="item_code",
+                value=code_val,
+                raw_value=code_val,
+                data_type=FieldDataType.IDENTIFIER,
+                confidence=conf,
+                source_page=page,
+                bbox=bbox,
+                extraction_status=ExtractionStatus.ACCEPTED,
+            ) if code_val is not None else None,
+        )
+
+    def to_line_item_field(self) -> Any:
+        """Convert this LineItemSchema back to an immutable LineItemField."""
+        from decimal import Decimal
+        from src.intelligence.table_contracts import LineItemField
+
+        def _to_dec(val: Any) -> Decimal:
+            if isinstance(val, Decimal):
+                return val
+            if val is None or val == "":
+                return Decimal("0.00")
+            return Decimal(str(val).replace("$", "").replace("€", "").replace("£", "").replace(",", "").strip())
+
+        qty = _to_dec(self.quantity.value if self.quantity else 0)
+        up = _to_dec(self.unit_price.value if self.unit_price else 0)
+        tot = _to_dec(self.total_price.value if self.total_price else 0)
+        net = tot if tot > Decimal("0.00") else (qty * up)
+
+        return LineItemField(
+            line_number=self.line_number,
+            description=str(self.description.value or ""),
+            line_net=net,
+            quantity=qty,
+            unit_price=up,
+            line_total=tot,
+            tax_rate=_to_dec(self.tax_rate.value) if (self.tax_rate and self.tax_rate.value is not None) else None,
+            item_code=str(self.item_code.value) if (self.item_code and self.item_code.value) else None,
+            confidence=self.description.confidence,
+            bbox=self.description.bbox,
+        )
+
 
 class InvoiceExtractionSchema(BaseModel):
     """
@@ -123,6 +246,8 @@ class InvoiceExtractionSchema(BaseModel):
     # Terms & Line Items
     payment_terms: Optional[ExtractedField] = Field(default=None, description="Payment terms, e.g. Net 30")
     line_items: List[LineItemSchema] = Field(default_factory=list, description="Extracted line item records")
+    table_blocks: List[Any] = Field(default_factory=list, description="Extracted table blocks")
+    invariant_evaluations: List[Any] = Field(default_factory=list, description="Evaluated accounting invariant results")
     
     # Schema Metadata
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Extraction engine metadata")
