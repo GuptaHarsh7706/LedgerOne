@@ -181,6 +181,18 @@ from src.intelligence.assistant import (
     build_grounded_context_prompt,
     synthesize_grounded_response,
 )
+from src.intelligence.matching_engine import (
+    LineItemMatchResult,
+    CrossDocumentDiscrepancy,
+    ThreeWayMatchSummary,
+    match_three_way,
+)
+from src.intelligence.document_diff import (
+    ScalarFieldDiff,
+    LineItemDiff,
+    DocumentComparisonResult,
+    compare_documents,
+)
 
 __all__ = [
     "BoundingBox",
@@ -332,4 +344,13 @@ __all__ = [
     "detect_prompt_injection",
     "build_grounded_context_prompt",
     "synthesize_grounded_response",
+    # Phase 7: Cross-Document Intelligence & 3-Way Matching
+    "LineItemMatchResult",
+    "CrossDocumentDiscrepancy",
+    "ThreeWayMatchSummary",
+    "match_three_way",
+    "ScalarFieldDiff",
+    "LineItemDiff",
+    "DocumentComparisonResult",
+    "compare_documents",
 ]

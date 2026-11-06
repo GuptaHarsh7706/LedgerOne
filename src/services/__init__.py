@@ -8,6 +8,7 @@ from src.services.job_queue import TransactionalJobQueue, JobRecord
 from src.services.verification_service import VerificationService, verification_service
 from src.services.retrieval_service import RetrievalService, retrieval_service
 from src.services.assistant_service import AssistantService, assistant_service
+from src.services.cross_document_service import CrossDocumentService, cross_document_service
 
 __all__ = [
     "DocumentService",
@@ -21,5 +22,7 @@ __all__ = [
     "retrieval_service",
     "AssistantService",
     "assistant_service",
+    "CrossDocumentService",
+    "cross_document_service",
 ]
 

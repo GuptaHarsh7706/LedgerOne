@@ -910,3 +910,146 @@ CREATE POLICY rls_conversation_messages_delete ON conversation_messages
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON conversation_sessions TO ledgerone_app;
 GRANT SELECT, INSERT, UPDATE, DELETE ON conversation_messages TO ledgerone_app;
+
+
+-- ============================================================================
+-- 11. DOCUMENT RELATIONSHIPS & DISCREPANCIES (PHASE 7: ADVANCED INTELLIGENCE)
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS document_relationships (
+  id UUID DEFAULT uuid_generate_v4(),
+  organization_id UUID NOT NULL,
+  workspace_id UUID NOT NULL,
+  source_document_id UUID NOT NULL,
+  target_document_id UUID NOT NULL,
+  relationship_type VARCHAR(100) NOT NULL,
+  confidence NUMERIC(5, 4) NOT NULL DEFAULT 1.0000,
+  detected_by VARCHAR(50) NOT NULL DEFAULT 'SYSTEM',
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (organization_id, id),
+  UNIQUE (organization_id, workspace_id, source_document_id, target_document_id, relationship_type),
+  FOREIGN KEY (organization_id, workspace_id, source_document_id) REFERENCES documents(organization_id, workspace_id, id) ON DELETE CASCADE,
+  FOREIGN KEY (organization_id, workspace_id, target_document_id) REFERENCES documents(organization_id, workspace_id, id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS document_discrepancies (
+  id UUID DEFAULT uuid_generate_v4(),
+  organization_id UUID NOT NULL,
+  workspace_id UUID NOT NULL,
+  document_id UUID NOT NULL,
+  related_document_id UUID,
+  discrepancy_type VARCHAR(100) NOT NULL,
+  severity VARCHAR(50) NOT NULL DEFAULT 'WARNING',
+  field_name VARCHAR(100),
+  expected_value TEXT,
+  observed_value TEXT,
+  delta NUMERIC(18, 4),
+  status VARCHAR(50) NOT NULL DEFAULT 'OPEN',
+  rationale TEXT,
+  resolved_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  resolved_at TIMESTAMPTZ,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (organization_id, id),
+  FOREIGN KEY (organization_id, workspace_id, document_id) REFERENCES documents(organization_id, workspace_id, id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_doc_rel_tenant ON document_relationships(organization_id, workspace_id, source_document_id);
+CREATE INDEX IF NOT EXISTS idx_doc_rel_target ON document_relationships(organization_id, workspace_id, target_document_id);
+CREATE INDEX IF NOT EXISTS idx_doc_disc_tenant ON document_discrepancies(organization_id, workspace_id, document_id, status);
+
+ALTER TABLE document_relationships ENABLE ROW LEVEL SECURITY;
+ALTER TABLE document_relationships FORCE ROW LEVEL SECURITY;
+
+ALTER TABLE document_discrepancies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE document_discrepancies FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS rls_document_relationships_select ON document_relationships;
+CREATE POLICY rls_document_relationships_select ON document_relationships
+  FOR SELECT
+  USING (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') = 'ORGANIZATION_ADMIN'
+      OR workspace_id IN (
+        SELECT wm.workspace_id FROM workspace_memberships wm
+        WHERE wm.organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+          AND wm.user_id = NULLIF(current_setting('app.current_user_id', true), '')::uuid
+          AND wm.is_active = true
+      )
+    )
+  );
+
+DROP POLICY IF EXISTS rls_document_relationships_insert ON document_relationships;
+CREATE POLICY rls_document_relationships_insert ON document_relationships
+  FOR INSERT
+  WITH CHECK (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'DOCUMENT_MANAGER', 'REVIEWER')
+    )
+  );
+
+DROP POLICY IF EXISTS rls_document_relationships_delete ON document_relationships;
+CREATE POLICY rls_document_relationships_delete ON document_relationships
+  FOR DELETE
+  USING (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN')
+    )
+  );
+
+DROP POLICY IF EXISTS rls_document_discrepancies_select ON document_discrepancies;
+CREATE POLICY rls_document_discrepancies_select ON document_discrepancies
+  FOR SELECT
+  USING (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'DOCUMENT_MANAGER', 'REVIEWER', 'ANALYST', 'VIEWER')
+    )
+  );
+
+DROP POLICY IF EXISTS rls_document_discrepancies_insert ON document_discrepancies;
+CREATE POLICY rls_document_discrepancies_insert ON document_discrepancies
+  FOR INSERT
+  WITH CHECK (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'DOCUMENT_MANAGER', 'REVIEWER')
+    )
+  );
+
+DROP POLICY IF EXISTS rls_document_discrepancies_update ON document_discrepancies;
+CREATE POLICY rls_document_discrepancies_update ON document_discrepancies
+  FOR UPDATE
+  USING (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'DOCUMENT_MANAGER', 'REVIEWER')
+    )
+  )
+  WITH CHECK (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+  );
+
+DROP POLICY IF EXISTS rls_document_discrepancies_delete ON document_discrepancies;
+CREATE POLICY rls_document_discrepancies_delete ON document_discrepancies
+  FOR DELETE
+  USING (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN')
+    )
+  );
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON document_relationships TO ledgerone_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON document_discrepancies TO ledgerone_app;
