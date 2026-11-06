@@ -773,3 +773,140 @@ CREATE POLICY rls_refresh_tokens_all ON refresh_tokens
   );
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON refresh_tokens TO ledgerone_app;
+
+
+-- ============================================================================
+-- 10. CONVERSATION SESSIONS & MESSAGES (PHASE 6: AI ASSISTANT & RAG)
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS conversation_sessions (
+  id UUID DEFAULT uuid_generate_v4(),
+  organization_id UUID NOT NULL,
+  workspace_id UUID NOT NULL,
+  created_by_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL DEFAULT 'New Conversation',
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (organization_id, id),
+  FOREIGN KEY (organization_id, workspace_id) REFERENCES workspaces(organization_id, id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS conversation_messages (
+  id UUID DEFAULT uuid_generate_v4(),
+  organization_id UUID NOT NULL,
+  workspace_id UUID NOT NULL,
+  session_id UUID NOT NULL,
+  sender_role VARCHAR(50) NOT NULL CHECK (sender_role IN ('USER', 'ASSISTANT', 'SYSTEM')),
+  content TEXT NOT NULL,
+  citations JSONB NOT NULL DEFAULT '[]'::jsonb,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (organization_id, id),
+  FOREIGN KEY (organization_id, session_id) REFERENCES conversation_sessions(organization_id, id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_conv_sessions_tenant ON conversation_sessions(organization_id, workspace_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_conv_messages_session ON conversation_messages(organization_id, session_id, created_at ASC);
+
+ALTER TABLE conversation_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE conversation_sessions FORCE ROW LEVEL SECURITY;
+
+ALTER TABLE conversation_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE conversation_messages FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS rls_conversation_sessions_select ON conversation_sessions;
+CREATE POLICY rls_conversation_sessions_select ON conversation_sessions
+  FOR SELECT
+  USING (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') = 'ORGANIZATION_ADMIN'
+      OR workspace_id IN (
+        SELECT wm.workspace_id FROM workspace_memberships wm
+        WHERE wm.organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+          AND wm.user_id = NULLIF(current_setting('app.current_user_id', true), '')::uuid
+          AND wm.is_active = true
+      )
+    )
+  );
+
+DROP POLICY IF EXISTS rls_conversation_sessions_insert ON conversation_sessions;
+CREATE POLICY rls_conversation_sessions_insert ON conversation_sessions
+  FOR INSERT
+  WITH CHECK (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'DOCUMENT_MANAGER', 'REVIEWER', 'ANALYST', 'VIEWER')
+    )
+  );
+
+DROP POLICY IF EXISTS rls_conversation_sessions_update ON conversation_sessions;
+CREATE POLICY rls_conversation_sessions_update ON conversation_sessions
+  FOR UPDATE
+  USING (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'DOCUMENT_MANAGER', 'REVIEWER', 'ANALYST', 'VIEWER')
+    )
+  )
+  WITH CHECK (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+  );
+
+DROP POLICY IF EXISTS rls_conversation_sessions_delete ON conversation_sessions;
+CREATE POLICY rls_conversation_sessions_delete ON conversation_sessions
+  FOR DELETE
+  USING (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN')
+      OR created_by_user_id = NULLIF(current_setting('app.current_user_id', true), '')::uuid
+    )
+  );
+
+DROP POLICY IF EXISTS rls_conversation_messages_select ON conversation_messages;
+CREATE POLICY rls_conversation_messages_select ON conversation_messages
+  FOR SELECT
+  USING (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') = 'ORGANIZATION_ADMIN'
+      OR workspace_id IN (
+        SELECT wm.workspace_id FROM workspace_memberships wm
+        WHERE wm.organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+          AND wm.user_id = NULLIF(current_setting('app.current_user_id', true), '')::uuid
+          AND wm.is_active = true
+      )
+    )
+  );
+
+DROP POLICY IF EXISTS rls_conversation_messages_insert ON conversation_messages;
+CREATE POLICY rls_conversation_messages_insert ON conversation_messages
+  FOR INSERT
+  WITH CHECK (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'DOCUMENT_MANAGER', 'REVIEWER', 'ANALYST', 'VIEWER')
+    )
+  );
+
+DROP POLICY IF EXISTS rls_conversation_messages_delete ON conversation_messages;
+CREATE POLICY rls_conversation_messages_delete ON conversation_messages
+  FOR DELETE
+  USING (
+    organization_id = NULLIF(current_setting('app.current_org_id', true), '')::uuid
+    AND (
+      NULLIF(current_setting('app.is_platform_admin', true), '') = 'true'
+      OR NULLIF(current_setting('app.current_user_role', true), '') IN ('ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN')
+    )
+  );
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON conversation_sessions TO ledgerone_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON conversation_messages TO ledgerone_app;

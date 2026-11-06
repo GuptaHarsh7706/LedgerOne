@@ -161,6 +161,26 @@ from src.intelligence.verification_schemas import (
     ExtractedFieldReviewItem,
     InvariantReviewItem,
 )
+from src.intelligence.chunking import (
+    DocumentChunk,
+    chunk_scalar_fields,
+    chunk_tabular_rows,
+    chunk_document_text,
+    build_document_chunks_hierarchy,
+)
+from src.intelligence.embeddings import (
+    embed_texts,
+    embed_query,
+    vector_to_pg_str,
+    EMBEDDING_DIMENSION,
+)
+from src.intelligence.assistant import (
+    CitationItem,
+    AssistantAnswer,
+    detect_prompt_injection,
+    build_grounded_context_prompt,
+    synthesize_grounded_response,
+)
 
 __all__ = [
     "BoundingBox",
@@ -297,4 +317,19 @@ __all__ = [
     "DocumentReviewDetailResponse",
     "ExtractedFieldReviewItem",
     "InvariantReviewItem",
+    # Phase 6: Retrieval & Assistant
+    "DocumentChunk",
+    "chunk_scalar_fields",
+    "chunk_tabular_rows",
+    "chunk_document_text",
+    "build_document_chunks_hierarchy",
+    "embed_texts",
+    "embed_query",
+    "vector_to_pg_str",
+    "EMBEDDING_DIMENSION",
+    "CitationItem",
+    "AssistantAnswer",
+    "detect_prompt_injection",
+    "build_grounded_context_prompt",
+    "synthesize_grounded_response",
 ]
