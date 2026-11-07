@@ -105,6 +105,7 @@ export interface Document {
   fileSizeBytes?: number;
   mimeType?: string;
   sha256?: string;
+  sourceProvenance?: string;
 }
 
 export interface DashboardStats {

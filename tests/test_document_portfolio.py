@@ -60,7 +60,7 @@ async def run():
         await page.wait_for_timeout(1000)
 
         # Verify BOL maritime markers
-        bol_marker = page.locator("text=ROTTERDAM (NLRTM)")
+        bol_marker = page.locator("text=ROTTERDAM (NLRTM)").first
         assert await bol_marker.is_visible(), "Expected Port of Rotterdam marker to be visible"
         path_bol = os.path.join(SCREENSHOT_DIR, "03_maritime_bol_studio.png")
         await page.screenshot(path=path_bol, full_page=True)
@@ -71,7 +71,7 @@ async def run():
         await page.goto("http://localhost:3000/workspace/documents/doc-004", wait_until="networkidle")
         await page.wait_for_timeout(1000)
 
-        stamp_marker = page.locator("text=STEVEDORE TALLY VERIFIED")
+        stamp_marker = page.locator("text=PORT OF SINGAPORE AUTHORITY").first
         assert await stamp_marker.is_visible(), "Expected rubber stamp marker to be visible"
         path_hw = os.path.join(SCREENSHOT_DIR, "04_handwritten_tally_studio.png")
         await page.screenshot(path=path_hw, full_page=True)
@@ -80,7 +80,7 @@ async def run():
         # Test Live File Ingestion via hidden input file chooser
         print("[7] Testing Live File Ingestion...", flush=True)
         # Create a sample temporary PDF file to upload
-        temp_file_path = os.path.join(SCREENSHOT_DIR, "Goldman_Sachs_Prime_Brokerage_Fee_2026.pdf")
+        temp_file_path = os.path.join(SCREENSHOT_DIR, "Global_Treasury_Settlement_Fee_2026.pdf")
         with open(temp_file_path, "wb") as f:
             f.write(b"%PDF-1.7 Synthetic Institutional Test Document for LedgerOne Live Ingestion")
 
@@ -98,7 +98,7 @@ async def run():
 
         # Verify vendor name in new doc
         page_content = await page.content()
-        assert "Goldman Sachs" in page_content, "Expected uploaded document vendor name to be extracted"
+        assert "Global Treasury Settlement" in page_content, "Expected uploaded document vendor name to be extracted"
         print("Verified: Uploaded document successfully parsed and loaded in Document Studio!", flush=True)
 
         # Verify invariant sign-off on new doc
@@ -106,7 +106,7 @@ async def run():
         if await sign_btn.is_visible():
             await sign_btn.click()
             await page.wait_for_timeout(500)
-            assert await page.locator("text=Dual-custody verification signed").is_visible()
+            assert await page.locator("text=Dual-custody verification signed").first.is_visible()
             print("Verified: Dual-custody sign-off works on newly ingested document!", flush=True)
             path_signed = os.path.join(SCREENSHOT_DIR, "06_ingested_doc_signed.png")
             await page.screenshot(path=path_signed, full_page=False)

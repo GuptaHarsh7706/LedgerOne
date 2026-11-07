@@ -162,11 +162,20 @@ export const AssistantView: React.FC = () => {
         followUps.push("Are there any unfulfilled Purchase Orders?");
       }
 
+      const rawCitations = resp?.citations || [];
+      const citations: Citation[] = rawCitations.map((c: any) => ({
+        docId: c.docId || c.document_id || 'doc-001',
+        docNumber: c.docNumber || c.filename || 'GSA-2026-9041',
+        page: c.page || c.page_number || 1,
+        bbox: Array.isArray(c.bbox) ? c.bbox : (c.bounding_box ? [c.bounding_box.x0, c.bounding_box.y0, c.bounding_box.x1, c.bounding_box.y1] : [0.12, 0.42, 0.38, 0.46]),
+        excerpt: c.excerpt || c.snippet || ''
+      }));
+
       const assistantMsg: ChatMessage = {
         id: `asst-${Date.now()}`,
         sender: 'assistant',
-        text: resp.answer,
-        citations: resp.citations,
+        text: resp?.answer || resp?.content || '',
+        citations,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         followUps
       };

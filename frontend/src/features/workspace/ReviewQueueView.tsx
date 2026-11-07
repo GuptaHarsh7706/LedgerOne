@@ -32,7 +32,7 @@ const INITIAL_QUEUE: ReviewItem[] = [
   {
     id: 'rev-01',
     invoiceNumber: 'BOL-2026-0442',
-    vendorName: 'Maersk Line A/S',
+    vendorName: 'Intermodal Ocean Carrier Line (FIATA FBL-004819)',
     total: 53120.00,
     violationType: 'Container Demurrage Surcharge Variance',
     calculatedSum: 52488.00,
@@ -43,8 +43,8 @@ const INITIAL_QUEUE: ReviewItem[] = [
   },
   {
     id: 'rev-02',
-    invoiceNumber: 'INV-2026-9022',
-    vendorName: 'Vortex Industrial Precision',
+    invoiceNumber: 'MIL-2026-9022',
+    vendorName: 'Aerospace Precision Fasteners (MIL-STD-1907)',
     total: 13490.00,
     violationType: 'Arithmetic Subtotal Summation Discrepancy (INV-001)',
     calculatedSum: 13450.00,
@@ -55,8 +55,8 @@ const INITIAL_QUEUE: ReviewItem[] = [
   },
   {
     id: 'rev-03',
-    invoiceNumber: 'FLT-2026-081',
-    vendorName: 'Shell Aviation & Marine Fuel Logistics',
+    invoiceNumber: 'IATA-2026-081',
+    vendorName: 'Aviation Hydrant Bunkering & Fuel Quality (JIG-7)',
     total: 119920.00,
     violationType: 'Spot FX Rate Exceeded Tolerance Band (INV-004)',
     calculatedSum: 119700.00,
@@ -67,8 +67,8 @@ const INITIAL_QUEUE: ReviewItem[] = [
   },
   {
     id: 'rev-04',
-    invoiceNumber: 'FDR-77102-HW',
-    vendorName: 'Gulf Marine Stevedoring & Wharfage',
+    invoiceNumber: 'PSA-77102-HW',
+    vendorName: 'Port Authority Marine Stevedoring (PSA Form ST-04)',
     total: 7024.00,
     violationType: 'OCR Confidence Below 0.950 STP Threshold (0.941)',
     calculatedSum: 7024.00,
@@ -80,7 +80,7 @@ const INITIAL_QUEUE: ReviewItem[] = [
   {
     id: 'rev-05',
     invoiceNumber: 'GRN-4491-B',
-    vendorName: 'Stratos Advanced Alloys Ltd',
+    vendorName: 'Stratos Advanced Alloys Materials Lab (ASTM B348)',
     total: 41400.00,
     violationType: 'Physical Receiving Weight Discrepancy (Δ 80 kg)',
     calculatedSum: 41400.00,

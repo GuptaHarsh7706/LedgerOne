@@ -71,7 +71,7 @@ async def _seed_test_document_for_rag(
     raw_text = (
         "Acme Global Enterprises Inc. Official Tax Invoice. "
         "Payment Terms: Strictly Net 30 days from invoice date. "
-        "Direct wire remittances to JPMorgan Chase Bank NA account #987654321. "
+        "Direct wire remittances to Interbank Clearing House NA account #987654321. "
         "All late payments subject to 1.5% statutory monthly interest surcharge."
     )
 
@@ -223,17 +223,17 @@ async def test_hybrid_retrieval_dense_lexical_rrf(client: AsyncClient, rag_env: 
     org_id = rag_env["org_id"]
     ws_id = rag_env["ws_id"]
 
-    # 1. Exact phrase keyword search: "JPMorgan Chase Bank"
+    # 1. Exact phrase keyword search: "Interbank Clearing House"
     res_kw = await client.post(
         f"/api/v1/organizations/{org_id}/workspaces/{ws_id}/retrieval/search",
         headers=rag_env["headers"],
-        json={"query": "JPMorgan Chase Bank account wire remittances", "top_k": 3, "alpha": 0.5},
+        json={"query": "Interbank Clearing House account wire remittances", "top_k": 3, "alpha": 0.5},
     )
     assert res_kw.status_code == 200
     chunks_kw = res_kw.json()
     assert len(chunks_kw) > 0
     # Top chunk should contain the wire transfer payment instructions
-    assert "JPMorgan Chase" in chunks_kw[0]["content"] or "Wire" in chunks_kw[0]["content"]
+    assert "Interbank Clearing" in chunks_kw[0]["content"] or "Wire" in chunks_kw[0]["content"]
     assert chunks_kw[0]["rrf_score"] > 0.0
 
     # 2. Semantic financial inquiry: "What is the total invoice cost including taxes?"
