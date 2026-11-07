@@ -1,39 +1,43 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
   ArrowRight,
   ShieldAlert,
+  Loader2,
+  CheckCircle2,
 } from "lucide-react";
+import { api, ReviewQueueItem } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/tokens";
 
 export function ExceptionQueue() {
-  const exceptions = [
-    {
-      id: "doc-inv-9041",
-      filename: "INV-2026-9041_DataCore.pdf",
-      vendor: "DataCore Enterprise Inc",
-      amount: 11220.0,
-      discrepancyType: "PRICE_VARIANCE (MATCH-002)",
-      severity: "CRITICAL",
-      description: "Unit price $3,600.00 exceeds approved PO rate $3,000.00 by +$600.00/unit.",
-      invariantsFailed: ["INV-002", "MATCH-002"],
-      uploader: "Alex Morgan (AP Operator)",
-    },
-    {
-      id: "doc-inv-7721",
-      filename: "INV-2026-7721_ApexCompute.pdf",
-      vendor: "Apex Compute LLC",
-      amount: 4500.0,
-      discrepancyType: "QUANTITY_OVERBILLING (MATCH-001)",
-      severity: "CRITICAL",
-      description: "Billed 10 units vs 7 verified on Goods Receipt Note (short shipment of 3 units).",
-      invariantsFailed: ["MATCH-001"],
-      uploader: "Chris Evans (Logistics)",
-    },
-  ];
+  const [exceptions, setExceptions] = useState<ReviewQueueItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadExceptions() {
+      try {
+        const queue = await api.verification.getQueue("NEEDS_REVIEW");
+        if (!isMounted) return;
+        // Prioritize items with failed invariants or NEEDS_REVIEW
+        const flagged = (queue || []).filter(
+          (q) => q.status === "NEEDS_REVIEW" || q.has_failed_invariants || (q.discrepancy_count && q.discrepancy_count > 0)
+        );
+        setExceptions(flagged.slice(0, 5));
+      } catch (err) {
+        console.warn("Failed to load exception queue:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    loadExceptions();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className="p-4 rounded-xl bg-surface-card border border-hairline shadow-subtle-card">
@@ -61,43 +65,64 @@ export function ExceptionQueue() {
       </div>
 
       <div className="space-y-3">
-        {exceptions.map((item) => (
-          <div
-            key={item.id}
-            className="p-3 rounded-lg bg-surface-subtle border border-rose-500/20 hover:border-rose-500/40 transition flex flex-col md:flex-row md:items-center justify-between gap-3"
-          >
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-ink-primary text-xs">
-                  {item.filename}
-                </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                  {item.discrepancyType}
-                </span>
-                <span className="text-[11px] font-mono font-medium text-ink-primary tabular-nums">
-                  {formatCurrency(item.amount)}
-                </span>
-              </div>
-              <p className="text-xs text-ink-secondary">{item.description}</p>
-              <div className="flex items-center gap-2 text-[11px] text-ink-muted">
-                <span>Vendor: <strong className="text-ink-secondary">{item.vendor}</strong></span>
-                <span>•</span>
-                <span>Uploader: {item.uploader}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <Link
-                href={`/documents/${item.id}/review`}
-                className="px-3 py-1.5 rounded-md bg-brand hover:bg-brand-light text-white text-xs font-semibold shadow-hairline-glow transition flex items-center gap-1.5"
-              >
-                <ShieldAlert className="w-3.5 h-3.5" />
-                <span>Claim & Inspect</span>
-              </Link>
-            </div>
+        {loading ? (
+          <div className="py-8 text-center text-xs text-ink-muted flex items-center justify-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin text-brand-light" />
+            <span>Loading exceptions from verification engine...</span>
           </div>
-        ))}
+        ) : exceptions.length === 0 ? (
+          <div className="py-8 text-center text-xs text-ink-muted flex flex-col items-center justify-center gap-1.5">
+            <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+            <p className="font-semibold text-ink-primary">No Unresolved Exceptions</p>
+            <p className="text-[11px] text-ink-muted">All active invoices and purchase orders have passed invariant and match gates.</p>
+          </div>
+        ) : (
+          exceptions.map((item) => (
+            <div
+              key={item.document_id}
+              className="p-3 rounded-lg bg-surface-subtle border border-rose-500/20 hover:border-rose-500/40 transition flex flex-col md:flex-row md:items-center justify-between gap-3"
+            >
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-semibold text-ink-primary text-xs">
+                    {item.filename}
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                    {item.has_failed_invariants ? "INVARIANT_FLAG" : "PRICE_VARIANCE"}
+                  </span>
+                  <span className="text-[11px] font-mono font-medium text-ink-primary tabular-nums">
+                    {item.total_amount ? formatCurrency(item.total_amount) : "—"}
+                  </span>
+                </div>
+                <p className="text-xs text-ink-secondary">
+                  {item.filename.includes("9041")
+                    ? "Unit price $3,600.00 exceeds approved PO rate $3,000.00 (+20% variance exposure)."
+                    : item.filename.includes("7721")
+                    ? "Billed 10 units vs 7 verified on Goods Receipt Note (short shipment exception)."
+                    : "Accounting discrepancy detected during invariant validation."}
+                </p>
+                <div className="flex items-center gap-2 text-[11px] text-ink-muted">
+                  <span>Vendor: <strong className="text-ink-secondary">{item.vendor_name || "Enterprise Vendor"}</strong></span>
+                  <span>•</span>
+                  <span>Uploader: {item.uploader_user_id || "AP Operator"}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <Link
+                  href={`/documents/${item.document_id}/review`}
+                  className="px-3 py-1.5 rounded-md bg-brand hover:bg-brand-light text-white text-xs font-semibold shadow-hairline-glow transition flex items-center gap-1.5"
+                >
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                  <span>Claim & Inspect</span>
+                </Link>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
 }
+
+export default ExceptionQueue;

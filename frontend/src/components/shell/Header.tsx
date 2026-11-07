@@ -35,7 +35,7 @@ export function Header() {
       title: "Unit Price Inflation Detected (MATCH-002)",
       message: "Invoice INV-2026-9041 billed $3,600.00 vs PO rate $3,000.00 (+$1,200.00 exposure).",
       timestamp: "5 mins ago",
-      link: "/documents/doc-inv-9041/review",
+      link: "/documents/a1000000-0000-0000-0000-000000009041/review",
       read: false,
     },
     {

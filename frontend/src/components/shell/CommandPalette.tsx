@@ -91,7 +91,7 @@ export function CommandPalette() {
       icon: FileText,
       badge: "$11,220.00",
       handler: () => {
-        router.push("/documents/doc-inv-9041/review");
+        router.push("/documents/a1000000-0000-0000-0000-000000009041/review");
         setIsOpen(false);
       },
     },

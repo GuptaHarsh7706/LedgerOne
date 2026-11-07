@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
   ShieldAlert,
@@ -11,78 +11,86 @@ import {
   Lock,
   Search,
   Check,
+  RefreshCw,
+  Loader2,
+  FileText,
 } from "lucide-react";
-import { ReviewQueueItem } from "@/lib/api-client";
+import { api, ReviewQueueItem } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/tokens";
 
 export function ReviewQueuePage() {
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [claimFilter, setClaimFilter] = useState("ALL"); // ALL, UNCLAIMED, IN_REVIEW
   const [searchQuery, setSearchQuery] = useState("");
-  const [claimedIds, setClaimedIds] = useState<Record<string, string>>({
-    "doc-po-8812": "user-rev-sarah",
-  });
+  const [claimedIds, setClaimedIds] = useState<Record<string, string>>({});
+  const [queueItems, setQueueItems] = useState<ReviewQueueItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [claimingId, setClaimingId] = useState<string | null>(null);
+  const [claimError, setClaimError] = useState<string | null>(null);
 
-  const [queueItems, setQueueItems] = useState<ReviewQueueItem[]>([
-    {
-      document_id: "doc-inv-9041",
-      filename: "INV-2026-9041_DataCore.pdf",
-      category: "INVOICE",
-      status: "NEEDS_REVIEW",
-      created_at: "2026-11-07T02:15:00Z",
-      uploader_user_id: "Alex Morgan (AP Operator)",
-      vendor_name: "DataCore Enterprise Inc",
-      invoice_number: "INV-2026-9041",
-      total_amount: "11220.00",
-      currency: "USD",
-      min_confidence: 0.92,
-      invariants_status: "FLAGGED",
-      discrepancy_count: 1,
-    },
-    {
-      document_id: "doc-inv-7721",
-      filename: "INV-2026-7721_ApexCompute.pdf",
-      category: "INVOICE",
-      status: "NEEDS_REVIEW",
-      created_at: "2026-11-06T20:10:00Z",
-      uploader_user_id: "Chris Evans (Logistics)",
-      vendor_name: "Apex Compute LLC",
-      invoice_number: "INV-2026-7721",
-      total_amount: "4500.00",
-      currency: "USD",
-      min_confidence: 0.88,
-      invariants_status: "FLAGGED",
-      discrepancy_count: 1,
-    },
-    {
-      document_id: "doc-po-8812",
-      filename: "PO-2026-8812_StorageNet.pdf",
-      category: "PURCHASE_ORDER",
-      status: "IN_REVIEW",
-      created_at: "2026-11-06T15:45:00Z",
-      uploader_user_id: "Alex Morgan (AP Operator)",
-      claimed_by_user_id: "Sarah Jenkins (Reviewer)",
-      vendor_name: "StorageNet Systems",
-      invoice_number: "PO-2026-8812",
-      total_amount: "28000.00",
-      currency: "USD",
-      min_confidence: 0.79,
-      invariants_status: "FLAGGED",
-      discrepancy_count: 1,
-    },
-  ]);
+  const loadQueue = useCallback(async (isSilent = false) => {
+    if (!isSilent) setIsLoading(true);
+    else setIsRefreshing(true);
+    setClaimError(null);
 
-  const handleClaim = (docId: string) => {
-    setClaimedIds((prev) => ({
-      ...prev,
-      [docId]: "Senior Reviewer (You)",
-    }));
+    try {
+      const items = await api.verification.getQueue();
+      setQueueItems(items);
+
+      // Populate claimedIds from items that have assigned_reviewer or status IN_REVIEW
+      const claims: Record<string, string> = {};
+      for (const it of items) {
+        if (it.status === "IN_REVIEW" || it.claimed_by_user_id) {
+          claims[it.document_id] = it.claimed_by_user_id || "Active Reviewer";
+        }
+      }
+      setClaimedIds(claims);
+    } catch (err: any) {
+      console.error("Failed to load review queue:", err);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadQueue();
+  }, [loadQueue]);
+
+  const handleClaim = async (docId: string) => {
+    setClaimingId(docId);
+    setClaimError(null);
+
+    try {
+      const success = await api.verification.claim(docId);
+      if (success) {
+        setClaimedIds((prev) => ({
+          ...prev,
+          [docId]: "Senior Reviewer (You)",
+        }));
+        // Update local item status to IN_REVIEW
+        setQueueItems((prev) =>
+          prev.map((item) =>
+            item.document_id === docId
+              ? { ...item, status: "IN_REVIEW", claimed_by_user_id: "Senior Reviewer (You)" }
+              : item
+          )
+        );
+      } else {
+        setClaimError(`Could not claim document ${docId.slice(0, 8)}. Please try again.`);
+      }
+    } catch (err: any) {
+      setClaimError(err?.message || "Failed to claim document.");
+    } finally {
+      setClaimingId(null);
+    }
   };
 
   const filteredItems = useMemo(() => {
     return queueItems.filter((item) => {
       const matchCat = selectedCategory === "ALL" || item.category === selectedCategory;
-      const isClaimed = !!claimedIds[item.document_id];
+      const isClaimed = !!claimedIds[item.document_id] || item.status === "IN_REVIEW";
       const matchClaim =
         claimFilter === "ALL" ||
         (claimFilter === "UNCLAIMED" && !isClaimed) ||
@@ -114,14 +122,32 @@ export function ReviewQueuePage() {
           </p>
         </div>
 
-        {/* Dual-Custody Info Banner */}
-        <div className="flex items-center gap-2 text-xs bg-surface-card px-3 py-2 rounded-lg border border-hairline text-ink-secondary">
-          <Lock className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>
-            <strong>Segregation of Duties (SoD):</strong> Uploader & corrector are barred from approval.
-          </span>
+        {/* Dual-Custody Info Banner & Refresh */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-xs bg-surface-card px-3 py-2 rounded-lg border border-hairline text-ink-secondary">
+            <Lock className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>
+              <strong>Segregation of Duties (SoD):</strong> Dual-custody approval enforced.
+            </span>
+          </div>
+          <button
+            onClick={() => loadQueue(true)}
+            disabled={isRefreshing || isLoading}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-subtle hover:bg-surface-hover text-ink-secondary hover:text-ink-primary border border-hairline text-xs font-medium transition disabled:opacity-50"
+            title="Refresh review queue"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-brand-light" : ""}`} />
+            <span>Refresh</span>
+          </button>
         </div>
       </div>
+
+      {claimError && (
+        <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg text-xs text-rose-400 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <span>{claimError}</span>
+        </div>
+      )}
 
       {/* Filter and Control Bar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pb-2 border-b border-hairline">
@@ -131,11 +157,13 @@ export function ReviewQueuePage() {
             { id: "ALL", label: "All Items" },
             { id: "INVOICE", label: "Invoices" },
             { id: "PURCHASE_ORDER", label: "Purchase Orders" },
+            { id: "RECEIPT", label: "Receipts" },
+            { id: "CONTRACT", label: "Contracts" },
           ].map((cat) => (
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition whitespace-nowrap ${
                 selectedCategory === cat.id
                   ? "bg-brand/10 text-brand-light border border-brand/20 shadow-sm"
                   : "bg-surface-subtle text-ink-secondary hover:text-ink-primary hover:bg-surface-hover border border-hairline"
@@ -156,7 +184,7 @@ export function ReviewQueuePage() {
             <button
               key={cf.id}
               onClick={() => setClaimFilter(cf.id)}
-              className={`px-2.5 py-1 rounded text-[11px] font-mono transition ${
+              className={`px-2.5 py-1 rounded text-[11px] font-mono transition whitespace-nowrap ${
                 claimFilter === cf.id
                   ? "bg-surface-elevated text-ink-primary border border-hairline-strong font-semibold"
                   : "text-ink-muted hover:text-ink-secondary"
@@ -195,15 +223,29 @@ export function ReviewQueuePage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-hairline">
-            {filteredItems.length === 0 ? (
+            {isLoading ? (
               <tr>
-                <td colSpan={7} className="py-12 text-center text-xs text-ink-muted">
-                  No pending documents match your filter criteria.
+                <td colSpan={7} className="py-16 text-center text-xs text-ink-muted">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Loader2 className="w-6 h-6 animate-spin text-brand-light" />
+                    <span>Loading pending documents from verification queue...</span>
+                  </div>
+                </td>
+              </tr>
+            ) : filteredItems.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="py-16 text-center text-xs text-ink-muted">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <CheckCircle2 className="w-8 h-8 text-emerald-400/80" />
+                    <p className="font-semibold text-ink-primary">No pending items in queue</p>
+                    <p className="text-[11px] text-ink-muted">All ingested documents in this filter view have been verified or resolved.</p>
+                  </div>
                 </td>
               </tr>
             ) : (
               filteredItems.map((item) => {
-                const claimedBy = claimedIds[item.document_id];
+                const claimedBy = claimedIds[item.document_id] || (item.status === "IN_REVIEW" ? "In Active Review" : undefined);
+                const isClaiming = claimingId === item.document_id;
 
                 return (
                   <tr
@@ -211,33 +253,41 @@ export function ReviewQueuePage() {
                     className="hover:bg-surface-hover/80 transition group"
                   >
                     <td className="py-3 px-4">
-                      <div className="font-semibold text-ink-primary">
-                        {item.filename}
+                      <div className="font-semibold text-ink-primary flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-brand-light shrink-0" />
+                        <span>{item.filename}</span>
                       </div>
-                      <div className="text-[10px] font-mono text-ink-muted">
-                        ID: {item.document_id} • Uploader: {item.uploader_user_id}
+                      <div className="text-[10px] font-mono text-ink-muted mt-0.5">
+                        ID: {item.document_id.slice(0, 13)}... • Category: {item.category}
                       </div>
                     </td>
 
                     <td className="py-3 px-3 text-ink-secondary">
-                      {item.vendor_name}
+                      {item.vendor_name || "—"}
                     </td>
 
                     <td className="py-3 px-3 text-right font-mono font-semibold text-ink-primary tabular-nums">
-                      {formatCurrency(item.total_amount)}
+                      {item.total_amount ? formatCurrency(item.total_amount) : "—"}
                     </td>
 
                     <td className="py-3 px-3 text-center">
-                      <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-surface-elevated text-amber-400 border border-hairline">
-                        {(item.min_confidence * 100).toFixed(0)}% min
+                      <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-surface-elevated text-emerald-400 border border-hairline">
+                        {((item.mean_confidence || item.min_confidence || 0.95) * 100).toFixed(0)}%
                       </span>
                     </td>
 
                     <td className="py-3 px-3">
-                      <span className="inline-flex items-center gap-1 text-[10px] font-mono text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
-                        <AlertTriangle className="w-3 h-3" />
-                        {item.discrepancy_count} Discrepancy
-                      </span>
+                      {item.has_failed_invariants || (item.discrepancy_count && item.discrepancy_count > 0) ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-mono text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
+                          <AlertTriangle className="w-3 h-3" />
+                          {item.failed_invariants_count || item.discrepancy_count || 1} Exception
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Passed
+                        </span>
+                      )}
                     </td>
 
                     <td className="py-3 px-3">
@@ -249,9 +299,17 @@ export function ReviewQueuePage() {
                       ) : (
                         <button
                           onClick={() => handleClaim(item.document_id)}
-                          className="text-[11px] font-mono text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1"
+                          disabled={isClaiming}
+                          className="text-[11px] font-mono text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1 transition disabled:opacity-50"
                         >
-                          <span>Claim Document</span>
+                          {isClaiming ? (
+                            <>
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              <span>Claiming...</span>
+                            </>
+                          ) : (
+                            <span>Claim Document</span>
+                          )}
                         </button>
                       )}
                     </td>

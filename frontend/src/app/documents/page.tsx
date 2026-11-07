@@ -5,8 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { DocumentTable } from "@/components/documents/DocumentTable";
 import { CategoryFilterBar } from "@/components/documents/CategoryFilterBar";
 import { UploadModal } from "@/components/documents/UploadModal";
-import { MOCK_DOCUMENTS, DocumentItem } from "@/lib/api-client";
-import { Upload, Database } from "lucide-react";
+import { MOCK_DOCUMENTS, DocumentItem, api } from "@/lib/api-client";
+import { Upload, Database, RefreshCw } from "lucide-react";
 
 function DocumentsContent() {
   const searchParams = useSearchParams();
@@ -16,6 +16,24 @@ function DocumentsContent() {
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isUploadOpen, setIsUploadOpen] = useState<boolean>(initialUploadOpen);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Dynamic fetch function from FastAPI backend
+  const fetchDocuments = async () => {
+    setIsLoading(true);
+    try {
+      const data = await api.documents.list({ category: selectedCategory });
+      setDocuments(data);
+    } catch (err) {
+      console.warn("Failed to load live documents from backend", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [selectedCategory]);
 
   useEffect(() => {
     const handleOpen = () => setIsUploadOpen(true);
@@ -23,12 +41,24 @@ function DocumentsContent() {
     return () => window.removeEventListener("open-upload-modal", handleOpen);
   }, []);
 
-  const handleDeleteDocument = (id: string) => {
+  const handleDeleteDocument = async (id: string) => {
+    try {
+      await api.documents.delete(id);
+    } catch (e) {
+      console.warn("Delete request failed", e);
+    }
     setDocuments((prev) => prev.filter((d) => d.id !== id));
   };
 
-  const handleBatchDelete = (ids: string[]) => {
+  const handleBatchDelete = async (ids: string[]) => {
     const idSet = new Set(ids);
+    for (const id of ids) {
+      try {
+        await api.documents.delete(id);
+      } catch (e) {
+        console.warn("Batch delete failed on", id);
+      }
+    }
     setDocuments((prev) => prev.filter((d) => !idSet.has(d.id)));
   };
 
@@ -77,6 +107,15 @@ function DocumentsContent() {
           </div>
 
           <button
+            onClick={fetchDocuments}
+            disabled={isLoading}
+            className="p-1.5 rounded-lg bg-surface-card hover:bg-surface-hover border border-hairline text-ink-muted hover:text-ink-primary transition"
+            title="Refresh from PostgreSQL"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-brand-light" : ""}`} />
+          </button>
+
+          <button
             onClick={() => setIsUploadOpen(true)}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-brand hover:bg-brand-light text-white text-xs font-semibold shadow-hairline-glow transition"
           >
@@ -106,9 +145,7 @@ function DocumentsContent() {
       <UploadModal
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
-        onUploadSuccess={() => {
-          // Re-fetch or keep updated
-        }}
+        onUploadSuccess={fetchDocuments}
       />
     </div>
   );

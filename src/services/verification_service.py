@@ -212,7 +212,7 @@ class VerificationService:
         corrector_user_ids = set()
 
         for f in field_rows:
-            if f["field_name"] == "line_items":
+            if f["field_name"] in ("line_items", "table_line_items"):
                 norm_val = f["verified_value"] if f["is_verified"] and f["verified_value"] else f["field_value_normalized"]
                 if isinstance(norm_val, str):
                     norm_val = json.loads(norm_val)
@@ -606,9 +606,9 @@ class VerificationService:
 
                 field_row = await conn.fetchrow(
                     """
-                    SELECT id, field_value_normalized, verified_value
+                    SELECT id, field_name, field_value_normalized, verified_value
                     FROM extracted_fields
-                    WHERE organization_id = $1 AND workspace_id = $2 AND document_id = $3 AND field_name = 'line_items'
+                    WHERE organization_id = $1 AND workspace_id = $2 AND document_id = $3 AND field_name IN ('line_items', 'table_line_items')
                     FOR UPDATE
                     """,
                     org_id,
@@ -655,13 +655,14 @@ class VerificationService:
                         is_verified = TRUE,
                         verified_by_user_id = $5,
                         verified_at = CURRENT_TIMESTAMP
-                    WHERE organization_id = $1 AND workspace_id = $2 AND document_id = $3 AND field_name = 'line_items'
+                    WHERE organization_id = $1 AND workspace_id = $2 AND document_id = $3 AND id = $6
                     """,
                     org_id,
                     ws_id,
                     doc_id,
                     json.dumps(updated_bundle),
                     actor_id,
+                    field_row["id"],
                 )
 
                 # Re-evaluate invariants
@@ -1232,7 +1233,7 @@ class VerificationService:
                 return None
 
         # Build LineItemField sequence from table bundle
-        line_items_data = field_map.get("line_items") or []
+        line_items_data = field_map.get("line_items") or field_map.get("table_line_items") or []
         if isinstance(line_items_data, dict):
             line_items_data = line_items_data.get("table", {}).get("rows", [])
         if not isinstance(line_items_data, list):

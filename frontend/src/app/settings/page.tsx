@@ -142,8 +142,10 @@ export function SettingsPage() {
 
   const handleExportAuditTrail = () => {
     const auditData = {
-      tenant_id: "org-apex-capital",
-      workspace_id: "ws-financial-core",
+      tenant_id: "6c885eec-bed8-4060-8215-a50eb442bf5d",
+      tenant_name: "Apex Global Capital",
+      workspace_id: "9b2b92c0-56a0-4568-8d42-9d2681d30fc9",
+      workspace_name: "Production Financial Core",
       exported_at: new Date().toISOString(),
       standards_conformance: ["SOC2_TYPE_II", "ISO_27001", "EU_AI_ACT_HIGH_RISK"],
       events_count: 1420,

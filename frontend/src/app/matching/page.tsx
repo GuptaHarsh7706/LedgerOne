@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { ThreeWayMatchMatrix } from "@/components/matching/ThreeWayMatchMatrix";
 import { DiscrepancyCard } from "@/components/matching/DiscrepancyCard";
 import { VersionDiffViewer } from "@/components/matching/VersionDiffViewer";
-import { MOCK_3WAY_MATCH } from "@/lib/api-client";
+import { api, ThreeWayMatchResult, MOCK_3WAY_MATCH } from "@/lib/api-client";
 import {
   GitCompare,
   AlertTriangle,
@@ -13,40 +13,84 @@ import {
   Link as LinkIcon,
   CheckCircle2,
   X,
+  Loader2,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/tokens";
 
+const DEFAULT_INVOICE_ID = "a1000000-0000-0000-0000-000000009041";
+const DEFAULT_PO_ID = "a2000000-0000-0000-0000-000000004412";
+const DEFAULT_GRN_ID = "a3000000-0000-0000-0000-000000001109";
+
 export function MatchingPage() {
   const [activeTab, setActiveTab] = useState<"3WAY" | "DIFF">("3WAY");
+  const [matchResult, setMatchResult] = useState<ThreeWayMatchResult>(MOCK_3WAY_MATCH);
+  const [isLoading, setIsLoading] = useState(true);
   const [isReconciling, setIsReconciling] = useState(false);
   const [reconcileSuccess, setReconcileSuccess] = useState(false);
+  const [reconcileError, setReconcileError] = useState<string | null>(null);
+
   const [showLinkModal, setShowLinkModal] = useState(false);
-  const [linkTargetDoc, setLinkTargetDoc] = useState("PO-2026-4412");
+  const [linkTargetDoc, setLinkTargetDoc] = useState(DEFAULT_PO_ID);
   const [linkRelationship, setLinkRelationship] = useState("PURCHASE_ORDER_TO_INVOICE");
+  const [isLinking, setIsLinking] = useState(false);
   const [linkSuccess, setLinkSuccess] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
 
-  const handleReconcile = () => {
-    setIsReconciling(true);
-    setTimeout(() => {
+  const runMatch = useCallback(async (isSilent = false) => {
+    if (!isSilent) setIsLoading(true);
+    else setIsReconciling(true);
+    setReconcileError(null);
+
+    try {
+      const result = await api.matching.executeMatch(DEFAULT_INVOICE_ID);
+      setMatchResult(result);
+      if (isSilent) {
+        setReconcileSuccess(true);
+        setTimeout(() => setReconcileSuccess(false), 3500);
+      }
+    } catch (err: any) {
+      console.error("Match reconciliation failed:", err);
+      setReconcileError(err?.message || "Reconciliation failed.");
+    } finally {
+      setIsLoading(false);
       setIsReconciling(false);
-      setReconcileSuccess(true);
-      setTimeout(() => setReconcileSuccess(false), 3000);
-    }, 700);
+    }
+  }, []);
+
+  useEffect(() => {
+    runMatch();
+  }, [runMatch]);
+
+  const handleLinkSubmit = async () => {
+    setIsLinking(true);
+    setLinkError(null);
+
+    try {
+      const success = await api.matching.link(DEFAULT_INVOICE_ID, linkTargetDoc, linkRelationship);
+      if (success) {
+        setLinkSuccess(true);
+        setTimeout(() => {
+          setLinkSuccess(false);
+          setShowLinkModal(false);
+          runMatch(true);
+        }, 1500);
+      } else {
+        setLinkError("Failed to link documents in PostgreSQL. Check document UUIDs.");
+      }
+    } catch (err: any) {
+      setLinkError(err?.message || "Failed to link documents.");
+    } finally {
+      setIsLinking(false);
+    }
   };
 
-  const handleLinkSubmit = () => {
-    setLinkSuccess(true);
-    setTimeout(() => {
-      setLinkSuccess(false);
-      setShowLinkModal(false);
-    }, 1500);
-  };
+  const isMatched = matchResult.match_status === "PERFECT_MATCH";
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6 relative">
       {/* Toast Alert */}
       {reconcileSuccess && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg bg-emerald-500 text-black font-semibold text-xs shadow-2xl flex items-center gap-2 animate-in slide-in-from-top-4 duration-200">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg bg-emerald-500 text-black font-semibold text-xs shadow-2xl flex items-center gap-2 animate-in slide-in-from-top-4 duration-200">
           <CheckCircle2 className="w-4 h-4" />
           <span>3-Way match re-evaluated with pure Decimal arithmetic! Zero discrepancies missed.</span>
         </div>
@@ -59,8 +103,14 @@ export function MatchingPage() {
             <h1 className="text-xl font-bold tracking-tight text-ink-primary">
               Autonomous 3-Way Matching & Discrepancy Engine
             </h1>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
-              DISCREPANCY DETECTED
+            <span
+              className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
+                isMatched
+                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                  : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+              }`}
+            >
+              {matchResult.match_status.replace(/_/g, " ")}
             </span>
           </div>
           <p className="text-xs text-ink-muted">
@@ -80,8 +130,8 @@ export function MatchingPage() {
 
           {/* Reconcile Action Button */}
           <button
-            onClick={handleReconcile}
-            disabled={isReconciling}
+            onClick={() => runMatch(true)}
+            disabled={isReconciling || isLoading}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-brand hover:bg-brand-light disabled:bg-surface-elevated text-white text-xs font-semibold shadow-hairline-glow transition"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isReconciling ? "animate-spin" : ""}`} />
@@ -116,26 +166,46 @@ export function MatchingPage() {
         </div>
       </div>
 
-      {activeTab === "3WAY" ? (
+      {reconcileError && (
+        <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg text-xs text-rose-400 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <span>{reconcileError}</span>
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="py-24 text-center text-xs text-ink-muted flex flex-col items-center justify-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-brand-light" />
+          <p className="font-semibold text-ink-primary">Executing Autonomous 3-Way Reconciliation...</p>
+          <p className="text-[11px] text-ink-muted">Querying Neon PostgreSQL line-item bounds and evaluating financial invariants.</p>
+        </div>
+      ) : activeTab === "3WAY" ? (
         <div className="space-y-6">
           {/* Main 3-Way Matrix */}
-          <ThreeWayMatchMatrix matchResult={MOCK_3WAY_MATCH} />
+          <ThreeWayMatchMatrix matchResult={matchResult} />
 
           {/* Detected Discrepancies Details */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-ink-primary">
-                Identified Discrepancies ({MOCK_3WAY_MATCH.discrepancies.length})
+                Identified Discrepancies ({matchResult.discrepancies.length})
               </span>
               <span className="font-mono text-xs text-rose-400 font-bold">
-                Total Financial Exposure: {formatCurrency(MOCK_3WAY_MATCH.total_discrepancy_amount)}
+                Total Financial Exposure: {formatCurrency(matchResult.total_discrepancy_amount)}
               </span>
             </div>
 
             <div className="space-y-3">
-              {MOCK_3WAY_MATCH.discrepancies.map((d, idx) => (
-                <DiscrepancyCard key={idx} discrepancy={d} />
-              ))}
+              {matchResult.discrepancies.length === 0 ? (
+                <div className="p-4 rounded-xl bg-surface-card border border-emerald-500/20 text-xs text-ink-secondary flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>No discrepancies detected across the PO, Goods Receipt, and Supplier Invoice lines.</span>
+                </div>
+              ) : (
+                matchResult.discrepancies.map((d, idx) => (
+                  <DiscrepancyCard key={idx} discrepancy={d} />
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -146,7 +216,7 @@ export function MatchingPage() {
       {/* Link Document Modal */}
       {showLinkModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="fixed inset-0 -z-10" onClick={() => setShowLinkModal(false)} />
+          <div className="fixed inset-0 -z-10" onClick={() => !isLinking && setShowLinkModal(false)} />
           <div className="w-full max-w-md bg-surface-elevated border border-hairline-strong rounded-xl shadow-2xl overflow-hidden text-xs animate-in zoom-in-95 duration-150">
             <div className="p-4 border-b border-hairline bg-surface-subtle flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -157,7 +227,8 @@ export function MatchingPage() {
               </div>
               <button
                 onClick={() => setShowLinkModal(false)}
-                className="p-1 rounded text-ink-muted hover:text-ink-primary"
+                disabled={isLinking}
+                className="p-1 rounded text-ink-muted hover:text-ink-primary disabled:opacity-50"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -176,6 +247,12 @@ export function MatchingPage() {
                 </div>
               ) : (
                 <>
+                  {linkError && (
+                    <div className="p-2.5 bg-rose-500/10 border border-rose-500/20 rounded text-rose-400 text-xs">
+                      {linkError}
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-ink-secondary font-medium mb-1">
                       Relationship Type
@@ -193,14 +270,14 @@ export function MatchingPage() {
 
                   <div>
                     <label className="block text-ink-secondary font-medium mb-1">
-                      Target Document Identifier
+                      Target Document UUID
                     </label>
                     <input
                       type="text"
                       value={linkTargetDoc}
                       onChange={(e) => setLinkTargetDoc(e.target.value)}
-                      placeholder="e.g. PO-2026-4412..."
-                      className="w-full px-3 py-2 rounded-lg bg-surface-card border border-hairline text-ink-primary font-mono focus:border-brand-light focus:outline-none"
+                      placeholder="e.g. a2000000-0000-0000-0000-000000004412"
+                      className="w-full px-3 py-2 rounded-lg bg-surface-card border border-hairline text-ink-primary font-mono focus:border-brand-light focus:outline-none text-[11px]"
                     />
                   </div>
                 </>
@@ -211,15 +288,18 @@ export function MatchingPage() {
               <div className="p-3 border-t border-hairline bg-surface-subtle flex justify-end gap-2">
                 <button
                   onClick={() => setShowLinkModal(false)}
-                  className="px-3 py-1.5 rounded-md text-ink-secondary hover:text-ink-primary"
+                  disabled={isLinking}
+                  className="px-3 py-1.5 rounded-md text-ink-secondary hover:text-ink-primary disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleLinkSubmit}
-                  className="px-4 py-1.5 rounded-md bg-brand hover:bg-brand-light text-white font-semibold shadow-hairline-glow"
+                  disabled={isLinking}
+                  className="px-4 py-1.5 rounded-md bg-brand hover:bg-brand-light disabled:bg-surface-elevated text-white font-semibold shadow-hairline-glow flex items-center gap-1.5"
                 >
-                  Confirm Link
+                  {isLinking && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>{isLinking ? "Linking..." : "Confirm Link"}</span>
                 </button>
               </div>
             )}

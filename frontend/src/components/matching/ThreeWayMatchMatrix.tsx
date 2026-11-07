@@ -26,7 +26,7 @@ export function ThreeWayMatchMatrix({ matchResult }: ThreeWayMatchMatrixProps) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {/* Document 1: PO */}
         <Link
-          href="/documents/doc-po-4412/review"
+          href={`/documents/${matchResult.po_id || "a2000000-0000-0000-0000-000000004412"}/review`}
           className="p-3.5 rounded-xl bg-surface-card border border-hairline hover:border-indigo-500/40 hover:bg-surface-hover/80 transition shadow-subtle-card space-y-2 group block"
         >
           <div className="flex items-center justify-between text-xs">
@@ -50,7 +50,7 @@ export function ThreeWayMatchMatrix({ matchResult }: ThreeWayMatchMatrixProps) {
 
         {/* Document 2: GRN / Receipt */}
         <Link
-          href="/documents/doc-grn-1109/review"
+          href={`/documents/${matchResult.grn_id || "a3000000-0000-0000-0000-000000001109"}/review`}
           className="p-3.5 rounded-xl bg-surface-card border border-hairline hover:border-emerald-500/40 hover:bg-surface-hover/80 transition shadow-subtle-card space-y-2 group block"
         >
           <div className="flex items-center justify-between text-xs">
@@ -74,7 +74,7 @@ export function ThreeWayMatchMatrix({ matchResult }: ThreeWayMatchMatrixProps) {
 
         {/* Document 3: Invoice */}
         <Link
-          href="/documents/doc-inv-9041/review"
+          href={`/documents/${matchResult.invoice_id || "a1000000-0000-0000-0000-000000009041"}/review`}
           className="p-3.5 rounded-xl bg-surface-card border border-rose-500/30 hover:border-rose-500/60 hover:bg-surface-hover/80 transition shadow-subtle-card space-y-2 group block"
         >
           <div className="flex items-center justify-between text-xs">
@@ -159,7 +159,7 @@ export function ThreeWayMatchMatrix({ matchResult }: ThreeWayMatchMatrixProps) {
                       </span>
                     ) : (
                       <Link
-                        href="/documents/doc-inv-9041/review"
+                        href={`/documents/${matchResult.invoice_id || "a1000000-0000-0000-0000-000000009041"}/review`}
                         className="inline-flex items-center gap-1 text-[10px] font-mono text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20 hover:bg-rose-500/20 transition"
                       >
                         <AlertTriangle className="w-3 h-3" />

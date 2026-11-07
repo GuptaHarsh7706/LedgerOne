@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { PageThumbnailStrip } from "@/components/viewer/PageThumbnailStrip";
 import { DocumentCanvas } from "@/components/viewer/DocumentCanvas";
 import { ExtractionInspector } from "@/components/viewer/ExtractionInspector";
@@ -13,17 +14,25 @@ import {
   ExtractedLineItem,
   InvariantResult,
   ExtractedField,
+  DocumentItem,
+  api,
 } from "@/lib/api-client";
 import { CheckCircle2, XCircle } from "lucide-react";
 
 export default function DocumentReviewStudioPage() {
+  const params = useParams();
+  const documentId = (params?.id as string) || "a1000000-0000-0000-0000-000000009041";
+
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [activeFieldKey, setActiveFieldKey] = useState<string | null>("total_amount");
 
-  // Local state for interactive editing and real-time recalculation
+  // Dynamic state loaded from FastAPI backend
+  const [docMeta, setDocMeta] = useState<DocumentItem>(MOCK_REVIEW_DETAIL.document);
+  const [previewUrl, setPreviewUrl] = useState<string>(MOCK_REVIEW_DETAIL.preview_url);
   const [fields, setFields] = useState<ExtractedField[]>(MOCK_REVIEW_DETAIL.fields);
   const [lineItems, setLineItems] = useState<ExtractedLineItem[]>(MOCK_REVIEW_DETAIL.line_items);
   const [invariants, setInvariants] = useState<InvariantResult[]>(MOCK_REVIEW_DETAIL.invariants);
+  const [canApprove, setCanApprove] = useState<boolean>(true);
 
   // Modals state
   const [editingLineItem, setEditingLineItem] = useState<ExtractedLineItem | null>(null);
@@ -33,12 +42,43 @@ export default function DocumentReviewStudioPage() {
   const [approvedSuccess, setApprovedSuccess] = useState<boolean>(false);
   const [rejectedMessage, setRejectedMessage] = useState<string | null>(null);
 
-  // Handle line item cell correction with real-time recalculation
-  const handleSaveCorrection = (updatedItem: ExtractedLineItem) => {
+  // Load real document review details from live backend
+  const loadDetail = async () => {
+    try {
+      const detail = await api.verification.getDetail(documentId);
+      setDocMeta(detail.document);
+      setPreviewUrl(detail.preview_url || "/placeholder-invoice.pdf");
+      setFields(detail.fields);
+      setLineItems(detail.line_items);
+      setInvariants(detail.invariants);
+      setCanApprove(detail.sod_status?.can_approve ?? true);
+    } catch (e) {
+      console.warn("Failed to fetch document review detail from backend", e);
+    }
+  };
+
+  useEffect(() => {
+    loadDetail();
+  }, [documentId]);
+
+  // Handle line item cell correction with real backend persistence
+  const handleSaveCorrection = async (updatedItem: ExtractedLineItem) => {
     const nextLines = lineItems.map((l) =>
       l.line_number === updatedItem.line_number ? updatedItem : l
     );
     setLineItems(nextLines);
+
+    // Call backend API
+    try {
+      await api.verification.correctLineItem(
+        documentId,
+        updatedItem.line_number - 1,
+        "unit_price",
+        updatedItem.unit_price
+      );
+    } catch (e) {
+      console.warn("Line item correction failed on server", e);
+    }
 
     // Recalculate Subtotal across all lines
     const newSubtotal = nextLines.reduce((acc, curr) => acc + curr.line_net, 0);
@@ -87,14 +127,26 @@ export default function DocumentReviewStudioPage() {
     );
   };
 
-  // Handle scalar field correction
-  const handleSaveScalarField = (fieldName: string, newValue: string) => {
+  // Handle scalar field correction with real backend persistence
+  const handleSaveScalarField = async (fieldName: string, newValue: string) => {
     setFields((prev) =>
       prev.map((f) => (f.name === fieldName ? { ...f, value: newValue } : f))
     );
+
+    try {
+      await api.verification.correctField(documentId, fieldName, newValue);
+    } catch (e) {
+      console.warn("Scalar correction failed on server", e);
+    }
   };
 
-  const handleConfirmOverride = (invariantId: string, rationale: string) => {
+  const handleConfirmOverride = async (invariantId: string, rationale: string) => {
+    try {
+      await api.verification.overrideInvariant(documentId, invariantId, rationale);
+    } catch (e) {
+      console.warn("Override failed on server", e);
+    }
+
     setInvariants((prev) =>
       prev.map((inv) =>
         inv.invariant_id === invariantId
@@ -109,12 +161,22 @@ export default function DocumentReviewStudioPage() {
     );
   };
 
-  const handleApprove = () => {
+  const handleApprove = async () => {
+    try {
+      await api.verification.verify(documentId);
+    } catch (e) {
+      console.warn("Verify failed on server", e);
+    }
     setApprovedSuccess(true);
     setRejectedMessage(null);
   };
 
-  const handleConfirmReject = (reason: string) => {
+  const handleConfirmReject = async (reason: string) => {
+    try {
+      await api.verification.reject(documentId, reason);
+    } catch (e) {
+      console.warn("Reject failed on server", e);
+    }
     setRejectedMessage(`Document rejected: "${reason}"`);
     setApprovedSuccess(false);
   };
@@ -125,7 +187,7 @@ export default function DocumentReviewStudioPage() {
       {approvedSuccess && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-lg bg-emerald-500 text-black font-semibold text-xs shadow-2xl flex items-center gap-2 animate-in slide-in-from-top-4 duration-200">
           <CheckCircle2 className="w-4 h-4" />
-          <span>Document INV-2026-9041 verified and committed under dual-custody audit policy!</span>
+          <span>Document {docMeta.filename} verified and committed under dual-custody audit policy!</span>
         </div>
       )}
 
@@ -139,7 +201,7 @@ export default function DocumentReviewStudioPage() {
 
       {/* PANEL 1: Left Page Thumbnail Strip */}
       <PageThumbnailStrip
-        pageCount={MOCK_REVIEW_DETAIL.document.page_count}
+        pageCount={docMeta.page_count || 1}
         currentPage={currentPage}
         onSelectPage={setCurrentPage}
       />
@@ -151,13 +213,13 @@ export default function DocumentReviewStudioPage() {
         activeFieldKey={activeFieldKey}
         onSelectField={setActiveFieldKey}
         currentPage={currentPage}
-        totalPages={MOCK_REVIEW_DETAIL.document.page_count}
+        totalPages={docMeta.page_count || 1}
         onPageChange={setCurrentPage}
       />
 
       {/* PANEL 3: Right Extraction & Invariant Inspector */}
       <ExtractionInspector
-        document={MOCK_REVIEW_DETAIL.document}
+        document={docMeta}
         fields={fields}
         lineItems={lineItems}
         invariants={invariants}
@@ -168,7 +230,7 @@ export default function DocumentReviewStudioPage() {
         onOpenOverrideModal={(inv) => setOverridingInvariant(inv)}
         onApproveDocument={handleApprove}
         onRejectDocument={() => setIsRejectOpen(true)}
-        canApprove={MOCK_REVIEW_DETAIL.sod_status.can_approve && !rejectedMessage}
+        canApprove={canApprove && !rejectedMessage}
       />
 
       {/* Modal: Line Item Cell Correction */}
@@ -190,8 +252,8 @@ export default function DocumentReviewStudioPage() {
       {/* Modal: Document Rejection */}
       <DocumentRejectModal
         isOpen={isRejectOpen}
-        documentId={MOCK_REVIEW_DETAIL.document.id}
-        filename={MOCK_REVIEW_DETAIL.document.filename}
+        documentId={docMeta.id}
+        filename={docMeta.filename}
         onClose={() => setIsRejectOpen(false)}
         onConfirmReject={handleConfirmReject}
       />

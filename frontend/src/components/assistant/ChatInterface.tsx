@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { CitationCard, Citation } from "./CitationCard";
 import { CitationDetailModal } from "./CitationDetailModal";
-import { MOCK_ASSISTANT_SESSION } from "@/lib/api-client";
+import { api, MOCK_ASSISTANT_SESSION } from "@/lib/api-client";
 
 interface Message {
   id: string;
@@ -40,68 +40,40 @@ export function ChatInterface() {
     }, 3000);
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim() || loading) return;
+    const prompt = input.trim();
     const userMsg: Message = {
       id: `msg-${Date.now()}`,
       role: "user",
-      content: input,
+      content: prompt,
       created_at: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
 
-    // Simulate Evidence-Grounded generation with strict citations
-    setTimeout(() => {
-      let responseContent = "";
-      let responseCitations: Citation[] = [];
-
-      if (
-        input.toLowerCase().includes("unsupported") ||
-        input.toLowerCase().includes("weather") ||
-        input.toLowerCase().includes("ignore")
-      ) {
-        responseContent =
-          "I cannot answer this question because it is unsupported by authorized documents in the current workspace. In accordance with zero-hallucination policy, no speculative claims are generated.";
-      } else {
-        responseContent =
-          "According to Purchase Order PO-2026-4412 and Invoice INV-2026-9041, the approved unit price for High-Capacity SAN Storage Node Tier 1 was $3,000.00. However, the supplier billed at $3,600.00 per unit, generating a total price inflation variance of +$1,200.00 across 2 units. The delivery was physically confirmed on Goods Receipt GRN-2026-1109.";
-        responseCitations = [
-          {
-            citation_id: "CIT-01",
-            document_id: "doc-inv-9041",
-            document_name: "INV-2026-9041_DataCore.pdf",
-            page_number: 1,
-            line_number: 1,
-            bounding_box: { x0: 44, y0: 310, x1: 955, y1: 335 },
-            quote:
-              "High-Capacity SAN Storage Node Tier 1 | Qty: 2 | Unit Price: $3,600.00",
-          },
-          {
-            citation_id: "CIT-02",
-            document_id: "doc-po-4412",
-            document_name: "PO-2026-4412_DataCore.pdf",
-            page_number: 1,
-            line_number: 1,
-            bounding_box: { x0: 40, y0: 240, x1: 900, y1: 265 },
-            quote:
-              "Item 1: High-Capacity SAN Storage Node | Approved Rate: $3,000.00",
-          },
-        ];
-      }
-
+    try {
+      const res = await api.assistant.ask(prompt);
       const assistantMsg: Message = {
         id: `msg-${Date.now() + 1}`,
         role: "assistant",
-        content: responseContent,
+        content: res.answer,
         created_at: new Date().toISOString(),
-        citations: responseCitations,
+        citations: res.citations,
       };
-
       setMessages((prev) => [...prev, assistantMsg]);
+    } catch (err: any) {
+      const errorMsg: Message = {
+        id: `msg-${Date.now() + 1}`,
+        role: "assistant",
+        content: `Error querying document intelligence index: ${err?.message || "Service unavailable"}.`,
+        created_at: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   const handleSuggestion = (prompt: string) => {

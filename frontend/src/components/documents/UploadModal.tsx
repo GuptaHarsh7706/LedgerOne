@@ -9,6 +9,7 @@ import {
   Loader2,
   CheckCircle2,
 } from "lucide-react";
+import { api } from "@/lib/api-client";
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }: UploadModalPro
   const [uploadProgress, setUploadProgress] = useState(0);
   const [processingStage, setProcessingStage] = useState<string>("");
   const [completed, setCompleted] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -41,34 +43,34 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }: UploadModalPro
     }
   };
 
-  const startUpload = () => {
+  const startUpload = async () => {
     if (!selectedFile) return;
     setUploading(true);
-    setUploadProgress(15);
-    setProcessingStage("Acquiring 15-minute presigned S3 lease...");
+    setUploadError(null);
+    setUploadProgress(20);
+    setProcessingStage("Initiating multipart stream to Neon S3 Assets Bucket...");
 
-    setTimeout(() => {
-      setUploadProgress(45);
-      setProcessingStage("Streaming bytes to Private S3 Assets Bucket (ap-southeast-1)...");
-    }, 600);
+    try {
+      setUploadProgress(50);
+      setProcessingStage("Streaming bytes to S3 Object Storage (ap-southeast-1)...");
 
-    setTimeout(() => {
-      setUploadProgress(75);
-      setProcessingStage("Modular OCR: High-DPI rasterization & TrOCR CUDA inference...");
-    }, 1400);
+      const res = await api.documents.upload(selectedFile, category);
 
-    setTimeout(() => {
-      setUploadProgress(95);
-      setProcessingStage("Hungarian Table Solver: Extracting tabular line items...");
-    }, 2200);
+      if (res.error) {
+        setUploadError(`Upload failed: ${res.error}`);
+        setUploading(false);
+        return;
+      }
 
-    setTimeout(() => {
       setUploadProgress(100);
-      setProcessingStage("Pure Decimal Invariant Evaluation: Complete!");
+      setProcessingStage("Document ingested & queued for processing!");
       setUploading(false);
       setCompleted(true);
       if (onUploadSuccess) onUploadSuccess();
-    }, 3000);
+    } catch (err: any) {
+      setUploadError(err?.message || "Document upload failed");
+      setUploading(false);
+    }
   };
 
   const reset = () => {
@@ -77,6 +79,7 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }: UploadModalPro
     setCompleted(false);
     setUploadProgress(0);
     setProcessingStage("");
+    setUploadError(null);
   };
 
   return (
@@ -123,6 +126,14 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }: UploadModalPro
                   <option value="TAX_SCHEDULE">Tax Schedule / IRS Form</option>
                 </select>
               </div>
+
+              {/* Upload Error Banner */}
+              {uploadError && (
+                <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                  <span>{uploadError}</span>
+                </div>
+              )}
 
               {/* Drag and Drop Box */}
               {!selectedFile ? (
