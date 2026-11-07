@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { hasPermission } from '../../services/permissions';
 import { GlowCard } from '../../components/ui/GlowCard';
 import { Button } from '../../components/ui/Button';
 import { 
@@ -9,7 +11,8 @@ import {
   Truck, 
   Receipt, 
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Lock
 } from 'lucide-react';
 
 interface MatchTriple {
@@ -69,7 +72,19 @@ const MATCHES: MatchTriple[] = [
 ];
 
 export const MatchingView: React.FC = () => {
+  const { user } = useAuth();
+  const currentRole = user?.role || 'VIEWER';
+  const canSettle = hasPermission(currentRole, 'matching.resolve') || hasPermission(currentRole, 'EXECUTE_SETTLEMENT');
   const [selectedMatch, setSelectedMatch] = useState<MatchTriple>(MATCHES[0]);
+  const [settleFeedback, setSettleFeedback] = useState<string | null>(null);
+
+  const handleAuthorizeSettlement = () => {
+    if (!canSettle) return;
+    setSettleFeedback(
+      `Three-way match transaction for ${selectedMatch.vendor} (#${selectedMatch.invoiceNumber}) verified and cleared to general ledger by ${currentRole.replace(/_/g, ' ')}.`
+    );
+    setTimeout(() => setSettleFeedback(null), 4000);
+  };
 
   return (
     <div className="space-y-8">
@@ -161,6 +176,17 @@ export const MatchingView: React.FC = () => {
           </div>
         </div>
 
+        {/* Settle Toast Alert */}
+        {settleFeedback && (
+          <div className="mt-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono flex items-center justify-between animate-in fade-in duration-200">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>{settleFeedback}</span>
+            </div>
+            <button onClick={() => setSettleFeedback(null)} className="text-white/40 hover:text-white">✕</button>
+          </div>
+        )}
+
         {/* Discrepancy Analysis Bar */}
         <div className="mt-8 pt-6 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -178,13 +204,23 @@ export const MatchingView: React.FC = () => {
             </span>
           </div>
 
-          <Button
-            variant={selectedMatch.discrepancy === 0 ? 'primary' : 'outline'}
-            size="sm"
-            onClick={() => alert(`Three-way match transaction cleared and posted to ERP general ledger.`)}
-          >
-            Authorize 3-Way Settlement
-          </Button>
+          <div className="flex items-center gap-2">
+            {!canSettle && (
+              <span className="text-[10px] font-mono text-white/40 flex items-center gap-1">
+                <Lock className="w-3 h-3 text-amber-400" />
+                Dual-Custody Gated
+              </span>
+            )}
+            <Button
+              variant={selectedMatch.discrepancy === 0 ? 'primary' : 'outline'}
+              size="sm"
+              disabled={!canSettle}
+              title={!canSettle ? `Role '${currentRole}' lacks settlement clearance.` : 'Post settlement'}
+              onClick={handleAuthorizeSettlement}
+            >
+              Authorize 3-Way Settlement
+            </Button>
+          </div>
         </div>
       </GlowCard>
 

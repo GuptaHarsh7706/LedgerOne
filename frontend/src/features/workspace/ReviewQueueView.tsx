@@ -70,12 +70,22 @@ const INITIAL_QUEUE: ReviewItem[] = [
 export const ReviewQueueView: React.FC = () => {
   const { currentRole } = useActiveRole();
   const [queue, setQueue] = useState<ReviewItem[]>(INITIAL_QUEUE);
+  const [feedback, setFeedback] = useState<{ id: string; message: string; type: 'success' | 'danger' } | null>(null);
 
-  const canApprove = hasPermission(currentRole, 'APPROVE_INVARIANTS');
+  const canApprove = hasPermission(currentRole, 'APPROVE_INVARIANTS') || hasPermission(currentRole, 'review.approve') || hasPermission(currentRole, 'review.override');
 
   const handleResolve = (id: string, action: 'RESOLVED' | 'REJECTED') => {
     if (!canApprove) return;
     setQueue(prev => prev.map(item => item.id === id ? { ...item, status: action } : item));
+    const target = queue.find(q => q.id === id);
+    setFeedback({
+      id,
+      type: action === 'RESOLVED' ? 'success' : 'danger',
+      message: action === 'RESOLVED'
+        ? `Invoice #${target?.invoiceNumber || id} signed and authorized by ${currentRole.replace(/_/g, ' ')}. Dual-custody audit logged.`
+        : `Invoice #${target?.invoiceNumber || id} rejected by ${currentRole.replace(/_/g, ' ')}. Quarantined for supplier review.`,
+    });
+    setTimeout(() => setFeedback(null), 4000);
   };
 
   const openCount = queue.filter(q => q.status === 'OPEN').length;
@@ -101,6 +111,25 @@ export const ReviewQueueView: React.FC = () => {
         </div>
       </div>
 
+      {/* Action Notification Toast */}
+      {feedback && (
+        <div className={`p-4 rounded-xl border flex items-center justify-between text-xs font-mono transition-all animate-in fade-in duration-200 ${
+          feedback.type === 'success'
+            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+            : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+        }`}>
+          <div className="flex items-center gap-2.5">
+            {feedback.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            ) : (
+              <XCircle className="w-4 h-4 text-rose-400" />
+            )}
+            <span>{feedback.message}</span>
+          </div>
+          <button onClick={() => setFeedback(null)} className="text-white/40 hover:text-white">✕</button>
+        </div>
+      )}
+
       {/* SoD Permission Barrier Alert */}
       {!canApprove && (
         <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-amber-400 font-mono text-xs">
@@ -108,7 +137,7 @@ export const ReviewQueueView: React.FC = () => {
           <div>
             <div className="font-bold text-sm text-white mb-0.5">Segregation of Duties Enforcement Active</div>
             <div>
-              Your current simulated role <strong className="text-white underline">{currentRole}</strong> does not possess `APPROVE_INVARIANTS` permission. Use the Role Switcher in the top header to switch to <strong className="text-white">REVIEWER</strong> or <strong className="text-white">WORKSPACE_ADMIN</strong> to sign off on these items.
+              Your authenticated role <strong className="text-white underline">{currentRole}</strong> does not possess review approval or invariant override authority. Under enterprise Segregation of Duties (SoD) policies, sign-off on exception items requires an authorized <strong className="text-white">REVIEWER</strong> or <strong className="text-white">WORKSPACE_ADMIN</strong>.
             </div>
           </div>
         </div>

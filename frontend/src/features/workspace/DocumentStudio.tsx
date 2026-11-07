@@ -58,8 +58,40 @@ export const DocumentStudio: React.FC = () => {
     loadData();
   }, [id]);
 
-  const canApprove = hasPermission(currentRole, 'APPROVE_INVARIANTS');
-  const canUpload = hasPermission(currentRole, 'UPLOAD_DOCUMENTS');
+  const canApprove = hasPermission(currentRole, 'APPROVE_INVARIANTS') || hasPermission(currentRole, 'review.approve') || hasPermission(currentRole, 'review.override');
+  const canUpload = hasPermission(currentRole, 'UPLOAD_DOCUMENTS') || hasPermission(currentRole, 'documents.upload');
+  const [studioFeedback, setStudioFeedback] = useState<{ message: string; type: 'success' | 'danger' | 'info' } | null>(null);
+
+  const handleApproveDoc = () => {
+    if (!canApprove || !activeDoc) return;
+    setActiveDoc(prev => prev ? { ...prev, status: 'VALIDATED' } : null);
+    setDocuments(prev => prev.map(d => d.id === activeDoc.id ? { ...d, status: 'VALIDATED' } : d));
+    setStudioFeedback({
+      type: 'success',
+      message: `Dual-custody verification signed by ${currentRole.replace(/_/g, ' ')}. Journal voucher posted to ERP general ledger.`,
+    });
+    setTimeout(() => setStudioFeedback(null), 4000);
+  };
+
+  const handleRejectDoc = () => {
+    if (!canApprove || !activeDoc) return;
+    setActiveDoc(prev => prev ? { ...prev, status: 'INVARIANT_VIOLATION' } : null);
+    setDocuments(prev => prev.map(d => d.id === activeDoc.id ? { ...d, status: 'INVARIANT_VIOLATION' } : d));
+    setStudioFeedback({
+      type: 'danger',
+      message: `Document #${activeDoc.invoiceNumber} rejected by ${currentRole.replace(/_/g, ' ')}. Quarantined for vendor renegotiation.`,
+    });
+    setTimeout(() => setStudioFeedback(null), 4000);
+  };
+
+  const handleBatchUploadTrigger = () => {
+    if (!canUpload) return;
+    setStudioFeedback({
+      type: 'info',
+      message: 'Batch Ingestion Active: Optical OCR & Invariant verification listener listening on S3 bucket assets.',
+    });
+    setTimeout(() => setStudioFeedback(null), 4000);
+  };
 
   const filteredDocs = filter === 'ALL' 
     ? documents 
@@ -87,16 +119,33 @@ export const DocumentStudio: React.FC = () => {
               size="sm"
               disabled={!canUpload}
               icon={<Upload className="w-4 h-4" />}
-              onClick={() => alert('Drag-and-Drop Ingestion Hotzone: Ready for PDF/TIFF/EDI batch upload.')}
+              onClick={handleBatchUploadTrigger}
             >
               Upload Document Batch
             </Button>
           </div>
         </div>
 
+        {/* Feedback Alert */}
+        {studioFeedback && (
+          <div className={`p-4 rounded-xl border flex items-center justify-between text-xs font-mono transition-all animate-in fade-in duration-200 ${
+            studioFeedback.type === 'success'
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+              : studioFeedback.type === 'danger'
+              ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+              : 'bg-ops-cyan/10 border-ops-cyan/30 text-ops-cyan'
+          }`}>
+            <span>{studioFeedback.message}</span>
+            <button onClick={() => setStudioFeedback(null)} className="text-white/40 hover:text-white">✕</button>
+          </div>
+        )}
+
         {/* Upload Hotzone */}
         {canUpload && (
-          <div className="p-8 border-2 border-dashed border-white/10 hover:border-ops-cyan/40 rounded-2xl bg-[#0D0E18] text-center transition-all cursor-pointer group">
+          <div 
+            onClick={handleBatchUploadTrigger}
+            className="p-8 border-2 border-dashed border-white/10 hover:border-ops-cyan/40 rounded-2xl bg-[#0D0E18] text-center transition-all cursor-pointer group"
+          >
             <div className="w-12 h-12 rounded-xl bg-ops-cyan/10 border border-ops-cyan/30 flex items-center justify-center text-ops-cyan mx-auto mb-3 group-hover:scale-110 transition-transform">
               <Upload className="w-6 h-6" />
             </div>
@@ -241,7 +290,7 @@ export const DocumentStudio: React.FC = () => {
             size="sm"
             disabled={!canApprove}
             icon={<X className="w-4 h-4 text-rose-400" />}
-            onClick={() => alert(`Document #${activeDoc.invoiceNumber} rejected by ${currentRole}.`)}
+            onClick={handleRejectDoc}
           >
             Reject Invariant
           </Button>
@@ -251,12 +300,26 @@ export const DocumentStudio: React.FC = () => {
             size="sm"
             disabled={!canApprove}
             icon={<Check className="w-4 h-4" />}
-            onClick={() => alert(`Dual-custody verification signed by ${currentRole}. Journal posted.`)}
+            onClick={handleApproveDoc}
           >
             Sign & Release
           </Button>
         </div>
       </div>
+
+      {/* Detail Feedback Toast */}
+      {studioFeedback && (
+        <div className={`p-4 rounded-xl border flex items-center justify-between text-xs font-mono transition-all animate-in fade-in duration-200 ${
+          studioFeedback.type === 'success'
+            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+            : studioFeedback.type === 'danger'
+            ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+            : 'bg-ops-cyan/10 border-ops-cyan/30 text-ops-cyan'
+        }`}>
+          <span>{studioFeedback.message}</span>
+          <button onClick={() => setStudioFeedback(null)} className="text-white/40 hover:text-white">✕</button>
+        </div>
+      )}
 
       {/* 3-Column Studio Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

@@ -22,8 +22,8 @@ import {
 const PERMISSIONS_MATRIX: { name: string; key: string; roles: Role[] }[] = [
   { name: 'Upload & Ingest Documents', key: 'UPLOAD_DOCUMENTS', roles: ['PLATFORM_ADMIN', 'ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'DOCUMENT_MANAGER'] },
   { name: 'Edit Extracted Line Items', key: 'EDIT_EXTRACTIONS', roles: ['PLATFORM_ADMIN', 'ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'REVIEWER'] },
-  { name: 'Approve Invariants (Dual-Custody)', key: 'APPROVE_INVARIANTS', roles: ['PLATFORM_ADMIN', 'ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN'] },
-  { name: 'Execute ERP 3-Way Settlement', key: 'EXECUTE_SETTLEMENT', roles: ['PLATFORM_ADMIN', 'ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN'] },
+  { name: 'Approve Invariants (Dual-Custody)', key: 'APPROVE_INVARIANTS', roles: ['PLATFORM_ADMIN', 'ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'REVIEWER'] },
+  { name: 'Execute ERP 3-Way Settlement', key: 'EXECUTE_SETTLEMENT', roles: ['PLATFORM_ADMIN', 'ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'REVIEWER'] },
   { name: 'Manage Roles & Users', key: 'MANAGE_USERS', roles: ['PLATFORM_ADMIN', 'ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN'] },
   { name: 'View Analytics & Spend Data', key: 'VIEW_ANALYTICS', roles: ['PLATFORM_ADMIN', 'ORGANIZATION_ADMIN', 'WORKSPACE_ADMIN', 'DOCUMENT_MANAGER', 'ANALYST'] },
 ];

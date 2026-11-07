@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { hasPermission } from '../../services/permissions';
 import { api } from '../../services/api';
 import { Document, DashboardStats } from '../../types';
 import { GlowCard } from '../../components/ui/GlowCard';
@@ -15,11 +17,15 @@ import {
   ArrowRight,
   ShieldCheck,
   Cpu,
-  Layers
+  Layers,
+  CheckCheck
 } from 'lucide-react';
 
 export const WorkspaceDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const activeRole = user?.role || 'VIEWER';
+  const canUpload = hasPermission(activeRole, 'documents.upload') || hasPermission(activeRole, 'UPLOAD_DOCUMENTS');
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -66,14 +72,25 @@ export const WorkspaceDashboard: React.FC = () => {
           >
             All Documents
           </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => navigate('/workspace/documents')}
-            icon={<Upload className="w-4 h-4" />}
-          >
-            Upload Invoices
-          </Button>
+          {canUpload ? (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => navigate('/workspace/documents')}
+              icon={<Upload className="w-4 h-4" />}
+            >
+              Upload Invoices
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => navigate('/workspace/review')}
+              icon={<CheckCheck className="w-4 h-4" />}
+            >
+              Review Exceptions
+            </Button>
+          )}
         </div>
       </div>
 
