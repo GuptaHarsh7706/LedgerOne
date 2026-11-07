@@ -63,13 +63,6 @@ export const FloatingNavbar: React.FC = () => {
 
         {/* Action Controls */}
         <div className="hidden sm:flex items-center gap-3">
-          <Link
-            to="/login"
-            className="text-xs font-mono tracking-wider uppercase text-ops-textMuted hover:text-white transition-colors duration-200 px-2"
-          >
-            Sign In
-          </Link>
-
           <Button
             size="sm"
             variant="primary"

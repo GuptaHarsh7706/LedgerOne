@@ -177,24 +177,24 @@ export const LoginPage: React.FC = () => {
                 onClick={() => handleSelectPersona(p.key)}
                 className="p-3.5 rounded-xl bg-[#111220] border border-white/[0.08] hover:border-ops-cyan/40 hover:bg-[#141526] text-left transition-all duration-200 group flex flex-col justify-between"
               >
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-bold font-mono text-white group-hover:text-ops-cyan transition-colors">
-                      {p.name}
+                <div className="flex-1">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-xs font-bold font-mono uppercase tracking-wide text-white group-hover:text-ops-cyan transition-colors">
+                      {p.role.replace(/_/g, ' ')}
                     </span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.06] text-ops-cyan">
-                      {p.role}
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-ops-cyan/10 text-ops-cyan border border-ops-cyan/20 shrink-0">
+                      {p.badge || p.role}
                     </span>
                   </div>
-                  <div className="text-[11px] font-medium text-white/90 mb-1">{p.title}</div>
-                  <div className="text-[10px] font-mono text-white/40 mb-2 truncate">{p.email}</div>
-                  <p className="text-[11px] text-white/50 leading-relaxed line-clamp-2">{p.description}</p>
+                  <p className="text-[11px] text-white/60 leading-relaxed">
+                    {p.description}
+                  </p>
                 </div>
 
-                <div className="mt-3 pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-mono text-white/40 group-hover:text-white transition-colors">
+                <div className="mt-3.5 pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-mono text-white/40 group-hover:text-white transition-colors">
                   <span className="truncate">{p.orgName}</span>
-                  <span className="text-ops-cyan font-bold flex items-center gap-1">
-                    Sign In <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                  <span className="text-ops-cyan font-semibold flex items-center gap-1">
+                    Select Role <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                   </span>
                 </div>
               </button>
