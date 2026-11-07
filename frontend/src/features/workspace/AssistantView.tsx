@@ -40,8 +40,6 @@ interface ChatMessage {
   followUps?: string[];
 }
 
-const STORAGE_KEY = 'ledgerone_copilot_chat_history_v3';
-
 const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: 'msg-welcome',
@@ -64,22 +62,9 @@ How can I assist your financial operations today?`,
 export const AssistantView: React.FC = () => {
   const navigate = useNavigate();
 
-  // Load chat history from localStorage on initial render to prevent loss of history
-  const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to parse saved chat history:', e);
-    }
-    return INITIAL_MESSAGES;
-  });
-
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedDocContext, setSelectedDocContext] = useState<string>('ALL');
@@ -88,14 +73,91 @@ export const AssistantView: React.FC = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Synchronize messages to localStorage whenever updated
+  // Initialize and load sessions from PostgreSQL
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-    } catch (e) {
-      console.warn('Failed to persist chat history:', e);
+    async function initSessions() {
+      try {
+        const list = await api.listAssistantSessions();
+        setSessions(list);
+        let targetId: string;
+        if (list && list.length > 0) {
+          targetId = list[0].id;
+        } else {
+          const newSession = await api.createAssistantSession('Financial Invariant Session');
+          setSessions([newSession]);
+          targetId = newSession.id;
+        }
+        setActiveSessionId(targetId);
+
+        // Load messages from PostgreSQL
+        const detail = await api.getSessionDetail(targetId);
+        if (detail?.messages && detail.messages.length > 0) {
+          const mapped: ChatMessage[] = detail.messages.map((m: any) => ({
+            id: m.id,
+            sender: m.sender_role === 'USER' ? 'user' : 'assistant',
+            text: m.content,
+            citations: (m.citations || []).map((c: any) => ({
+              docId: c.document_id,
+              docNumber: c.document_id,
+              page: c.page_number,
+              bbox: c.bounding_box ? [c.bounding_box.x0, c.bounding_box.y0, c.bounding_box.x1, c.bounding_box.y1] : [0.12, 0.42, 0.38, 0.46],
+              excerpt: c.quote,
+            })),
+            timestamp: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          }));
+          setMessages(mapped);
+        } else {
+          setMessages(INITIAL_MESSAGES);
+        }
+      } catch (err) {
+        console.warn('Failed to load assistant sessions from PostgreSQL:', err);
+        setMessages(INITIAL_MESSAGES);
+      }
     }
-  }, [messages]);
+    initSessions();
+  }, []);
+
+  const handleSwitchSession = async (sessionId: string) => {
+    setActiveSessionId(sessionId);
+    try {
+      setLoading(true);
+      const detail = await api.getSessionDetail(sessionId);
+      if (detail?.messages && detail.messages.length > 0) {
+        const mapped: ChatMessage[] = detail.messages.map((m: any) => ({
+          id: m.id,
+          sender: m.sender_role === 'USER' ? 'user' : 'assistant',
+          text: m.content,
+          citations: (m.citations || []).map((c: any) => ({
+            docId: c.document_id,
+            docNumber: c.document_id,
+            page: c.page_number,
+            bbox: c.bounding_box ? [c.bounding_box.x0, c.bounding_box.y0, c.bounding_box.x1, c.bounding_box.y1] : [0.12, 0.42, 0.38, 0.46],
+            excerpt: c.quote,
+          })),
+          timestamp: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        }));
+        setMessages(mapped);
+      } else {
+        setMessages(INITIAL_MESSAGES);
+      }
+    } catch (err) {
+      console.error('Failed to load session history:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateNewSession = async () => {
+    try {
+      const title = `Inquiry ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      const newSession = await api.createAssistantSession(title);
+      setSessions(prev => [newSession, ...prev]);
+      setActiveSessionId(newSession.id);
+      setMessages(INITIAL_MESSAGES);
+    } catch (err) {
+      console.error('Failed to create new session:', err);
+    }
+  };
 
   // Smooth auto-scroll restricted to the chat scroll container (does NOT jump page window)
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
@@ -143,7 +205,15 @@ export const AssistantView: React.FC = () => {
         ? textToSend
         : `[Context: Document ${selectedDocContext}] ${textToSend}`;
 
-      const resp = await api.askAssistant(contextualQuery);
+      let currentSessionId = activeSessionId;
+      if (!currentSessionId) {
+        const created = await api.createAssistantSession('Document Intelligence Session');
+        setSessions(prev => [created, ...prev]);
+        currentSessionId = created.id;
+        setActiveSessionId(created.id);
+      }
+
+      const resp = await api.askAssistant(currentSessionId, contextualQuery);
 
       // Determine smart follow-ups based on query content
       const followUps: string[] = [];
@@ -165,10 +235,10 @@ export const AssistantView: React.FC = () => {
       const rawCitations = resp?.citations || [];
       const citations: Citation[] = rawCitations.map((c: any) => ({
         docId: c.docId || c.document_id || 'doc-001',
-        docNumber: c.docNumber || c.filename || 'GSA-2026-9041',
+        docNumber: c.docNumber || c.document_id || 'Document',
         page: c.page || c.page_number || 1,
         bbox: Array.isArray(c.bbox) ? c.bbox : (c.bounding_box ? [c.bounding_box.x0, c.bounding_box.y0, c.bounding_box.x1, c.bounding_box.y1] : [0.12, 0.42, 0.38, 0.46]),
-        excerpt: c.excerpt || c.snippet || ''
+        excerpt: c.excerpt || c.quote || c.snippet || ''
       }));
 
       const assistantMsg: ChatMessage = {
@@ -181,12 +251,12 @@ export const AssistantView: React.FC = () => {
       };
 
       setMessages(prev => [...prev, assistantMsg]);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Assistant query failed:', err);
       const errorMsg: ChatMessage = {
         id: `asst-err-${Date.now()}`,
         sender: 'assistant',
-        text: 'An error occurred during local vector retrieval. Please verify your query syntax.',
+        text: `Error from backend RAG service: ${err?.message || 'Local vector retrieval failed. Please check network/service connectivity.'}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, errorMsg]);
@@ -199,15 +269,6 @@ export const AssistantView: React.FC = () => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
-    }
-  };
-
-  const handleResetChat = () => {
-    setMessages(INITIAL_MESSAGES);
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (e) {
-      console.warn('Failed to clear chat storage:', e);
     }
   };
 
@@ -286,27 +347,29 @@ export const AssistantView: React.FC = () => {
 
         {/* Right Header Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Document Scope Filter */}
-          <div className="flex items-center gap-1.5 bg-[#141524] px-2.5 py-1 rounded-lg border border-white/[0.08] text-xs font-mono">
-            <Database className="w-3.5 h-3.5 text-ops-cyan hidden sm:inline" />
-            <span className="text-white/50 text-[11px] hidden md:inline">Scope:</span>
-            <select
-              value={selectedDocContext}
-              onChange={(e) => setSelectedDocContext(e.target.value)}
-              className="bg-transparent text-white text-xs font-mono focus:outline-none cursor-pointer"
-            >
-              <option value="ALL" className="bg-[#141524] text-white">All Invoices</option>
-              <option value="INV-2024-8841" className="bg-[#141524] text-white">INV-2024-8841</option>
-              <option value="INV-2024-9022" className="bg-[#141524] text-white">INV-2024-9022</option>
-              <option value="INV-2024-7719" className="bg-[#141524] text-white">INV-2024-7719</option>
-            </select>
-          </div>
+          {/* Active Session Selector */}
+          {sessions.length > 0 && (
+            <div className="flex items-center gap-1.5 bg-[#141524] px-2.5 py-1 rounded-lg border border-white/[0.08] text-xs font-mono">
+              <span className="text-white/50 text-[11px] hidden md:inline">Session:</span>
+              <select
+                value={activeSessionId || ''}
+                onChange={(e) => handleSwitchSession(e.target.value)}
+                className="bg-transparent text-white text-xs font-mono focus:outline-none cursor-pointer max-w-[160px] truncate"
+              >
+                {sessions.map((s) => (
+                  <option key={s.id} value={s.id} className="bg-[#141524] text-white">
+                    {s.title || `Session ${s.id.slice(0, 6)}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* New Chat Button */}
           <button
-            onClick={handleResetChat}
+            onClick={handleCreateNewSession}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-mono text-white/70 hover:text-white transition-all shadow-sm"
-            title="Start New Chat Session"
+            title="Start New Chat Session in PostgreSQL"
           >
             <Plus className="w-3.5 h-3.5 text-ops-cyan" />
             <span className="hidden sm:inline">New Chat</span>

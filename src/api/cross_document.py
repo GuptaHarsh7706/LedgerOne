@@ -130,6 +130,37 @@ async def match_3way_endpoint(
 
 
 @router.post(
+    "/match-3way/{invoice_doc_id}/settle",
+    status_code=status.HTTP_200_OK,
+    summary="Authorize Settlement for 3-Way Matched Transaction",
+)
+async def settle_3way_endpoint(
+    org_id: uuid.UUID = Path(...),
+    ws_id: uuid.UUID = Path(...),
+    invoice_doc_id: uuid.UUID = Path(...),
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    tenant: TenantContext = Depends(get_tenant_context),
+) -> Dict[str, Any]:
+    """Authorize settlement of 3-way matched invoice. Enforces RBAC and Dual-Custody SoD."""
+    ws_role = await get_workspace_role(
+        org_id=org_id,
+        workspace_id=ws_id,
+        user_id=current_user["id"],
+        is_platform_admin=current_user.get("is_platform_admin", False),
+        org_role=tenant.user_role,
+    )
+    assert_permission(ws_role, Permission.MATCHING_RESOLVE.value, is_platform_admin=current_user.get("is_platform_admin", False))
+
+    return await cross_document_service.settle_three_way_match(
+        org_id=org_id,
+        ws_id=ws_id,
+        invoice_doc_id=invoice_doc_id,
+        actor_id=uuid.UUID(str(current_user["id"])),
+        actor_role=ws_role,
+    )
+
+
+@router.post(
     "/compare",
     response_model=DocumentComparisonResult,
     status_code=status.HTTP_200_OK,

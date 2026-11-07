@@ -254,3 +254,32 @@ async def restore_document(
         actor_role=ws_role,
     )
     return {"message": "Document restored successfully", "document": doc}
+
+
+@router.post("/{document_id}/reprocess", status_code=status.HTTP_200_OK)
+@router.post("/{document_id}/retry", status_code=status.HTTP_200_OK)
+async def reprocess_document(
+    org_id: uuid.UUID,
+    ws_id: uuid.UUID,
+    document_id: uuid.UUID,
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    tenant: TenantContext = Depends(get_tenant_context),
+) -> Dict[str, Any]:
+    """Re-enqueue a document for OCR and extraction processing."""
+    ws_role = await get_workspace_role(
+        org_id=org_id,
+        workspace_id=ws_id,
+        user_id=current_user["id"],
+        is_platform_admin=current_user.get("is_platform_admin", False),
+        org_role=tenant.user_role,
+    )
+    assert_permission(ws_role, Permission.DOC_UPLOAD.value, is_platform_admin=current_user.get("is_platform_admin", False))
+
+    doc = await document_service.reprocess_document(
+        org_id=org_id,
+        workspace_id=ws_id,
+        document_id=document_id,
+        actor_id=current_user["id"],
+        actor_role=ws_role,
+    )
+    return {"message": "Document re-enqueued for extraction", "document": doc}

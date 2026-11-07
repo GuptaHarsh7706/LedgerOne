@@ -1,6 +1,9 @@
 export type DocumentStatus =
+  | 'UPLOAD_PENDING'
+  | 'UPLOADED'
   | 'QUEUED'
   | 'PROCESSING'
+  | 'COMPLETED'
   | 'NEEDS_REVIEW'
   | 'IN_REVIEW'
   | 'VERIFIED'

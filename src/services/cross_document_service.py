@@ -5,6 +5,7 @@ document version diffing, and workspace spend analytics under strict RLS boundar
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from decimal import Decimal
 import json
 import logging
@@ -374,6 +375,100 @@ class CrossDocumentService:
                 )
 
                 return summary
+
+    async def settle_three_way_match(
+        self,
+        org_id: uuid.UUID,
+        ws_id: uuid.UUID,
+        invoice_doc_id: uuid.UUID,
+        actor_id: uuid.UUID,
+        actor_role: str,
+    ) -> Dict[str, Any]:
+        """
+        Authorize and record settlement for a 3-way matched invoice.
+        Enforces canonical RBAC (MATCHING_RESOLVE: WORKSPACE_ADMIN / ORGANIZATION_ADMIN / REVIEWER)
+        and Segregation of Duties: uploader of the invoice cannot authorize settlement (AUTH_SOD_003).
+        """
+        if actor_role not in {"ORGANIZATION_ADMIN", "WORKSPACE_ADMIN", "REVIEWER"}:
+            raise AuthorizationError(f"Role '{actor_role}' does not possess settlement resolution permission (AUTH_SOD_BARRIER)")
+
+        tenant_context = TenantContext(org_id=org_id, user_id=actor_id, user_role=actor_role)
+
+        async with self.pool.acquire() as conn:
+            async with conn.transaction():
+                await apply_tenant_rls_context(conn, context=tenant_context, enforce_app_role=True)
+
+                doc = await conn.fetchrow(
+                    """
+                    SELECT id, status, uploaded_by_user_id, metadata, filename
+                    FROM documents
+                    WHERE organization_id = $1 AND workspace_id = $2 AND id = $3 AND is_deleted = FALSE
+                    FOR UPDATE
+                    """,
+                    org_id,
+                    ws_id,
+                    invoice_doc_id,
+                )
+                if not doc:
+                    raise NotFoundError(f"Invoice document {invoice_doc_id} not found in workspace")
+
+                # Segregation of Duties: Uploader cannot authorize settlement
+                if doc["uploaded_by_user_id"] == actor_id:
+                    raise AuthorizationError(
+                        "Segregation of Duties violation: The operator who uploaded this invoice cannot authorize its settlement (AUTH_SOD_003)"
+                    )
+
+                meta = doc["metadata"] or {}
+                if isinstance(meta, str):
+                    try:
+                        meta = json.loads(meta)
+                    except Exception:
+                        meta = {}
+
+                now_iso = datetime.now(timezone.utc).isoformat()
+                settlement_record = {
+                    "status": "SETTLED",
+                    "authorized_by_user_id": str(actor_id),
+                    "authorized_role": actor_role,
+                    "settled_at": now_iso,
+                }
+                meta["settlement"] = settlement_record
+                meta["settlement_status"] = "SETTLED"
+
+                await conn.execute(
+                    """
+                    UPDATE documents
+                    SET metadata = $4::jsonb, updated_at = CURRENT_TIMESTAMP
+                    WHERE organization_id = $1 AND workspace_id = $2 AND id = $3
+                    """,
+                    org_id,
+                    ws_id,
+                    invoice_doc_id,
+                    json.dumps(meta),
+                )
+
+                # Record audit log
+                await conn.execute(
+                    """
+                    INSERT INTO audit_logs (
+                        organization_id, tenant_slug_snapshot, workspace_id,
+                        user_id, user_role_snapshot, action, entity_type, entity_id,
+                        new_state
+                    ) VALUES ($1, 'system', $2, $3, $4, 'SETTLEMENT_AUTHORIZED', 'documents', $5, $6::jsonb)
+                    """,
+                    org_id,
+                    ws_id,
+                    actor_id,
+                    actor_role,
+                    invoice_doc_id,
+                    json.dumps(settlement_record),
+                )
+
+                return {
+                    "message": f"Three-way match transaction for invoice {doc['filename']} authorized and cleared to general ledger",
+                    "document_id": str(invoice_doc_id),
+                    "settlement": settlement_record,
+                }
 
     async def execute_document_comparison(
         self,

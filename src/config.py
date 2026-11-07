@@ -74,7 +74,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = Field(default=["*"], description="Allowed CORS origins")
 
     # Worker & Processing Queue
-    WORKER_ENABLED: bool = Field(default=False, description="Enable background worker daemon in FastAPI process")
+    WORKER_ENABLED: bool = Field(default=True, description="Enable background worker daemon in FastAPI process")
     WORKER_CONCURRENCY: int = Field(default=2, description="Maximum concurrent jobs processed by worker daemon")
     WORKER_POLL_INTERVAL: float = Field(default=1.0, description="Worker poll interval in seconds when idle")
     WORKER_LEASE_SECONDS: int = Field(default=300, description="Worker job lease duration in seconds")

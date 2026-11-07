@@ -365,10 +365,30 @@ export const DocumentStudio: React.FC = () => {
         setDocuments(docs);
         if (id) {
           const found = docs.find(d => d.id === id) || docs[0];
-          setActiveDoc(found);
-          if (found && found.lineItems.length > 0) {
-            setSelectedItem(found.lineItems[0]);
+          if (found) {
+            try {
+              const reviewDetail = await api.getDocumentReviewDetail(found.id);
+              if (reviewDetail?.line_items_bundle?.table?.rows?.length > 0) {
+                found.lineItems = reviewDetail.line_items_bundle.table.rows.map((r: any, idx: number) => ({
+                  id: `li-${idx}`,
+                  description: r.description || r.item || 'Item',
+                  quantity: Number(r.quantity || 1),
+                  unitPrice: Number(r.unit_price || r.price || 0),
+                  total: Number(r.total_amount || r.total || 0),
+                  confidence: Number(r.confidence || 0.99),
+                  bbox: r.bounding_box || [0.12, 0.40, 0.45, 0.45],
+                }));
+              }
+            } catch (e) {
+              console.warn('Review detail fetch skipped, using document record', e);
+            }
+            setActiveDoc(found);
+            if (found && found.lineItems.length > 0) {
+              setSelectedItem(found.lineItems[0]);
+            }
           }
+        } else if (docs.length > 0) {
+          setActiveDoc(docs[0]);
         }
       } catch (err) {
         console.error('Failed to load documents:', err);
@@ -384,36 +404,64 @@ export const DocumentStudio: React.FC = () => {
   const [studioFeedback, setStudioFeedback] = useState<{ message: string; type: 'success' | 'danger' | 'info' } | null>(null);
   const [canvasViewMode, setCanvasViewMode] = useState<'document' | 'spatial'>('document');
 
-  const handleApproveDoc = () => {
+  const handleApproveDoc = async () => {
     if (!canApprove || !activeDoc) return;
-    const updatedDoc: Document = { ...activeDoc, status: 'VALIDATED' };
-    setActiveDoc(updatedDoc);
-    setDocuments(prev => {
-      const updated = prev.map(d => d.id === activeDoc.id ? updatedDoc : d);
-      api.saveDocuments(updated);
-      return updated;
-    });
-    setStudioFeedback({
-      type: 'success',
-      message: `Dual-custody verification signed by ${currentRole.replace(/_/g, ' ')}. Journal voucher posted to ERP general ledger.`,
-    });
-    setTimeout(() => setStudioFeedback(null), 4000);
+    try {
+      await api.approveDocument(activeDoc.id);
+      const updatedDoc: Document = { ...activeDoc, status: 'VERIFIED' };
+      setActiveDoc(updatedDoc);
+      setDocuments(prev => prev.map(d => d.id === activeDoc.id ? updatedDoc : d));
+      setStudioFeedback({
+        type: 'success',
+        message: `Dual-custody verification signed by ${currentRole.replace(/_/g, ' ')}. Ledger state persisted to PostgreSQL.`,
+      });
+    } catch (err: any) {
+      setStudioFeedback({
+        type: 'danger',
+        message: `Approval blocked: ${err?.message || 'Dual-custody segregation of duties rule violated.'}`,
+      });
+    }
+    setTimeout(() => setStudioFeedback(null), 5000);
   };
 
-  const handleRejectDoc = () => {
+  const handleRejectDoc = async () => {
     if (!canApprove || !activeDoc) return;
-    const updatedDoc: Document = { ...activeDoc, status: 'INVARIANT_VIOLATION' };
-    setActiveDoc(updatedDoc);
-    setDocuments(prev => {
-      const updated = prev.map(d => d.id === activeDoc.id ? updatedDoc : d);
-      api.saveDocuments(updated);
-      return updated;
-    });
-    setStudioFeedback({
-      type: 'danger',
-      message: `Document #${activeDoc.invoiceNumber} rejected by ${currentRole.replace(/_/g, ' ')}. Quarantined for vendor renegotiation.`,
-    });
-    setTimeout(() => setStudioFeedback(null), 4000);
+    try {
+      await api.rejectDocument(activeDoc.id, 'Quarantined during studio inspection');
+      const updatedDoc: Document = { ...activeDoc, status: 'REJECTED' };
+      setActiveDoc(updatedDoc);
+      setDocuments(prev => prev.map(d => d.id === activeDoc.id ? updatedDoc : d));
+      setStudioFeedback({
+        type: 'danger',
+        message: `Document #${activeDoc.invoiceNumber} rejected by ${currentRole.replace(/_/g, ' ')}. Quarantined in PostgreSQL audit log.`,
+      });
+    } catch (err: any) {
+      setStudioFeedback({
+        type: 'danger',
+        message: `Rejection failed: ${err?.message || 'Error updating document status.'}`,
+      });
+    }
+    setTimeout(() => setStudioFeedback(null), 5000);
+  };
+
+  const handleReprocessDoc = async () => {
+    if (!activeDoc) return;
+    try {
+      await api.reprocessDocument(activeDoc.id);
+      const updatedDoc: Document = { ...activeDoc, status: 'QUEUED' };
+      setActiveDoc(updatedDoc);
+      setDocuments(prev => prev.map(d => d.id === activeDoc.id ? updatedDoc : d));
+      setStudioFeedback({
+        type: 'info',
+        message: `Document ${activeDoc.filename} re-enqueued for OCR and extraction in PostgreSQL job queue.`,
+      });
+    } catch (err: any) {
+      setStudioFeedback({
+        type: 'danger',
+        message: `Reprocess failed: ${err?.message || 'Failed to enqueue extraction job.'}`,
+      });
+    }
+    setTimeout(() => setStudioFeedback(null), 5000);
   };
 
   const handleTriggerUpload = () => {
@@ -427,19 +475,13 @@ export const DocumentStudio: React.FC = () => {
     if (fileArray.length === 0) return;
 
     try {
-      const newDocs: Document[] = [];
+      setLoading(true);
+      const createdIds: string[] = [];
       for (const file of fileArray) {
-        const parsed = parseUploadedFile(file);
-        // Bind live binary objectUrl for immediate display in the iframe / img viewer
-        const objectUrl = URL.createObjectURL(file);
-        parsed.fileUrl = objectUrl;
-        parsed.previewUrl = objectUrl;
-        parsed.filename = file.name;
-        parsed.fileSizeBytes = file.size;
-        parsed.mimeType = file.type || (file.name.endsWith('.pdf') ? 'application/pdf' : 'image/png');
-
-        newDocs.push(parsed);
-        await api.addDocument(parsed);
+        const uploadResult = await api.uploadDocument(file);
+        if (uploadResult?.document?.id) {
+          createdIds.push(uploadResult.document.id);
+        }
       }
 
       const refreshed = await api.getDocuments();
@@ -447,20 +489,22 @@ export const DocumentStudio: React.FC = () => {
 
       setStudioFeedback({
         type: 'success',
-        message: `Successfully ingested ${fileArray.length} document(s) from authentic sources. Extracted spatial tokens and verified FixedDecimal invariants down to the cent.`,
+        message: `Successfully uploaded ${fileArray.length} authentic document(s) to PostgreSQL. Processing job enqueued.`,
       });
       setTimeout(() => setStudioFeedback(null), 5000);
 
-      if (newDocs.length === 1) {
-        navigate(`/workspace/documents/${newDocs[0].id}`);
+      if (createdIds.length > 0) {
+        navigate(`/workspace/documents/${createdIds[0]}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('File ingestion failed:', err);
       setStudioFeedback({
         type: 'danger',
-        message: 'File ingestion failed. Check optical format or S3 permissions.',
+        message: `Upload failed: ${err?.message || 'Check storage permissions or duplicate hash.'}`,
       });
-      setTimeout(() => setStudioFeedback(null), 4000);
+      setTimeout(() => setStudioFeedback(null), 5000);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -831,6 +875,15 @@ export const DocumentStudio: React.FC = () => {
               Raw AST
             </button>
           </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            icon={<RotateCw className="w-4 h-4 text-ops-cyan" />}
+            onClick={handleReprocessDoc}
+          >
+            Reprocess Job
+          </Button>
 
           <Button
             variant="outline"

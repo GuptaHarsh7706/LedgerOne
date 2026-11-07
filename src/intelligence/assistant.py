@@ -167,32 +167,38 @@ def synthesize_grounded_response(
     # Formulate answer from the top matching chunks
     answer_sentences = []
     for cit_idx, chunk in matching_chunks[:3]:
-        # Extract the most salient lines from the chunk
+        # Extract the most salient lines from the chunk scored by query token relevance
         lines = [ln.strip() for ln in chunk.content.split("\n") if ln.strip()]
+        candidate_lines: List[Tuple[int, str]] = []
         for ln in lines:
             if ln.startswith("[PAGE") or ln.startswith("---") or ln.startswith("[DOCUMENT HEADER"):
                 continue
 
             ln_lower = ln.lower()
-            matches_content = any(tok in ln_lower for tok in content_tokens) if content_tokens else any(tok in ln_lower for tok in query_tokens)
-            if matches_content:
-                # Add citation
-                citation_ref = f"[citation:{cit_idx}]"
-                clean_ln = ln.replace("|", "—").strip()
-                answer_sentences.append(f"{clean_ln} {citation_ref}")
+            matching_tok_count = sum(1 for tok in (content_tokens or query_tokens) if tok in ln_lower)
+            if matching_tok_count > 0:
+                # Financial keyword alignment bonus
+                if any(w in query_lower and w in ln_lower for w in ["total", "amount", "tax", "subtotal", "price", "unit", "quantity", "cost", "sum"]):
+                    matching_tok_count += 3
+                candidate_lines.append((matching_tok_count, ln))
 
-                # Record structured citation
-                if not any(cit.citation_index == cit_idx for cit in citations):
-                    citations.append(
-                        CitationItem(
-                            citation_index=cit_idx,
-                            document_id=chunk.document_id,
-                            page_number=chunk.page_number,
-                            bounding_box=chunk.bounding_box,
-                            quote=ln[:200],
-                        )
+        candidate_lines.sort(key=lambda x: x[0], reverse=True)
+        if candidate_lines:
+            best_ln = candidate_lines[0][1]
+            citation_ref = f"[citation:{cit_idx}]"
+            clean_ln = best_ln.replace("|", "—").strip()
+            answer_sentences.append(f"{clean_ln} {citation_ref}")
+
+            if not any(cit.citation_index == cit_idx for cit in citations):
+                citations.append(
+                    CitationItem(
+                        citation_index=cit_idx,
+                        document_id=chunk.document_id,
+                        page_number=chunk.page_number,
+                        bounding_box=chunk.bounding_box,
+                        quote=best_ln[:200],
                     )
-                break
+                )
 
     if not answer_sentences:
         top_idx, top_chunk = matching_chunks[0]

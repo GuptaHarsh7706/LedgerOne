@@ -16,6 +16,7 @@ from src.db.pool import db_manager
 from src.db.rls import TenantContext, apply_tenant_rls_context
 from src.exceptions import AuthorizationError, NotFoundError, ProcessingError
 from src.intelligence.assistant import CitationItem, synthesize_grounded_response
+from src.intelligence.llm_provider import get_llm_provider
 from src.services.retrieval_service import RetrievalQueryRequest, retrieval_service
 
 logger = logging.getLogger(__name__)
@@ -299,8 +300,9 @@ class AssistantService:
             actor_role=actor_role,
         )
 
-        # Synthesize grounded answer with verified citations
-        synthesis = synthesize_grounded_response(payload.query, retrieved_chunks)
+        # Synthesize grounded answer with verified citations via configured LLM provider
+        llm_provider = get_llm_provider()
+        synthesis = await llm_provider.generate_grounded_answer(payload.query, retrieved_chunks)
 
         # Insert ASSISTANT message in new tenant transaction
         assistant_msg_id = uuid.uuid4()

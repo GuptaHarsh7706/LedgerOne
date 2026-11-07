@@ -577,5 +577,80 @@ class DocumentService:
             )
             return dict(updated)
 
+    async def reprocess_document(
+        self,
+        org_id: uuid.UUID | str,
+        workspace_id: uuid.UUID | str,
+        document_id: uuid.UUID | str,
+        actor_id: uuid.UUID | str,
+        actor_role: str,
+    ) -> Dict[str, Any]:
+        """
+        Re-enqueue a document for OCR and extraction processing.
+        Transitions status to QUEUED and inserts a fresh extraction job.
+        """
+        org_uuid = uuid.UUID(str(org_id))
+        ws_uuid = uuid.UUID(str(workspace_id))
+        doc_uuid = uuid.UUID(str(document_id))
+        actor_uuid = uuid.UUID(str(actor_id))
+
+        if actor_role not in {"ORGANIZATION_ADMIN", "WORKSPACE_ADMIN", "DOCUMENT_MANAGER", "REVIEWER"}:
+            raise AuthorizationError("Only Admins, Document Managers, or Reviewers can reprocess documents")
+
+        context = TenantContext(
+            org_id=org_uuid,
+            workspace_id=ws_uuid,
+            user_id=actor_uuid,
+            user_role=actor_role,
+        )
+
+        async with transactional_tenant_session(self.pool, context=context, enforce_app_role=True) as conn:
+            doc = await conn.fetchrow(
+                """
+                SELECT id, status, filename, metadata
+                FROM documents
+                WHERE organization_id = $1 AND workspace_id = $2 AND id = $3 AND is_deleted = FALSE
+                """,
+                org_uuid,
+                ws_uuid,
+                doc_uuid,
+            )
+            if not doc:
+                raise NotFoundError("Document not found", details={"document_id": str(doc_uuid)})
+
+            # Update document status to QUEUED and clear previous failure
+            updated_doc = await conn.fetchrow(
+                """
+                UPDATE documents
+                SET status = 'QUEUED', updated_at = CURRENT_TIMESTAMP
+                WHERE organization_id = $1 AND workspace_id = $2 AND id = $3
+                RETURNING id, organization_id, workspace_id, filename, file_size_bytes,
+                          mime_type, sha256_hash, s3_key, status, category, metadata, updated_at
+                """,
+                org_uuid,
+                ws_uuid,
+                doc_uuid,
+            )
+
+            # Insert new extraction job with unique monotonic idempotency key
+            idempotency_key = f"extract-{doc_uuid}-{int(datetime.now(timezone.utc).timestamp())}"
+            await conn.execute(
+                """
+                INSERT INTO document_jobs (
+                    organization_id, workspace_id, document_id,
+                    action, status, priority, idempotency_key
+                )
+                VALUES ($1, $2, $3, 'DOCUMENT_EXTRACTION', 'QUEUED', 10, $4)
+                ON CONFLICT (idempotency_key) DO NOTHING
+                """,
+                org_uuid,
+                ws_uuid,
+                doc_uuid,
+                idempotency_key,
+            )
+
+        logger.info("Document re-enqueued for extraction", doc_id=str(doc_uuid), actor_id=str(actor_uuid))
+        return dict(updated_doc)
+
 
 document_service = DocumentService()
