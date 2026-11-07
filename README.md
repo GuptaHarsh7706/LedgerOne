@@ -436,11 +436,13 @@ S3_SECRET_ACCESS_KEY=...
 S3_BUCKET_NAME=assets
 S3_REGION=ap-southeast-1
 
-# Multimodal LLM Providers (Optional - Extractive fallback used if absent)
-LLM_PROVIDER=huggingface             # huggingface | openai | gemini | extractive
-HF_TOKEN=hf_...                      # Hugging Face User Access Token (ADR-019)
-HF_MODEL=Qwen/Qwen2.5-7B-Instruct    # Selected Top Candidate Model (Apache 2.0, 128k context)
-HF_PROVIDER=auto                     # Routing provider (auto | together | novita | sambanova)
+# Multimodal LLM Providers (Google AI Studio / Gemini Primary, Hugging Face Standby)
+LLM_PROVIDER=gemini                     # gemini | huggingface | openai | extractive | auto
+GEMINI_API_KEY=AIzaSy...                # Google AI Studio Gemini API Key (ADR-021)
+GEMINI_MODEL=gemini-2.5-flash           # Primary Gemini Model (gemini-2.5-flash / gemini-2.0-flash)
+HF_TOKEN=hf_...                         # Hugging Face User Access Token (Standby / Alternative)
+HF_MODEL=Qwen/Qwen2.5-7B-Instruct       # Hugging Face Model ID
+HF_PROVIDER=auto                        # Routing provider (auto | together | novita)
 HF_ENDPOINT_URL=                     # Custom dedicated Inference Endpoint URL (optional)
 LLM_TEMPERATURE=0.0                  # Optimal greedy decoding for deterministic financial grounding
 LLM_TOP_P=1.0                        # Nucleus sampling probability

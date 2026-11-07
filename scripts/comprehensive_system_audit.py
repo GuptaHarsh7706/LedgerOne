@@ -97,14 +97,21 @@ class AuditRunner:
         has_jwt = bool(s.JWT_SECRET_KEY and len(s.JWT_SECRET_KEY) >= 32)
         self.record_check("Environment", "JWT_SECRET_KEY valid (>=32 chars)", has_jwt, f"Algorithm: {s.JWT_ALGORITHM}, Expire: {s.ACCESS_TOKEN_EXPIRE_MINUTES}m")
 
-        # 5. LLM Configuration
-        has_llm_prov = bool(s.LLM_PROVIDER in ["huggingface", "auto", "extractive"])
+        # 5. LLM Configuration (Google AI Studio / Gemini / Hugging Face)
+        has_llm_prov = bool(s.LLM_PROVIDER in ["gemini", "google", "huggingface", "auto", "extractive", "openai"])
         self.record_check("Environment", "LLM_PROVIDER configured", has_llm_prov, f"Provider: {s.LLM_PROVIDER}")
 
-        has_hf_token = bool(s.HF_TOKEN and s.HF_TOKEN.startswith("hf_"))
-        self.record_check("Environment", "HF_TOKEN configured", has_hf_token, f"Token present: {has_hf_token}")
+        has_gemini_config = bool(getattr(s, "GEMINI_MODEL", None) and s.GEMINI_MODEL.startswith("gemini"))
+        self.record_check("Environment", "GEMINI_MODEL configured", has_gemini_config, f"Model: {getattr(s, 'GEMINI_MODEL', None)}")
 
-        self.record_check("Environment", "HF_MODEL selected", s.HF_MODEL == "Qwen/Qwen2.5-7B-Instruct", f"Model: {s.HF_MODEL}")
+        if s.LLM_PROVIDER == "huggingface":
+            has_hf_token = bool(s.HF_TOKEN and s.HF_TOKEN.startswith("hf_"))
+            self.record_check("Environment", "HF_TOKEN configured", has_hf_token, f"Token present: {has_hf_token}")
+            self.record_check("Environment", "HF_MODEL selected", s.HF_MODEL == "Qwen/Qwen2.5-7B-Instruct", f"Model: {s.HF_MODEL}")
+        else:
+            # For Gemini / Google AI Studio provider
+            has_gemini_provider = s.LLM_PROVIDER in ("gemini", "google")
+            self.record_check("Environment", "Google AI Studio Provider active", has_gemini_provider, f"Active: {s.LLM_PROVIDER}")
         self.record_check("Environment", "LLM Hyperparameters calibrated", s.LLM_TEMPERATURE == 0.0 and s.LLM_MAX_TOKENS == 512, f"Temp: {s.LLM_TEMPERATURE}, TopP: {s.LLM_TOP_P}, MaxTokens: {s.LLM_MAX_TOKENS}")
 
         # 6. Worker Daemon configuration
