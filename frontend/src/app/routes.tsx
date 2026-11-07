@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { LandingPage } from '../features/landing/LandingPage';
+import { LoginPage } from '../features/auth/LoginPage';
 import { AppShell } from '../components/layout/AppShell';
 import { WorkspaceDashboard } from '../features/workspace/WorkspaceDashboard';
 import { DocumentStudio } from '../features/workspace/DocumentStudio';
@@ -14,6 +15,10 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <LandingPage />
+  },
+  {
+    path: '/login',
+    element: <LoginPage />
   },
   {
     path: '/workspace',

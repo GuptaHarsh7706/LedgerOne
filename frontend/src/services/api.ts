@@ -14,11 +14,12 @@ export const DEFAULT_WS_ID = '9b2b92c0-56a0-4568-8d42-9d2681d30fc9'; // Producti
 const BASE_URL = '/api/v1';
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = localStorage.getItem('ledgerone_jwt_token') || 'demo_token';
+  const token = localStorage.getItem('ledgerone_jwt_token');
+  const orgId = localStorage.getItem('ledgerone_org_id') || DEFAULT_ORG_ID;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-    'X-Organization-ID': DEFAULT_ORG_ID,
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    'X-Organization-ID': orgId,
     ...(options.headers as Record<string, string> || {}),
   };
 

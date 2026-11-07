@@ -89,7 +89,7 @@ export function hasPermission(role: RoleType, permission: string): boolean {
   return perms.includes('*') || perms.includes(permission);
 }
 
-const STORAGE_KEY = 'ledgerone_simulated_role';
+import { useAuth } from '../context/AuthContext';
 
 export type ActiveRoleReturn = [RoleType, (newRole: RoleType) => void] & {
   currentRole: RoleType;
@@ -97,35 +97,24 @@ export type ActiveRoleReturn = [RoleType, (newRole: RoleType) => void] & {
   setRole: (newRole: RoleType) => void;
 };
 
+/**
+ * Production RBAC hook: reads role strictly from the authenticated JWT session.
+ * Client-side arbitrary role tampering is permanently barred.
+ */
 export function useActiveRole(): ActiveRoleReturn {
-  const [role, setRoleState] = useState<RoleType>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved && ALL_ROLES.includes(saved as RoleType)) {
-      return saved as RoleType;
-    }
-    return 'WORKSPACE_ADMIN'; // Default to controller
-  });
+  const { user } = useAuth();
+  const currentRole: RoleType = user?.role || 'VIEWER';
 
   const setRole = (newRole: RoleType) => {
-    setRoleState(newRole);
-    localStorage.setItem(STORAGE_KEY, newRole);
-    window.dispatchEvent(new Event('ledgerone-role-change'));
+    console.warn(
+      `[SECURITY BARRIER] Direct client-side role elevation to '${newRole}' is blocked. ` +
+      `User role is determined exclusively by server PostgreSQL 18.6 RLS and active workspace membership.`
+    );
   };
 
-  useEffect(() => {
-    const onRoleChange = () => {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved && ALL_ROLES.includes(saved as RoleType)) {
-        setRoleState(saved as RoleType);
-      }
-    };
-    window.addEventListener('ledgerone-role-change', onRoleChange);
-    return () => window.removeEventListener('ledgerone-role-change', onRoleChange);
-  }, []);
-
-  const result = [role, setRole] as any;
-  result.currentRole = role;
-  result.role = role;
+  const result = [currentRole, setRole] as any;
+  result.currentRole = currentRole;
+  result.role = currentRole;
   result.setRole = setRole;
   return result;
 }

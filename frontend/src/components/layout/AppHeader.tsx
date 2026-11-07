@@ -1,104 +1,224 @@
-import React from 'react';
-import { useActiveRole } from '../../services/permissions';
-import { Role } from '../../types';
-import { Shield, Sparkles, Database, Cpu, ChevronDown, Check, User } from 'lucide-react';
-
-const ROLES: { role: Role; label: string; desc: string }[] = [
-  { role: 'PLATFORM_ADMIN', label: 'Platform Admin', desc: 'Full root access across all tenants' },
-  { role: 'ORGANIZATION_ADMIN', label: 'Org Admin', desc: 'Manages workspaces, billing & users' },
-  { role: 'WORKSPACE_ADMIN', label: 'Workspace Admin', desc: 'Controls workspace policies & integrations' },
-  { role: 'DOCUMENT_MANAGER', label: 'Document Manager', desc: 'Can upload, re-run OCR & edit extractions' },
-  { role: 'REVIEWER', label: 'Reviewer (Dual-Custody)', desc: 'Approves/rejects financial invariants' },
-  { role: 'ANALYST', label: 'Analyst', desc: 'Read-only analytics & trend telemetry' },
-  { role: 'VIEWER', label: 'Viewer', desc: 'Audit-only read access' }
-];
+import React, { useState } from 'react';
+import { useAuth, PERSONA_PRESETS } from '../../context/AuthContext';
+import { ROLE_LABELS } from '../../services/permissions';
+import { 
+  Shield, 
+  Database, 
+  Cpu, 
+  ChevronDown, 
+  Check, 
+  User, 
+  Lock, 
+  LogOut, 
+  Users, 
+  Building2,
+  RefreshCw,
+  ExternalLink
+} from 'lucide-react';
 
 interface AppHeaderProps {
   onToggleSidebar?: () => void;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = () => {
-  const { currentRole, setRole } = useActiveRole();
-  const [roleMenuOpen, setRoleMenuOpen] = React.useState(false);
+  const { user, switchPersona, logout, isLoading } = useAuth();
+  const [personaModalOpen, setPersonaModalOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+
+  const activeRole = user?.role || 'VIEWER';
+  const roleMeta = ROLE_LABELS[activeRole] || { label: activeRole, badge: 'Standard', description: '' };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  };
 
   return (
-    <header className="h-16 border-b border-white/[0.08] bg-[#0E0F1A]/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between">
-      {/* Left: Organization & Environment Breadcrumb */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#141524] border border-white/[0.08] text-xs font-mono">
-          <span className="w-2 h-2 rounded-full bg-ops-cyan animate-pulse" />
-          <span className="text-white/40">TENANT:</span>
-          <span className="text-white font-semibold">LedgerOne Global Corp</span>
-          <span className="text-white/20">/</span>
-          <span className="text-ops-cyan">Production-US-East</span>
-        </div>
-      </div>
-
-      {/* Right Controls: Engine Status, Role Switcher, and User Profile */}
-      <div className="flex items-center gap-3 sm:gap-4">
-        {/* Hardware & DB Health Badges */}
-        <div className="hidden lg:flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#141524] border border-white/[0.06] text-[11px] font-mono text-white/70">
-            <Cpu className="w-3.5 h-3.5 text-ops-cyan" />
-            <span>RTX 3050 CUDA 12.4</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#141524] border border-white/[0.06] text-[11px] font-mono text-white/70">
-            <Database className="w-3.5 h-3.5 text-ops-blue" />
-            <span>Neon PG 18.6 RLS</span>
+    <>
+      <header className="h-16 border-b border-white/[0.08] bg-[#0E0F1A]/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between">
+        {/* Left: Real Multi-Tenant Organization & Workspace Context */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#141524] border border-white/[0.08] text-xs font-mono">
+            <span className="w-2 h-2 rounded-full bg-ops-cyan animate-pulse" />
+            <span className="text-white/40">TENANT:</span>
+            <span className="text-white font-semibold">{user?.org_name || 'Apex Global Capital'}</span>
+            <span className="text-white/20">/</span>
+            <span className="text-ops-cyan truncate max-w-[140px] sm:max-w-none">
+              {user?.ws_name || 'Production Financial Core'}
+            </span>
           </div>
         </div>
 
-        {/* Role Simulator Pill & Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setRoleMenuOpen(!roleMenuOpen)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-ops-blue/15 border border-ops-blue/40 text-xs font-mono text-white hover:bg-ops-blue/25 transition-colors"
-          >
-            <Shield className="w-3.5 h-3.5 text-ops-cyan" />
-            <span className="hidden sm:inline text-white/60">ROLE:</span>
-            <span className="font-semibold text-ops-cyan">{currentRole}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-white/50" />
-          </button>
-
-          {roleMenuOpen && (
-            <div className="absolute right-0 mt-2 w-72 rounded-xl bg-[#151624] border border-white/[0.12] shadow-2xl py-2 z-50">
-              <div className="px-3 py-2 border-b border-white/[0.06] text-[10px] font-mono uppercase tracking-wider text-white/40">
-                Simulate 7-Tier Enterprise RBAC
-              </div>
-              <div className="max-h-72 overflow-y-auto">
-                {ROLES.map((r) => {
-                  const isSelected = currentRole === r.role;
-                  return (
-                    <button
-                      key={r.role}
-                      onClick={() => {
-                        setRole(r.role);
-                        setRoleMenuOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 flex items-center justify-between text-xs hover:bg-white/[0.04] transition-colors ${
-                        isSelected ? 'bg-ops-blue/20 text-white' : 'text-white/70'
-                      }`}
-                    >
-                      <div>
-                        <div className="font-semibold font-mono text-white">{r.label}</div>
-                        <div className="text-[10px] text-white/40">{r.desc}</div>
-                      </div>
-                      {isSelected && <Check className="w-4 h-4 text-ops-cyan" />}
-                    </button>
-                  );
-                })}
-              </div>
+        {/* Right Controls: Engine Health, Real RBAC Badge, and Authenticated User Menu */}
+        <div className="flex items-center gap-3 sm:gap-4">
+          {/* Hardware & Cloud Health Badges */}
+          <div className="hidden lg:flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#141524] border border-white/[0.06] text-[11px] font-mono text-white/70">
+              <Cpu className="w-3.5 h-3.5 text-ops-cyan" />
+              <span>RTX 3050 CUDA 12.4</span>
             </div>
-          )}
-        </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#141524] border border-white/[0.06] text-[11px] font-mono text-white/70">
+              <Database className="w-3.5 h-3.5 text-ops-blue" />
+              <span>Neon PG 18.6 RLS</span>
+            </div>
+          </div>
 
-        {/* User Avatar */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-ops-blue to-ops-cyan p-[1px]">
-          <div className="w-full h-full rounded-full bg-[#0E0F1A] flex items-center justify-center text-xs font-mono font-bold text-white">
-            JD
+          {/* Real RBAC Security Badge (Enforced by Backend, strictly read-only) */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-ops-blue/15 border border-ops-blue/40 text-xs font-mono text-white shadow-[0_0_15px_rgba(12,113,255,0.15)]">
+            <Lock className="w-3.5 h-3.5 text-ops-cyan" />
+            <span className="hidden sm:inline text-white/60">ROLE:</span>
+            <span className="font-semibold text-ops-cyan tracking-wider">{activeRole}</span>
+            <span className="hidden xl:inline text-[10px] px-1.5 py-0.5 rounded bg-white/[0.08] text-white/50">
+              RLS-ENFORCED
+            </span>
+          </div>
+
+          {/* User Profile & Persona Switcher */}
+          <div className="relative">
+            <button
+              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+              className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-white/[0.04] transition-colors focus:outline-none"
+            >
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-ops-blue via-ops-cyan to-ops-yellow p-[1px]">
+                <div className="w-full h-full rounded-full bg-[#0E0F1A] flex items-center justify-center text-xs font-mono font-bold text-white">
+                  {user ? getInitials(user.full_name) : 'L1'}
+                </div>
+              </div>
+              <div className="hidden md:flex flex-col text-left">
+                <span className="text-xs font-medium text-white truncate max-w-[120px]">
+                  {user?.full_name || 'Authenticated User'}
+                </span>
+                <span className="text-[10px] font-mono text-white/40 truncate max-w-[120px]">
+                  {roleMeta.badge}
+                </span>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-white/40" />
+            </button>
+
+            {userDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-[#141524] border border-white/[0.12] shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="px-4 py-3 border-b border-white/[0.08]">
+                  <div className="text-xs font-bold text-white">{user?.full_name}</div>
+                  <div className="text-[11px] font-mono text-ops-cyan truncate mt-0.5">{user?.email}</div>
+                  <div className="flex items-center gap-1.5 mt-2 text-[10px] font-mono text-white/50">
+                    <Building2 className="w-3 h-3 text-ops-blue" />
+                    <span className="truncate">{user?.org_name}</span>
+                  </div>
+                </div>
+
+                <div className="p-1">
+                  <button
+                    onClick={() => {
+                      setUserDropdownOpen(false);
+                      setPersonaModalOpen(true);
+                    }}
+                    className="w-full text-left px-3 py-2.5 rounded-xl flex items-center justify-between text-xs text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Users className="w-4 h-4 text-ops-cyan" />
+                      <span>Switch Verified Persona...</span>
+                    </div>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-ops-cyan/15 text-ops-cyan">
+                      8 SAAS
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setUserDropdownOpen(false);
+                      logout();
+                      window.location.href = '/';
+                    }}
+                    className="w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* Verified SaaS Persona Switcher Modal */}
+      {personaModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl rounded-2xl bg-[#111220] border border-white/[0.15] shadow-2xl p-6 sm:p-7 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-white/[0.08] mb-5">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Shield className="w-4 h-4 text-ops-cyan" />
+                  <span className="text-xs font-mono uppercase tracking-widest text-ops-cyan">
+                    AUTHENTIC SAAS IDENTITIES
+                  </span>
+                </div>
+                <h2 className="text-lg font-bold text-white">
+                  Switch Enterprise Test Persona
+                </h2>
+                <p className="text-xs text-white/60 mt-1">
+                  Authenticate as a real provisioned user in Neon PostgreSQL 18.6 Cloud. Issues an authentic JWT signed with the platform master key.
+                </p>
+              </div>
+              <button
+                onClick={() => setPersonaModalOpen(false)}
+                className="text-white/40 hover:text-white text-xs font-mono px-2.5 py-1 rounded-lg border border-white/10 hover:border-white/20"
+              >
+                ESC / CLOSE
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+              {PERSONA_PRESETS.map((p) => {
+                const isCurrent = user?.email === p.email;
+                return (
+                  <button
+                    key={p.key}
+                    disabled={isLoading}
+                    onClick={async () => {
+                      await switchPersona(p.key);
+                      setPersonaModalOpen(false);
+                    }}
+                    className={`p-3.5 rounded-xl border text-left transition-all relative ${
+                      isCurrent
+                        ? 'bg-ops-cyan/15 border-ops-cyan text-white shadow-[0_0_20px_rgba(0,255,204,0.15)] ring-1 ring-ops-cyan'
+                        : 'bg-[#161729] border-white/[0.08] text-white/70 hover:border-white/25 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-bold text-white font-mono">{p.name}</span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.08] text-ops-cyan">
+                        {p.role}
+                      </span>
+                    </div>
+                    <div className="text-[11px] font-medium text-white/90 mb-1">{p.title}</div>
+                    <div className="text-[10px] font-mono text-white/40 mb-2 truncate">{p.email}</div>
+                    <p className="text-[11px] text-white/50 leading-relaxed line-clamp-2">{p.description}</p>
+                    {isCurrent && (
+                      <div className="mt-2.5 flex items-center gap-1.5 text-[10px] font-mono text-ops-cyan">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>ACTIVE SESSION</span>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#161728] border border-white/[0.06] flex items-center justify-between text-xs font-mono text-white/60">
+              <div className="flex items-center gap-2">
+                <Lock className="w-4 h-4 text-ops-blue" />
+                <span>Backend Segregation: Dual custody & cross-tenant RLS are fully active.</span>
+              </div>
+              <span className="text-[10px] text-ops-cyan">PGVECTOR + NEON</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };

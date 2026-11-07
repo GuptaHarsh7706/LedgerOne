@@ -64,6 +64,13 @@ export const FloatingNavbar: React.FC = () => {
         {/* Action Controls */}
         <div className="hidden sm:flex items-center gap-3">
           <Link
+            to="/login"
+            className="text-xs font-mono tracking-wider uppercase text-ops-textMuted hover:text-white transition-colors duration-200 px-2"
+          >
+            Sign In
+          </Link>
+
+          <Link
             to="/workspace"
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-ops-cyan/40 bg-ops-cyan/10 hover:bg-ops-cyan/20 text-ops-cyan text-xs font-mono font-semibold transition-all shadow-[0_0_15px_rgba(0,255,204,0.15)]"
           >
