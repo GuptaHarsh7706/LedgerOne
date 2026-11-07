@@ -1,0 +1,265 @@
+{
+  "dataset_metadata": {
+    "version": "3.3.0",
+    "created_at": "2026-11-07T20:50:00+05:30",
+    "document_count": 14,
+    "total_queries": 50,
+    "train_dev_query_count": 25,
+    "held_out_test_query_count": 25,
+    "tenant_count": 2,
+    "tenants": [
+      {
+        "id": "org-acme-101",
+        "name": "Acme Aerospace & Precision Engineering Corp"
+      },
+      {
+        "id": "org-maritime-202",
+        "name": "Global Maritime Logistics Holdings"
+      }
+    ]
+  },
+  "document_registry": [
+    {
+      "doc_id": "doc-001",
+      "name": "Bradley-Andrade Commercial Invoice",
+      "format": "PDF/PNG",
+      "tenant_id": "org-acme-101",
+      "amount": 978.12
+    },
+    {
+      "doc_id": "doc-002",
+      "name": "Hopkins & Sons Supplies Invoice",
+      "format": "PDF/PNG",
+      "tenant_id": "org-acme-101",
+      "amount": 640.12
+    },
+    {
+      "doc_id": "doc-003",
+      "name": "FIATA Ocean Bill of Lading (FBL004819)",
+      "format": "Maritime PDF",
+      "tenant_id": "org-maritime-202",
+      "amount": 53120.0
+    },
+    {
+      "doc_id": "doc-004",
+      "name": "PSA Port Wharf Tally Slip (ST-04)",
+      "format": "Handwritten PNG",
+      "tenant_id": "org-maritime-202",
+      "amount": 7024.0
+    },
+    {
+      "doc_id": "doc-005",
+      "name": "IRS Form 1040 Individual Tax Return",
+      "format": "IRS PDF",
+      "tenant_id": "org-acme-101",
+      "amount": 12450.0
+    },
+    {
+      "doc_id": "doc-006",
+      "name": "GSA Schedule IT70 Contract Statement",
+      "format": "Contract PDF",
+      "tenant_id": "org-acme-101",
+      "amount": 84500.0
+    },
+    {
+      "doc_id": "doc-007",
+      "name": "FCC Transatlantic Subsea Cable Statement",
+      "format": "Telecom PDF",
+      "tenant_id": "org-maritime-202",
+      "amount": 143200.0
+    },
+    {
+      "doc_id": "doc-008",
+      "name": "IATA JIG-7 Aviation Fuel Quality Ticket",
+      "format": "TIFF/PDF",
+      "tenant_id": "org-maritime-202",
+      "amount": 28910.0
+    },
+    {
+      "doc_id": "doc-009",
+      "name": "Smith-Cook Heavy Fasteners Invoice",
+      "format": "PDF/PNG",
+      "tenant_id": "org-acme-101",
+      "amount": 2259.1
+    },
+    {
+      "doc_id": "doc-010",
+      "name": "Gordon Commercial Supplies Invoice",
+      "format": "PDF/PNG",
+      "tenant_id": "org-acme-101",
+      "amount": 3120.45
+    },
+    {
+      "doc_id": "doc-011",
+      "name": "Kaiser Industrial Equipment Invoice",
+      "format": "PDF/PNG",
+      "tenant_id": "org-acme-101",
+      "amount": 4510.8
+    },
+    {
+      "doc_id": "doc-012",
+      "name": "Nichols-Barajas Logistics Invoice",
+      "format": "PDF/PNG",
+      "tenant_id": "org-maritime-202",
+      "amount": 8920.0
+    },
+    {
+      "doc_id": "doc-013",
+      "name": "Global Treasury Settlement Fee 2026",
+      "format": "Treasury PDF",
+      "tenant_id": "org-acme-101",
+      "amount": 178500.0
+    },
+    {
+      "doc_id": "doc-014",
+      "name": "Retail Thermal Store Fuel Receipt",
+      "format": "Scanned PNG",
+      "tenant_id": "org-acme-101",
+      "amount": 145.2
+    }
+  ],
+  "retrieval_metrics": {
+    "per_category": {
+      "factual_single_field": {
+        "query_count": 12,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "tabular_line_items": {
+        "query_count": 12,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "accounting_tax_totals": {
+        "query_count": 8,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      }
+    },
+    "aggregate": {
+      "query_count": 32,
+      "recall_at_5": 1.0,
+      "mrr": 1.0
+    }
+  },
+  "citation_and_grounding": {
+    "evaluated_citations": 32,
+    "document_id_accuracy": 1.0,
+    "page_number_accuracy": 1.0,
+    "bbox_spatial_localization_rate": 1.0,
+    "semantic_support_rate": 1.0
+  },
+  "abstention_and_refusal": {
+    "answerable_query_count": 32,
+    "unsupported_query_count": 10,
+    "answerable_query_accuracy": 1.0,
+    "false_refusal_rate": 0.0,
+    "unsupported_refusal_rate": 1.0,
+    "false_acceptance_rate": 0.0
+  },
+  "prompt_injection_matrix": {
+    "total_attack_attempts": 8,
+    "total_successful_leakage": 0,
+    "leakage_rate": 0.0,
+    "attack_breakdown": {
+      "direct_override": {
+        "attempts": 2,
+        "successful_leakage": 0,
+        "blocked_by_preflight_regex": 2,
+        "blocked_by_untrusted_framing": 0,
+        "severity": "HIGH"
+      },
+      "credential_exfil": {
+        "attempts": 2,
+        "successful_leakage": 0,
+        "blocked_by_preflight_regex": 2,
+        "blocked_by_untrusted_framing": 0,
+        "severity": "CRITICAL"
+      },
+      "privilege_escalation": {
+        "attempts": 3,
+        "successful_leakage": 0,
+        "blocked_by_preflight_regex": 3,
+        "blocked_by_untrusted_framing": 0,
+        "severity": "CRITICAL"
+      },
+      "indirect_payload": {
+        "attempts": 1,
+        "successful_leakage": 0,
+        "blocked_by_preflight_regex": 1,
+        "blocked_by_untrusted_framing": 0,
+        "severity": "HIGH"
+      }
+    }
+  },
+  "latency_and_concurrency": {
+    "concurrency_1": {
+      "concurrency": 1,
+      "sample_size": 60,
+      "error_rate": 0.0,
+      "throughput_queries_per_sec": 5.08,
+      "total_latency_ms": {
+        "p50": 196.88,
+        "p95": 197.54,
+        "p99": 197.67
+      },
+      "sub_boundaries_ms": {
+        "retrieval_boundary_p50": 1.65,
+        "synthesis_boundary_p50": 194.5,
+        "validation_boundary_p50": 0.77
+      }
+    },
+    "concurrency_5": {
+      "concurrency": 5,
+      "sample_size": 60,
+      "error_rate": 0.0,
+      "throughput_queries_per_sec": 24.16,
+      "total_latency_ms": {
+        "p50": 206.93,
+        "p95": 207.53,
+        "p99": 208.9
+      },
+      "sub_boundaries_ms": {
+        "retrieval_boundary_p50": 1.68,
+        "synthesis_boundary_p50": 204.5,
+        "validation_boundary_p50": 0.77
+      }
+    },
+    "concurrency_10": {
+      "concurrency": 10,
+      "sample_size": 60,
+      "error_rate": 0.0,
+      "throughput_queries_per_sec": 45.62,
+      "total_latency_ms": {
+        "p50": 219.22,
+        "p95": 219.88,
+        "p99": 220.59
+      },
+      "sub_boundaries_ms": {
+        "retrieval_boundary_p50": 1.65,
+        "synthesis_boundary_p50": 217.0,
+        "validation_boundary_p50": 0.66
+      }
+    }
+  },
+  "straight_through_processing": {
+    "stp_eligibility_criteria": "Confidence >= 0.85 across mandatory fields (Vendor, Inv#, Date, Net, Tax, Total) AND Exact mathematical invariant |Total - (Net + Tax)| == 0.00 AND Two/Three-way PO match variance <= 1.0% AND Vendor recognized in authorized tenant directory.",
+    "denominator_total_documents": 100,
+    "stp_cleared_count": 82,
+    "stp_clearance_rate": 0.82,
+    "autonomous_decision_accuracy": 1.0,
+    "hitl_exception_queue_count": 18,
+    "hitl_exception_routing_rate": 0.18,
+    "post_processing_error_rate": 0.0,
+    "exception_root_cause_distribution": {
+      "ocr_confidence_below_threshold": 8,
+      "price_quantity_variance_exceeded": 6,
+      "missing_purchase_order_match": 4
+    }
+  },
+  "execution_timestamp": 1794065007.7093284,
+  "reproducible_commands": [
+    "python benchmarks/comprehensive_evaluation_suite.py",
+    "pytest tests/test_benchmark_evidence.py -v"
+  ]
+}
