@@ -34,6 +34,13 @@ BENCHMARK_V4_1_SCRIPT_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "benchmarks", "comprehensive_evaluation_suite_v4_1.py")
 )
 
+GROQ_AUDIT_ARTIFACT_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "benchmarks", "groq_rate_limit_audit_results.json")
+)
+GROQ_AUDIT_SCRIPT_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "benchmarks", "groq_rate_limit_audit.py")
+)
+
 
 @pytest.fixture
 def benchmark_v4_data():
@@ -47,6 +54,13 @@ def benchmark_v4_data():
 def benchmark_v4_1_data():
     assert os.path.isfile(BENCHMARK_V4_1_ARTIFACT_PATH), f"v4.1 artifact missing at {BENCHMARK_V4_1_ARTIFACT_PATH}"
     with open(BENCHMARK_V4_1_ARTIFACT_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+@pytest.fixture
+def groq_audit_data():
+    assert os.path.isfile(GROQ_AUDIT_ARTIFACT_PATH), f"Groq audit artifact missing at {GROQ_AUDIT_ARTIFACT_PATH}"
+    with open(GROQ_AUDIT_ARTIFACT_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -235,3 +249,73 @@ def test_v4_1_anti_cheating_ast_verification():
     # 2. Verify no hardcoded confusion matrix assignment in evaluation loop
     assert "true_positives = 50" not in source
     assert "recall_at_5 = 1.0" not in source
+
+
+# =========================================================================
+# GROQ RATE-LIMIT CONTAMINATION AUDIT TESTS (v4.1.1)
+# =========================================================================
+
+def test_groq_audit_artifact_and_reconstruction(groq_audit_data):
+    """Verify all 50 queries are reconstructed with exact provider and attempt telemetry."""
+    meta = groq_audit_data["audit_metadata"]
+    assert meta["suite_version"] == "4.1.1"
+    assert meta["provider"] == "groq"
+    assert meta["model"] == "qwen/qwen3.8-27b"
+    assert meta["total_queries_evaluated"] == 50
+
+    reconstructed = groq_audit_data["historical_v4_1_0_reconstruction"]
+    assert len(reconstructed) == 50
+    for q in reconstructed:
+        assert q["model"] == "qwen/qwen3.8-27b"
+        assert q["retries_exhausted"] is False
+        assert q["fallback_invoked"] is False
+        assert q["generation_completed"] is True
+
+
+def test_groq_provider_reliability_evaluation(groq_audit_data):
+    """Verify provider transport reliability is strictly separated from model quality."""
+    rel = groq_audit_data["provider_reliability_evaluation"]
+    assert rel["total_queries_attempted"] == 50
+    assert rel["successful_model_generations"] == 50
+    assert rel["requests_exhausted_retries"] == 0
+    assert rel["timeouts_and_transport_failures"] == 0
+    assert rel["fallback_responses"] == 0
+    assert rel["complete_generations"] == 50
+    assert rel["incomplete_generations"] == 0
+    assert rel["provider_induced_failure_rate"] == 0.0
+
+
+def test_groq_answer_quality_evaluation(groq_audit_data):
+    """Verify answer quality metrics among completed generations."""
+    qual = groq_audit_data["answer_quality_evaluation"]
+    assert qual["answerable_queries_total"] == 32
+    assert qual["completed_answerable_generations"] == 32
+    assert qual["unsupported_queries_total"] == 10
+    assert qual["adversarial_queries_total"] == 8
+    assert qual["unsupported_refusal_rate"] == 1.0
+    assert qual["adversarial_defense_success_rate"] == 1.0
+
+
+def test_refusal_forensic_classification(groq_audit_data):
+    """Verify all 17 answerable refusals are classified and zero were caused by rate limiting."""
+    ref_audit = groq_audit_data["refusal_cause_classification"]
+    assert ref_audit["total_answerable_refusals"] == 17
+    breakdown = ref_audit["cause_breakdown"]
+    assert breakdown["PROVIDER_RATE_LIMIT_OR_RETRY_EXHAUSTION"] == 0
+    assert breakdown["PROVIDER_TIMEOUT_OR_TRANSPORT_FAILURE"] == 0
+    assert breakdown["FALLBACK_ENGINE_RESPONSE"] == 0
+    assert breakdown["OUTPUT_PARSING_OR_STRUCTURED_GENERATION_FAILURE"] == 0
+    assert breakdown["MODEL_UNCERTAINTY_DESPITE_SUFFICIENT_EVIDENCE"] == 17
+
+
+def test_groq_audit_anti_cheating_ast():
+    """Verify groq_rate_limit_audit.py AST contains real client calls and no simulated metrics."""
+    with open(GROQ_AUDIT_SCRIPT_PATH, "r", encoding="utf-8") as f:
+        source = f.read()
+
+    tree = ast.parse(source)
+    assert "ProviderAwareInferenceClient" in source
+    assert "search_hybrid" in source
+    assert "execute_query" in source
+    assert "rate_limited_requests_429" in source
+
