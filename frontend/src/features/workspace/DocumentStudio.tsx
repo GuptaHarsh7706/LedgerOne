@@ -29,15 +29,46 @@ import {
   Filter,
   FileCheck2,
   BookmarkCheck,
-  Building2
+  Building2,
+  ExternalLink
 } from 'lucide-react';
 
 const STANDARD_SAMPLE_PRESETS = [
   { 
-    name: 'GSA Schedule 70 (Form 1449)', 
-    filename: 'GSA_Schedule_IT70_Contract_Invoice.pdf', 
-    provenance: 'US GSA Schedule 70 IT Contract GS-35F-0119Y',
+    name: 'Real Commercial Invoice (Bradley-Andrade)', 
+    filename: 'Real_Commercial_Invoice_BradleyAndrade_97159829.pdf', 
+    provenance: 'Authentic 300-DPI Scanned Commercial Invoice (Donut Ground Truth Dataset)',
     docType: 'PDF' as DocumentFormatType
+  },
+  { 
+    name: 'Real Apparel Multi-Line Invoice (Hopkins)', 
+    filename: 'Real_Commercial_Invoice_Hopkins_13194726.pdf', 
+    provenance: 'Authentic Multi-Item Commercial Invoice Dataset (A4 High-Resolution Scan)',
+    docType: 'PDF' as DocumentFormatType
+  },
+  { 
+    name: 'US IRS Form 1040 (Tax Return)', 
+    filename: 'IRS_Form_1040_Individual_Tax.pdf', 
+    provenance: 'Official US Department of the Treasury IRS Form 1040 Individual Tax Return',
+    docType: 'PDF' as DocumentFormatType
+  },
+  { 
+    name: 'US IRS Form W-9 (Taxpayer ID)', 
+    filename: 'IRS_Form_W9_Taxpayer_ID.pdf', 
+    provenance: 'Official US Department of the Treasury IRS Form W-9 Certification',
+    docType: 'PDF' as DocumentFormatType
+  },
+  { 
+    name: 'Azure AI Benchmark Invoice', 
+    filename: 'Azure_Document_Intelligence_Invoice_1.pdf', 
+    provenance: 'Microsoft Azure Document Intelligence Standard Benchmark Document Suite',
+    docType: 'PDF' as DocumentFormatType
+  },
+  { 
+    name: 'Corporate Thermal POS Receipt', 
+    filename: 'Corporate_Receipt_Contoso.jpg', 
+    provenance: 'Authentic Scanned POS Expense Receipt (Document Intelligence Suite)',
+    docType: 'SCANNED_IMAGE' as DocumentFormatType
   },
   { 
     name: 'FIATA Ocean BOL (FBL-004819)', 
@@ -80,7 +111,35 @@ function parseUploadedFile(file: File): Document {
   let category: DocumentCategory = 'INVOICE';
   let sourceProvenance = 'US Standard Commercial Invoicing Specification';
   
-  if (lower.includes('gsa') || lower.includes('1449')) {
+  if (lower.includes('bradley')) {
+    docType = 'PDF';
+    category = 'INVOICE';
+    sourceProvenance = 'Authentic 300-DPI Scanned Commercial Invoice (Donut Ground Truth Dataset)';
+  } else if (lower.includes('hopkins')) {
+    docType = 'PDF';
+    category = 'INVOICE';
+    sourceProvenance = 'Authentic Commercial Multi-Line Invoice Dataset';
+  } else if (lower.includes('1040')) {
+    docType = 'PDF';
+    category = 'TAX_FORM';
+    sourceProvenance = 'Official US Department of the Treasury IRS Form 1040 Individual Tax Return';
+  } else if (lower.includes('w9')) {
+    docType = 'PDF';
+    category = 'TAX_FORM';
+    sourceProvenance = 'Official US Department of the Treasury IRS Form W-9 Request for TIN';
+  } else if (lower.includes('1099')) {
+    docType = 'PDF';
+    category = 'TAX_FORM';
+    sourceProvenance = 'Official US Department of the Treasury IRS Form 1099-MISC';
+  } else if (lower.includes('azure') || lower.includes('invoice_1')) {
+    docType = 'PDF';
+    category = 'INVOICE';
+    sourceProvenance = 'Microsoft Azure Document Intelligence Standard Benchmark Document';
+  } else if (lower.includes('receipt') || lower.includes('contoso')) {
+    docType = 'SCANNED_IMAGE';
+    category = 'RECEIPT';
+    sourceProvenance = 'Authentic Retail Thermal POS Expense Receipt';
+  } else if (lower.includes('gsa') || lower.includes('1449')) {
     docType = 'PDF';
     category = 'INVOICE';
     sourceProvenance = 'US General Services Administration (GSA) Schedule 70 IT Contract GS-35F-0119Y / Form 1449';
@@ -271,6 +330,9 @@ function parseUploadedFile(file: File): Document {
     notes: isIntentionalViolation 
       ? 'Live Ingestion Warning: Header total sum diverges from evaluated arithmetic invariants INV-001 (Delta +$45.00).'
       : `Ingested from verified source standard: ${sourceProvenance}. Spatial tokens deskewed and 0-drift invariants satisfied.`,
+    filename: file.name,
+    fileUrl: URL.createObjectURL(file),
+    previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
     fileSizeBytes: file.size || 245192,
     mimeType: file.type || 'application/pdf',
     sha256: `sha256-${hashHex}`,
@@ -320,6 +382,7 @@ export const DocumentStudio: React.FC = () => {
   const canApprove = hasPermission(currentRole, 'APPROVE_INVARIANTS') || hasPermission(currentRole, 'review.approve') || hasPermission(currentRole, 'review.override');
   const canUpload = hasPermission(currentRole, 'UPLOAD_DOCUMENTS') || hasPermission(currentRole, 'documents.upload');
   const [studioFeedback, setStudioFeedback] = useState<{ message: string; type: 'success' | 'danger' | 'info' } | null>(null);
+  const [canvasViewMode, setCanvasViewMode] = useState<'document' | 'spatial'>('document');
 
   const handleApproveDoc = () => {
     if (!canApprove || !activeDoc) return;
@@ -367,6 +430,14 @@ export const DocumentStudio: React.FC = () => {
       const newDocs: Document[] = [];
       for (const file of fileArray) {
         const parsed = parseUploadedFile(file);
+        // Bind live binary objectUrl for immediate display in the iframe / img viewer
+        const objectUrl = URL.createObjectURL(file);
+        parsed.fileUrl = objectUrl;
+        parsed.previewUrl = objectUrl;
+        parsed.filename = file.name;
+        parsed.fileSizeBytes = file.size;
+        parsed.mimeType = file.type || (file.name.endsWith('.pdf') ? 'application/pdf' : 'image/png');
+
         newDocs.push(parsed);
         await api.addDocument(parsed);
       }
@@ -393,15 +464,19 @@ export const DocumentStudio: React.FC = () => {
     }
   };
 
-  const handleLoadSample = (sample: typeof STANDARD_SAMPLE_PRESETS[0]) => {
+  const handleLoadSample = async (sample: typeof STANDARD_SAMPLE_PRESETS[0]) => {
     if (!canUpload) return;
-    // Create synthetic file representing the authentic sample
-    const fakeFile = new File(
-      [new Blob(['%PDF-1.7 Standard Public Regulatory Test Document'], { type: sample.docType === 'PDF' ? 'application/pdf' : 'image/png' })],
-      sample.filename,
-      { type: sample.docType === 'PDF' ? 'application/pdf' : 'image/png', lastModified: Date.now() }
-    );
-    processUploadedFiles([fakeFile]);
+    try {
+      const res = await fetch(`/samples/${sample.filename}`);
+      const blob = await res.blob();
+      const realFile = new File([blob], sample.filename, {
+        type: sample.filename.endsWith('.pdf') ? 'application/pdf' : sample.filename.endsWith('.png') ? 'image/png' : 'image/jpeg',
+        lastModified: Date.now()
+      });
+      await processUploadedFiles([realFile]);
+    } catch (e) {
+      console.error('Failed to load real sample file:', e);
+    }
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -705,9 +780,27 @@ export const DocumentStudio: React.FC = () => {
               <span className="text-xs font-mono text-white/50">#{activeDoc.invoiceNumber}</span>
               <span className="text-xs font-mono text-white/30">•</span>
               {getFormatBadge(activeDoc.docType)}
+              {activeDoc.filename && (
+                <>
+                  <span className="text-xs font-mono text-white/30">•</span>
+                  <span className="text-[11px] font-mono text-white/70 bg-white/[0.05] px-2 py-0.5 rounded border border-white/[0.08] truncate max-w-[200px]">
+                    {activeDoc.filename}
+                  </span>
+                </>
+              )}
             </div>
-            <h1 className="text-xl font-bold text-white tracking-tight">
-              {activeDoc.vendorName}
+            <h1 className="text-xl font-bold text-white tracking-tight flex flex-wrap items-center gap-2">
+              <span>{activeDoc.vendorName}</span>
+              {isShippingBOL && (
+                <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 font-normal">
+                  Intermodal Route: ROTTERDAM (NLRTM) → SINGAPORE JURONG (SGSIN)
+                </span>
+              )}
+              {isHandwritten && (
+                <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-amber-950/60 border border-amber-500/40 text-amber-300 font-normal">
+                  PORT OF SINGAPORE AUTHORITY CARGO TALLY
+                </span>
+              )}
             </h1>
           </div>
         </div>
@@ -886,15 +979,46 @@ export const DocumentStudio: React.FC = () => {
           </GlowCard>
         </div>
 
-        {/* Center Column: Adaptive Interactive Spatial Bounding-Box Viewer (5 Cols) */}
+        {/* Center Column: Adaptive Dual-Mode Document Canvas & Spatial Bounding-Box Viewer (5 Cols) */}
         <div className="lg:col-span-5">
           <GlowCard className="p-4 space-y-4">
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
-              <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-ops-cyan" />
-                <span className="text-xs font-mono text-white/70">SPATIAL BOUNDING-BOX CANVAS</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
+              <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#0E0F1B] border border-white/[0.08] text-xs font-mono">
+                <button
+                  type="button"
+                  onClick={() => setCanvasViewMode('document')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded transition-colors ${
+                    canvasViewMode === 'document' ? 'bg-ops-cyan text-black font-bold shadow' : 'text-white/60 hover:text-white'
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Real Document View</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCanvasViewMode('spatial')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded transition-colors ${
+                    canvasViewMode === 'spatial' ? 'bg-white text-black font-semibold shadow' : 'text-white/60 hover:text-white'
+                  }`}
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Spatial OCR Tokens</span>
+                </button>
               </div>
+
               <div className="flex items-center gap-2">
+                {(activeDoc.fileUrl || activeDoc.filename) && (
+                  <a
+                    href={activeDoc.fileUrl || `/samples/${activeDoc.filename}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-ops-cyan hover:text-white text-xs font-mono transition-all"
+                    title="Open official document binary in new tab"
+                  >
+                    <span>Open Raw Asset</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
                 <span className="text-[10px] font-mono text-white/40">
                   {isHandwritten ? 'TrOCR v2' : isShippingBOL ? 'EDI / OCR' : 'PDFium2 300-DPI'}
                 </span>
@@ -905,8 +1029,28 @@ export const DocumentStudio: React.FC = () => {
               </div>
             </div>
 
-            {/* Adaptive Document Surface Canvas */}
-            <div className={`relative aspect-[3/4] w-full rounded-xl border p-6 shadow-inner overflow-hidden select-none transition-all ${
+            {/* Document Surface Canvas */}
+            {canvasViewMode === 'document' ? (
+              <div className="relative aspect-[3/4] w-full rounded-xl border border-white/[0.12] bg-[#0A0B14] overflow-hidden shadow-2xl flex flex-col">
+                {activeDoc.filename?.toLowerCase().endsWith('.pdf') || activeDoc.fileUrl?.toLowerCase().endsWith('.pdf') || activeDoc.docType === 'PDF' || activeDoc.docType === 'SHIPPING_BOL' || activeDoc.docType === 'UTILITY_BILL' ? (
+                  <iframe
+                    src={`${activeDoc.fileUrl || (activeDoc.filename ? `/samples/${activeDoc.filename}` : '/samples/Real_Commercial_Invoice_BradleyAndrade_97159829.pdf')}#toolbar=0&navpanes=0`}
+                    className="w-full h-full rounded-xl border-0 bg-white"
+                    title={activeDoc.vendorName}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center p-3 bg-[#0A0B14]">
+                    <img
+                      src={activeDoc.fileUrl || (activeDoc.filename ? `/samples/${activeDoc.filename}` : '/samples/PSA_Port_Authority_Wharf_Tally_ST04.png')}
+                      alt={activeDoc.vendorName}
+                      className="max-w-full max-h-full object-contain rounded-lg shadow-lg border border-white/10"
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Adaptive Document Surface Canvas */
+              <div className={`relative aspect-[3/4] w-full rounded-xl border p-6 shadow-inner overflow-hidden select-none transition-all ${
               isHandwritten
                 ? 'bg-[#181611] border-[#3e3522] text-[#eedeb8] font-serif'
                 : isShippingBOL
@@ -1034,8 +1178,9 @@ export const DocumentStudio: React.FC = () => {
                 </div>
               </div>
             </div>
-          </GlowCard>
-        </div>
+          )}
+        </GlowCard>
+      </div>
 
         {/* Right Column: Line Items & AST Inspector (4 Cols) */}
         <div className="lg:col-span-4 space-y-4">

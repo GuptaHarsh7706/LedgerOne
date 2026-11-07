@@ -86,6 +86,9 @@ export interface Document {
   id: string;
   invoiceNumber: string;
   vendorName: string;
+  filename?: string;
+  fileUrl?: string;
+  previewUrl?: string;
   subtotal: number;
   tax: number;
   total: number;
