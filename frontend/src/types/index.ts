@@ -17,7 +17,8 @@ export type DocumentCategory =
   | 'UTILITY_BILL'
   | 'TAX_FORM'
   | 'RECEIPT'
-  | 'CONTRACT';
+  | 'CONTRACT'
+  | 'BILL_OF_LADING';
 
 export interface ExtractedField {
   id: string;
@@ -73,6 +74,14 @@ export interface DocumentItem {
   invariants?: AccountingInvariant[];
 }
 
+export type DocumentFormatType = 
+  | 'PDF'
+  | 'SCANNED_IMAGE'
+  | 'HANDWRITTEN'
+  | 'SHIPPING_BOL'
+  | 'UTILITY_BILL'
+  | 'SPREADSHEET';
+
 export interface Document {
   id: string;
   invoiceNumber: string;
@@ -85,6 +94,17 @@ export interface Document {
   status: DocumentStatus;
   createdAt: string;
   lineItems: LineItem[];
+  docType?: DocumentFormatType;
+  category?: DocumentCategory;
+  paymentTerms?: string;
+  dueDate?: string;
+  senderAddress?: string;
+  recipientAddress?: string;
+  taxId?: string;
+  notes?: string;
+  fileSizeBytes?: number;
+  mimeType?: string;
+  sha256?: string;
 }
 
 export interface DashboardStats {

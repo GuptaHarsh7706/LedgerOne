@@ -42,106 +42,539 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 export const SEED_STUDIO_DOCUMENTS: Document[] = [
   {
     id: 'doc-001',
-    invoiceNumber: 'INV-2024-8841',
-    vendorName: 'Global Logistics Corp',
-    subtotal: 34850.00,
-    tax: 2875.12,
-    total: 37725.12,
+    invoiceNumber: 'INV-2026-9041',
+    vendorName: 'PureStorage Enterprise Corp',
+    subtotal: 312450.00,
+    tax: 25777.13,
+    total: 338227.13,
     currency: 'USD',
-    confidenceScore: 0.99,
+    confidenceScore: 0.998,
     status: 'VALIDATED',
-    createdAt: '2024-10-24T14:20:00Z',
+    createdAt: '2026-11-04T08:30:00Z',
+    docType: 'PDF',
+    category: 'INVOICE',
+    senderAddress: '650 Castro Street, Suite 400, Mountain View, CA 94041',
+    taxId: 'US-EIN-46-0882194',
+    paymentTerms: 'Net 30 Days ACH / Wire Remittance',
+    notes: 'CapEx High-Density Storage Expansion for AI Inference Clusters. Verified against PO-2026-9041.',
     lineItems: [
       {
-        id: 'li-1',
-        description: 'Multi-modal Ocean Freight Container Shipping (40ft HQ)',
-        quantity: 2,
-        unitPrice: 12500.00,
-        total: 25000.00,
-        confidence: 0.99,
-        bbox: [0.12, 0.44, 0.38, 0.49]
+        id: 'li-01',
+        description: 'FlashArray//XL70 DirectFlash NVMe 75TB Module (Dual-Port PCIe Gen4)',
+        quantity: 4,
+        unitPrice: 62500.00,
+        total: 250000.00,
+        confidence: 0.999,
+        bbox: [0.12, 0.42, 0.38, 0.46]
       },
       {
-        id: 'li-2',
-        description: 'Customs Brokerage, Demurrage & Drayage Handling Fee',
-        quantity: 1,
-        unitPrice: 9850.00,
-        total: 9850.00,
-        confidence: 0.98,
-        bbox: [0.12, 0.50, 0.42, 0.55]
+        id: 'li-02',
+        description: '100GbE QSFP28 Dual-Port Storage Fabric Optics & Optical Tranceivers',
+        quantity: 16,
+        unitPrice: 3903.13,
+        total: 62450.00,
+        confidence: 0.997,
+        bbox: [0.12, 0.48, 0.42, 0.52]
       }
     ]
   },
   {
     id: 'doc-002',
-    invoiceNumber: 'INV-2024-9022',
-    vendorName: 'Vortex Industrial Manufacturing',
-    subtotal: 12500.00,
-    tax: 950.00,
-    total: 13450.00,
+    invoiceNumber: 'AWS-2026-88192',
+    vendorName: 'Amazon Web Services, Inc.',
+    subtotal: 84210.50,
+    tax: 0.00,
+    total: 84210.50,
     currency: 'USD',
-    confidenceScore: 0.94,
-    status: 'INVARIANT_VIOLATION',
-    createdAt: '2024-10-25T09:12:00Z',
+    confidenceScore: 0.999,
+    status: 'VALIDATED',
+    createdAt: '2026-11-05T00:15:00Z',
+    docType: 'PDF',
+    category: 'UTILITY_BILL',
+    senderAddress: '410 Terry Avenue North, Seattle, WA 98109',
+    taxId: 'US-EIN-91-1646860',
+    paymentTerms: 'Corporate Auto-Debit / Master Pay Agreement',
+    notes: 'Consolidated Monthly Compute Billing for H100 GPU Farm & Direct Connect Egress.',
     lineItems: [
       {
-        id: 'li-3',
-        description: 'Titanium Fastener Assemblies (Grade 5 ASTM-B348)',
-        quantity: 500,
-        unitPrice: 25.00,
-        total: 12500.00,
-        confidence: 0.94,
-        bbox: [0.15, 0.42, 0.45, 0.48]
+        id: 'li-03',
+        description: 'Amazon EC2 p5.48xlarge Reserved Instances (8x H100 SXM5 80GB)',
+        quantity: 2,
+        unitPrice: 32850.00,
+        total: 65700.00,
+        confidence: 0.999,
+        bbox: [0.10, 0.40, 0.36, 0.44]
+      },
+      {
+        id: 'li-04',
+        description: 'Amazon S3 Standard & Intelligent-Tiering Storage (GB-Months)',
+        quantity: 140000,
+        unitPrice: 0.021,
+        total: 2940.00,
+        confidence: 0.998,
+        bbox: [0.10, 0.46, 0.38, 0.50]
+      },
+      {
+        id: 'li-05',
+        description: 'AWS Direct Connect 100Gbps Dedicated Interconnect Port Egress',
+        quantity: 1,
+        unitPrice: 15570.50,
+        total: 15570.50,
+        confidence: 0.999,
+        bbox: [0.10, 0.52, 0.42, 0.56]
       }
     ]
   },
   {
     id: 'doc-003',
-    invoiceNumber: 'INV-2024-7719',
-    vendorName: 'Apex Data Services',
-    subtotal: 8900.00,
-    tax: 0.00,
-    total: 8900.00,
+    invoiceNumber: 'BOL-2026-0442',
+    vendorName: 'Maersk Line A/S',
+    subtotal: 48600.00,
+    tax: 3888.00,
+    total: 53120.00,
     currency: 'USD',
-    confidenceScore: 0.98,
-    status: 'PENDING_REVIEW',
-    createdAt: '2024-10-25T11:45:00Z',
+    confidenceScore: 0.965,
+    status: 'INVARIANT_VIOLATION',
+    createdAt: '2026-11-05T14:40:00Z',
+    docType: 'SHIPPING_BOL',
+    category: 'INVOICE',
+    senderAddress: 'Esplanaden 50, 1098 Copenhagen K, Denmark',
+    taxId: 'DK-VAT-33165888',
+    paymentTerms: 'Freight Prepaid / Pier Release',
+    notes: 'Intermodal reefer shipment Rotterdam -> Singapore. Math invariant failure: calculated $52,488.00 vs billed $53,120.00 (Delta +$632.00 demurrage fee).',
     lineItems: [
       {
-        id: 'li-4',
-        description: 'Dedicated GPU Cluster Compute Hours (H100 SXM5)',
-        quantity: 40,
-        unitPrice: 222.50,
-        total: 8900.00,
-        confidence: 0.98,
-        bbox: [0.10, 0.40, 0.35, 0.46]
+        id: 'li-06',
+        description: '40ft High-Cube Refrigerated Container Ocean Freight (Rotterdam -> Singapore)',
+        quantity: 6,
+        unitPrice: 6500.00,
+        total: 39000.00,
+        confidence: 0.985,
+        bbox: [0.12, 0.40, 0.40, 0.44]
+      },
+      {
+        id: 'li-07',
+        description: 'Harbor Terminal Handling & Wharfage Surcharge (Tanjong Pagar)',
+        quantity: 6,
+        unitPrice: 1600.00,
+        total: 9600.00,
+        confidence: 0.970,
+        bbox: [0.12, 0.46, 0.42, 0.50]
+      },
+      {
+        id: 'li-08',
+        description: 'Port Container Detention & Pier Demurrage Fee (Unapproved Delta)',
+        quantity: 1,
+        unitPrice: 4520.00,
+        total: 4520.00,
+        confidence: 0.940,
+        bbox: [0.12, 0.52, 0.44, 0.56]
       }
     ]
   },
   {
     id: 'doc-004',
-    invoiceNumber: 'INV-2024-6501',
-    vendorName: 'Stratos Engineering Group',
-    subtotal: 5900.00,
-    tax: 486.75,
-    total: 6386.75,
+    invoiceNumber: 'FDR-77102-HW',
+    vendorName: 'Gulf Marine Stevedoring & Wharfage',
+    subtotal: 6444.00,
+    tax: 580.00,
+    total: 7024.00,
     currency: 'USD',
-    confidenceScore: 0.99,
-    status: 'VALIDATED',
-    createdAt: '2024-10-26T16:00:00Z',
+    confidenceScore: 0.941,
+    status: 'PENDING_REVIEW',
+    createdAt: '2026-11-06T09:10:00Z',
+    docType: 'HANDWRITTEN',
+    category: 'RECEIPT',
+    senderAddress: 'Berth 14, Jurong Port Road, Singapore 619112',
+    taxId: 'SG-UEN-201948810M',
+    paymentTerms: 'Cash / Direct Pier Voucher',
+    notes: 'Physical carbon-copy tally sheet with ink rubber stamp. Handwritten digits transcribed via TrOCR VLM. Requires dual-custody verification.',
     lineItems: [
       {
-        id: 'li-5',
-        description: 'Structural Load Simulation & Thermal Analysis Report',
+        id: 'li-09',
+        description: '40-Ton Mobile Hydraulic Crane Heavy Lift Rental (8 Hours)',
+        quantity: 8,
+        unitPrice: 350.00,
+        total: 2800.00,
+        confidence: 0.935,
+        bbox: [0.15, 0.38, 0.42, 0.43]
+      },
+      {
+        id: 'li-10',
+        description: 'Certified Rigging Crew (4 Stevedores x 8 hrs)',
+        quantity: 32,
+        unitPrice: 85.00,
+        total: 2720.00,
+        confidence: 0.942,
+        bbox: [0.15, 0.45, 0.44, 0.50]
+      },
+      {
+        id: 'li-11',
+        description: 'Marine Low-Sulfur Gasoil (MGO) Bunker Fuel (220 US Gallons)',
+        quantity: 220,
+        unitPrice: 4.20,
+        total: 924.00,
+        confidence: 0.946,
+        bbox: [0.15, 0.52, 0.45, 0.57]
+      }
+    ]
+  },
+  {
+    id: 'doc-005',
+    invoiceNumber: 'EUR-2026-3021',
+    vendorName: 'Siemens Industrial Turbomachinery GmbH',
+    subtotal: 156890.00,
+    tax: 0.00,
+    total: 156890.00,
+    currency: 'USD',
+    confidenceScore: 0.995,
+    status: 'VALIDATED',
+    createdAt: '2026-11-06T11:20:00Z',
+    docType: 'PDF',
+    category: 'INVOICE',
+    senderAddress: 'Freyeslebenstrasse 1, 91058 Erlangen, Germany',
+    taxId: 'DE-VAT-132556810',
+    paymentTerms: 'Net 45 Days Cross-Border SEPA/SWIFT',
+    notes: 'Billed in EUR 145,000.00 converted at ECB spot rate 1.0820 USD/EUR. Reverse-Charge VAT Section 13b UStG applied.',
+    lineItems: [
+      {
+        id: 'li-12',
+        description: 'SGT-800 Gas Turbine Stage-1 Single-Crystal Rotor Blade Replacement Set',
         quantity: 1,
-        unitPrice: 5900.00,
-        total: 5900.00,
-        confidence: 0.99,
-        bbox: [0.14, 0.38, 0.48, 0.44]
+        unitPrice: 125000.00,
+        total: 125000.00,
+        confidence: 0.996,
+        bbox: [0.12, 0.42, 0.40, 0.47]
+      },
+      {
+        id: 'li-13',
+        description: 'Field Calibration & High-Pressure Rotor Alignment Engineering Overhaul',
+        quantity: 1,
+        unitPrice: 31890.00,
+        total: 31890.00,
+        confidence: 0.994,
+        bbox: [0.12, 0.49, 0.42, 0.54]
+      }
+    ]
+  },
+  {
+    id: 'doc-006',
+    invoiceNumber: 'PO-2026-0089',
+    vendorName: 'Cisco Systems Inc.',
+    subtotal: 128400.00,
+    tax: 10593.00,
+    total: 138993.00,
+    currency: 'USD',
+    confidenceScore: 0.997,
+    status: 'VALIDATED',
+    createdAt: '2026-11-06T13:00:00Z',
+    docType: 'PDF',
+    category: 'PURCHASE_ORDER',
+    senderAddress: '170 West Tasman Drive, San Jose, CA 95134',
+    taxId: 'US-EIN-77-0059951',
+    paymentTerms: 'Corporate Net 30',
+    notes: 'CapEx Equipment Purchase Order for Spine-and-Leaf High-Throughput Switching Topology.',
+    lineItems: [
+      {
+        id: 'li-14',
+        description: 'Cisco Nexus 9336C-FX2 400G 36-Port Spine Switch',
+        quantity: 2,
+        unitPrice: 48200.00,
+        total: 96400.00,
+        confidence: 0.998,
+        bbox: [0.12, 0.42, 0.38, 0.46]
+      },
+      {
+        id: 'li-15',
+        description: 'Cisco Nexus 93180YC-FX3 100G Leaf Switch',
+        quantity: 4,
+        unitPrice: 8000.00,
+        total: 32000.00,
+        confidence: 0.996,
+        bbox: [0.12, 0.48, 0.40, 0.52]
+      }
+    ]
+  },
+  {
+    id: 'doc-007',
+    invoiceNumber: 'GRN-4491-B',
+    vendorName: 'Stratos Advanced Alloys Ltd',
+    subtotal: 41400.00,
+    tax: 0.00,
+    total: 41400.00,
+    currency: 'USD',
+    confidenceScore: 0.952,
+    status: 'NEEDS_REVIEW',
+    createdAt: '2026-11-06T15:15:00Z',
+    docType: 'SCANNED_IMAGE',
+    category: 'GOODS_RECEIPT',
+    senderAddress: 'Don Valley Industrial Park, Sheffield S9 2PW, UK',
+    taxId: 'GB-VAT-904812391',
+    paymentTerms: 'Letter of Credit (LC) Verified',
+    notes: 'Physical warehouse scales recorded 920 kg delivered vs 1,000 kg ordered. Under-delivery variance of 80 kg flagged for reconciliation.',
+    lineItems: [
+      {
+        id: 'li-16',
+        description: 'Aerospace Grade Inconel 718 High-Nickel Round Bar (Delivered: 920 kg)',
+        quantity: 920,
+        unitPrice: 45.00,
+        total: 41400.00,
+        confidence: 0.952,
+        bbox: [0.14, 0.42, 0.46, 0.48]
+      }
+    ]
+  },
+  {
+    id: 'doc-008',
+    invoiceNumber: 'TEL-2026-1108',
+    vendorName: 'Lumen Technologies Enterprise',
+    subtotal: 22400.00,
+    tax: 1848.00,
+    total: 24248.00,
+    currency: 'USD',
+    confidenceScore: 0.996,
+    status: 'VALIDATED',
+    createdAt: '2026-11-06T17:00:00Z',
+    docType: 'UTILITY_BILL',
+    category: 'UTILITY_BILL',
+    senderAddress: '1025 Eldorado Boulevard, Broomfield, CO 80021',
+    taxId: 'US-EIN-84-1117941',
+    paymentTerms: 'Net 20 ACH Auto-Debit',
+    notes: 'Dedicated Low-Latency Dark Fiber Wavelength Connecting Equinix SG1 and Global Switch Tai Seng.',
+    lineItems: [
+      {
+        id: 'li-17',
+        description: '100Gbps Wavelength Dark Fiber Metro Backbone Line Circuit',
+        quantity: 2,
+        unitPrice: 9800.00,
+        total: 19600.00,
+        confidence: 0.997,
+        bbox: [0.12, 0.42, 0.40, 0.46]
+      },
+      {
+        id: 'li-18',
+        description: 'Low-Latency Meet-Me-Room Cross-Connect Duplex Fiber Pair',
+        quantity: 4,
+        unitPrice: 700.00,
+        total: 2800.00,
+        confidence: 0.995,
+        bbox: [0.12, 0.48, 0.42, 0.52]
+      }
+    ]
+  },
+  {
+    id: 'doc-009',
+    invoiceNumber: 'INV-2026-5591',
+    vendorName: 'PricewaterhouseCoopers (PwC) LLP',
+    subtotal: 65000.00,
+    tax: 3420.00,
+    total: 68420.00,
+    currency: 'USD',
+    confidenceScore: 0.998,
+    status: 'VALIDATED',
+    createdAt: '2026-11-07T08:00:00Z',
+    docType: 'PDF',
+    category: 'INVOICE',
+    senderAddress: '300 Madison Avenue, New York, NY 10017',
+    taxId: 'US-EIN-13-4008324',
+    paymentTerms: 'Net 30 Days',
+    notes: 'External Attestation & Annual SOC 2 Type II Financial Invariant Certification Retainer.',
+    lineItems: [
+      {
+        id: 'li-19',
+        description: 'Annual SOC 2 Type II Invariant & Financial Controls Audit Retainer',
+        quantity: 1,
+        unitPrice: 50000.00,
+        total: 50000.00,
+        confidence: 0.999,
+        bbox: [0.12, 0.40, 0.40, 0.45]
+      },
+      {
+        id: 'li-20',
+        description: 'Senior Forensic Risk Partner Review & Technical Attestation Hours',
+        quantity: 30,
+        unitPrice: 500.00,
+        total: 15000.00,
+        confidence: 0.997,
+        bbox: [0.12, 0.47, 0.42, 0.52]
+      }
+    ]
+  },
+  {
+    id: 'doc-010',
+    invoiceNumber: 'INV-2026-9022',
+    vendorName: 'Vortex Industrial Precision',
+    subtotal: 12500.00,
+    tax: 950.00,
+    total: 13490.00,
+    currency: 'USD',
+    confidenceScore: 0.948,
+    status: 'INVARIANT_VIOLATION',
+    createdAt: '2026-11-07T09:30:00Z',
+    docType: 'PDF',
+    category: 'INVOICE',
+    senderAddress: '4820 Precision Parkway, Dallas, TX 75201',
+    taxId: 'US-EIN-75-9921042',
+    paymentTerms: 'Net 30 Days',
+    notes: 'INV-001 Invariant Failure: Printed total $13,490.00 does not equal evaluated sum ($12,500.00 + $950.00 = $13,450.00). Delta +$40.00 detected.',
+    lineItems: [
+      {
+        id: 'li-21',
+        description: 'Titanium Grade-5 Fastener Assemblies (ASTM-B348 Aerospace Spec)',
+        quantity: 500,
+        unitPrice: 25.00,
+        total: 12500.00,
+        confidence: 0.948,
+        bbox: [0.15, 0.42, 0.45, 0.48]
+      }
+    ]
+  },
+  {
+    id: 'doc-011',
+    invoiceNumber: 'EXP-9031-HW',
+    vendorName: 'DHL Express Worldwide Logistics',
+    subtotal: 1620.00,
+    tax: 129.60,
+    total: 1749.60,
+    currency: 'USD',
+    confidenceScore: 0.938,
+    status: 'PENDING_REVIEW',
+    createdAt: '2026-11-07T10:45:00Z',
+    docType: 'HANDWRITTEN',
+    category: 'RECEIPT',
+    senderAddress: 'Fritz-Erler-Strasse 5, 53113 Bonn, Germany',
+    taxId: 'DE-VAT-811124567',
+    paymentTerms: 'Direct On-Demand',
+    notes: 'Urgent air courier delivery for wafer lithography masks. Hand-signed customs clearance note requiring review.',
+    lineItems: [
+      {
+        id: 'li-22',
+        description: 'Emergency Air Express Same-Day Dedicated Shuttle Flight',
+        quantity: 1,
+        unitPrice: 1240.00,
+        total: 1240.00,
+        confidence: 0.935,
+        bbox: [0.14, 0.40, 0.42, 0.45]
+      },
+      {
+        id: 'li-23',
+        description: 'Bonded Warehouse Fast-Track Escort & Airport Ramp Surcharge',
+        quantity: 1,
+        unitPrice: 380.00,
+        total: 380.00,
+        confidence: 0.942,
+        bbox: [0.14, 0.47, 0.44, 0.52]
+      }
+    ]
+  },
+  {
+    id: 'doc-012',
+    invoiceNumber: 'INV-2026-TSMC-01',
+    vendorName: 'Taiwan Semiconductor Manufacturing Co. (TSMC)',
+    subtotal: 280000.00,
+    tax: 0.00,
+    total: 280000.00,
+    currency: 'USD',
+    confidenceScore: 0.999,
+    status: 'VALIDATED',
+    createdAt: '2026-11-07T11:00:00Z',
+    docType: 'PDF',
+    category: 'INVOICE',
+    senderAddress: 'No. 8, Li-Hsin Rd. 6, Hsinchu Science Park, Taiwan 300-096',
+    taxId: 'TW-VAT-22099131',
+    paymentTerms: 'Irrevocable LC at Sight',
+    notes: 'N5 (5nm) ASIC Cybershuttle Multi-Project Wafer Run & Bump Test Lot TSMC-5NM-7782A.',
+    lineItems: [
+      {
+        id: 'li-24',
+        description: '5nm Multi-Project Wafer (MPW) Cybershuttle Prototyping Shuttle Run',
+        quantity: 1,
+        unitPrice: 220000.00,
+        total: 220000.00,
+        confidence: 0.999,
+        bbox: [0.12, 0.40, 0.42, 0.45]
+      },
+      {
+        id: 'li-25',
+        description: 'Advanced CoWoS-S Wafer-Level Packaging & Bumping Verification',
+        quantity: 1,
+        unitPrice: 60000.00,
+        total: 60000.00,
+        confidence: 0.998,
+        bbox: [0.12, 0.48, 0.44, 0.53]
+      }
+    ]
+  },
+  {
+    id: 'doc-013',
+    invoiceNumber: 'LS-2026-Q4',
+    vendorName: 'Marina Bay Financial Center Tower 2',
+    subtotal: 224250.00,
+    tax: 20182.50,
+    total: 244432.50,
+    currency: 'USD',
+    confidenceScore: 0.997,
+    status: 'VALIDATED',
+    createdAt: '2026-11-07T11:30:00Z',
+    docType: 'PDF',
+    category: 'INVOICE',
+    senderAddress: '10 Marina Boulevard, #42-01 MBFC Tower 2, Singapore 018983',
+    taxId: 'SG-GST-M90381028X',
+    paymentTerms: 'Net 1st of Month Auto-Debit',
+    notes: 'Corporate Headquarters Commercial Lease for Level 42 and Chilled-Water District Utility.',
+    lineItems: [
+      {
+        id: 'li-26',
+        description: 'Commercial Grade-A High-Rise Office Lease (14,500 sq ft @ $14.50/sqft)',
+        quantity: 14500,
+        unitPrice: 14.50,
+        total: 210250.00,
+        confidence: 0.998,
+        bbox: [0.12, 0.42, 0.40, 0.46]
+      },
+      {
+        id: 'li-27',
+        description: 'Central Chilled Water District Cooling & Base Building Maintenance',
+        quantity: 1,
+        unitPrice: 14000.00,
+        total: 14000.00,
+        confidence: 0.996,
+        bbox: [0.12, 0.48, 0.42, 0.52]
+      }
+    ]
+  },
+  {
+    id: 'doc-014',
+    invoiceNumber: 'FLT-2026-081',
+    vendorName: 'Shell Aviation & Marine Fuel Logistics',
+    subtotal: 119700.00,
+    tax: 0.00,
+    total: 119920.00,
+    currency: 'USD',
+    confidenceScore: 0.958,
+    status: 'INVARIANT_VIOLATION',
+    createdAt: '2026-11-07T12:00:00Z',
+    docType: 'SCANNED_IMAGE',
+    category: 'INVOICE',
+    senderAddress: 'Carel van Bylandtlaan 16, 2596 HR The Hague, Netherlands',
+    taxId: 'NL-VAT-001365820B01',
+    paymentTerms: 'Net 15 Days',
+    notes: 'Aviation hydrant fuel bunkering at Changi Terminal 3. Spot exchange rate spread exceeded authorized FX tolerance band INV-004 (Delta +$220.00).',
+    lineItems: [
+      {
+        id: 'li-28',
+        description: 'Aviation Jet-A1 Bulk Kerosene Fuel Hydrant Dispensing (42,000 Gallons)',
+        quantity: 42000,
+        unitPrice: 2.85,
+        total: 119700.00,
+        confidence: 0.958,
+        bbox: [0.14, 0.42, 0.42, 0.46]
       }
     ]
   }
 ];
+
+const STORAGE_DOCS_KEY = 'ledgerone_documents_repository_v3';
 
 export const api = {
   // Documents
@@ -155,15 +588,47 @@ export const api = {
   },
 
   async getDocuments(): Promise<Document[]> {
+    try {
+      const stored = localStorage.getItem(STORAGE_DOCS_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length >= SEED_STUDIO_DOCUMENTS.length) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load stored documents:', e);
+    }
+    // Initialize repository with our comprehensive 14-document portfolio
+    localStorage.setItem(STORAGE_DOCS_KEY, JSON.stringify(SEED_STUDIO_DOCUMENTS));
     return SEED_STUDIO_DOCUMENTS;
   },
 
+  async saveDocuments(docs: Document[]): Promise<void> {
+    try {
+      localStorage.setItem(STORAGE_DOCS_KEY, JSON.stringify(docs));
+    } catch (e) {
+      console.warn('Failed to persist documents:', e);
+    }
+  },
+
+  async addDocument(newDoc: Document): Promise<Document[]> {
+    const current = await this.getDocuments();
+    const updated = [newDoc, ...current.filter(d => d.id !== newDoc.id)];
+    await this.saveDocuments(updated);
+    return updated;
+  },
+
   async getStats(): Promise<DashboardStats> {
+    const docs = await this.getDocuments();
+    const total = docs.length;
+    const validated = docs.filter(d => d.status === 'VALIDATED').length;
+    const pending = docs.filter(d => d.status === 'INVARIANT_VIOLATION' || d.status === 'PENDING_REVIEW' || d.status === 'NEEDS_REVIEW').length;
     return {
-      totalDocuments: 1420,
-      invariantPassRate: 99.8,
-      straightThroughRate: 89.6,
-      pendingReview: 4
+      totalDocuments: total,
+      invariantPassRate: total > 0 ? Number(((validated / total) * 100).toFixed(1)) : 92.8,
+      straightThroughRate: total > 0 ? Number((((validated) / total) * 92).toFixed(1)) : 85.7,
+      pendingReview: pending
     };
   },
 
