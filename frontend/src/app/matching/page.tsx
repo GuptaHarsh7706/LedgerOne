@@ -12,14 +12,13 @@ import {
   RefreshCw,
   Link as LinkIcon,
   CheckCircle2,
-  X,
   Loader2,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/tokens";
+import { Button, Badge, Modal, Input } from "@/components/ui";
 
 const DEFAULT_INVOICE_ID = "a1000000-0000-0000-0000-000000009041";
 const DEFAULT_PO_ID = "a2000000-0000-0000-0000-000000004412";
-const DEFAULT_GRN_ID = "a3000000-0000-0000-0000-000000001109";
 
 export function MatchingPage() {
   const [activeTab, setActiveTab] = useState<"3WAY" | "DIFF">("3WAY");
@@ -90,7 +89,7 @@ export function MatchingPage() {
     <div className="p-6 max-w-7xl mx-auto space-y-6 relative">
       {/* Toast Alert */}
       {reconcileSuccess && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg bg-emerald-500 text-black font-semibold text-xs shadow-2xl flex items-center gap-2 animate-in slide-in-from-top-4 duration-200">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl bg-emerald-500 text-black font-semibold text-xs shadow-floating-panel flex items-center gap-2 animate-in slide-in-from-top-4 duration-200">
           <CheckCircle2 className="w-4 h-4" />
           <span>3-Way match re-evaluated with pure Decimal arithmetic! Zero discrepancies missed.</span>
         </div>
@@ -99,19 +98,13 @@ export function MatchingPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-hairline">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-xl font-bold tracking-tight text-ink-primary">
-              Autonomous 3-Way Matching & Discrepancy Engine
+          <div className="flex items-center gap-2.5 mb-1">
+            <h1 className="text-lg font-semibold tracking-tight text-ink-primary">
+              Autonomous 3-Way Matching Engine
             </h1>
-            <span
-              className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
-                isMatched
-                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                  : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-              }`}
-            >
+            <Badge variant={isMatched ? "verified" : "discrepancy"} size="sm" dot>
               {matchResult.match_status.replace(/_/g, " ")}
-            </span>
+            </Badge>
           </div>
           <p className="text-xs text-ink-muted">
             PO ↔ Goods Receipt ↔ Invoice line reconciliation with zero-drift Decimal arithmetic
@@ -120,29 +113,32 @@ export function MatchingPage() {
 
         <div className="flex items-center gap-2">
           {/* Link Document Trigger */}
-          <button
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => setShowLinkModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-surface-card hover:bg-surface-hover border border-hairline text-ink-secondary hover:text-ink-primary text-xs font-medium transition"
+            icon={<LinkIcon className="w-3.5 h-3.5 text-brand-light" />}
           >
-            <LinkIcon className="w-3.5 h-3.5 text-brand-light" />
-            <span>Link PO / GRN</span>
-          </button>
+            Link PO / GRN
+          </Button>
 
           {/* Reconcile Action Button */}
-          <button
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => runMatch(true)}
             disabled={isReconciling || isLoading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-brand hover:bg-brand-light disabled:bg-surface-elevated text-white text-xs font-semibold shadow-hairline-glow transition"
+            loading={isReconciling}
+            icon={<RefreshCw className="w-3.5 h-3.5" />}
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isReconciling ? "animate-spin" : ""}`} />
-            <span>{isReconciling ? "Reconciling..." : "Re-Run Match"}</span>
-          </button>
+            Re-Run Match
+          </Button>
 
           {/* Tab switch between 3-Way and Version Diff */}
-          <div className="flex items-center gap-1 bg-surface-card p-1 rounded-lg border border-hairline text-xs ml-2">
+          <div className="flex items-center gap-1 bg-surface-card p-1 rounded-lg border border-hairline text-xs ml-1">
             <button
               onClick={() => setActiveTab("3WAY")}
-              className={`px-3 py-1 rounded-md font-medium transition flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${
                 activeTab === "3WAY"
                   ? "bg-brand/10 text-brand-light shadow-sm"
                   : "text-ink-secondary hover:text-ink-primary"
@@ -153,7 +149,7 @@ export function MatchingPage() {
             </button>
             <button
               onClick={() => setActiveTab("DIFF")}
-              className={`px-3 py-1 rounded-md font-medium transition flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${
                 activeTab === "DIFF"
                   ? "bg-brand/10 text-brand-light shadow-sm"
                   : "text-ink-secondary hover:text-ink-primary"
@@ -167,7 +163,7 @@ export function MatchingPage() {
       </div>
 
       {reconcileError && (
-        <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg text-xs text-rose-400 flex items-center gap-2">
+        <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-400 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 shrink-0" />
           <span>{reconcileError}</span>
         </div>
@@ -176,7 +172,7 @@ export function MatchingPage() {
       {isLoading ? (
         <div className="py-24 text-center text-xs text-ink-muted flex flex-col items-center justify-center gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-brand-light" />
-          <p className="font-semibold text-ink-primary">Executing Autonomous 3-Way Reconciliation...</p>
+          <p className="font-medium text-ink-primary">Executing Autonomous 3-Way Reconciliation...</p>
           <p className="text-[11px] text-ink-muted">Querying Neon PostgreSQL line-item bounds and evaluating financial invariants.</p>
         </div>
       ) : activeTab === "3WAY" ? (
@@ -190,7 +186,7 @@ export function MatchingPage() {
               <span className="text-xs font-semibold text-ink-primary">
                 Identified Discrepancies ({matchResult.discrepancies.length})
               </span>
-              <span className="font-mono text-xs text-rose-400 font-bold">
+              <span className="font-mono text-xs text-rose-400 font-semibold tabular-nums">
                 Total Financial Exposure: {formatCurrency(matchResult.total_discrepancy_amount)}
               </span>
             </div>
@@ -198,7 +194,7 @@ export function MatchingPage() {
             <div className="space-y-3">
               {matchResult.discrepancies.length === 0 ? (
                 <div className="p-4 rounded-xl bg-surface-card border border-emerald-500/20 text-xs text-ink-secondary flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span>No discrepancies detected across the PO, Goods Receipt, and Supplier Invoice lines.</span>
                 </div>
               ) : (
@@ -214,98 +210,82 @@ export function MatchingPage() {
       )}
 
       {/* Link Document Modal */}
-      {showLinkModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="fixed inset-0 -z-10" onClick={() => !isLinking && setShowLinkModal(false)} />
-          <div className="w-full max-w-md bg-surface-elevated border border-hairline-strong rounded-xl shadow-2xl overflow-hidden text-xs animate-in zoom-in-95 duration-150">
-            <div className="p-4 border-b border-hairline bg-surface-subtle flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <LinkIcon className="w-4 h-4 text-brand-light" />
-                <span className="font-semibold text-ink-primary">
-                  Link Cross-Document Relationship
-                </span>
-              </div>
-              <button
+      <Modal
+        isOpen={showLinkModal}
+        onClose={() => !isLinking && setShowLinkModal(false)}
+        title="Link Cross-Document Relationship"
+        description="Establish explicit multi-document graph edges in PostgreSQL"
+        maxWidth="md"
+        footer={
+          !linkSuccess ? (
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setShowLinkModal(false)}
                 disabled={isLinking}
-                className="p-1 rounded text-ink-muted hover:text-ink-primary disabled:opacity-50"
               >
-                <X className="w-4 h-4" />
-              </button>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleLinkSubmit}
+                loading={isLinking}
+              >
+                Confirm Link
+              </Button>
             </div>
-
-            <div className="p-4 space-y-4">
-              {linkSuccess ? (
-                <div className="py-6 text-center space-y-2">
-                  <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto" />
-                  <p className="font-semibold text-ink-primary">
-                    Document Relationship Linked in PostgreSQL!
-                  </p>
-                  <p className="text-[11px] text-ink-muted">
-                    Persisted with composite foreign key (org_id, ws_id, document_id).
-                  </p>
+          ) : undefined
+        }
+      >
+        <div className="space-y-4 text-xs">
+          {linkSuccess ? (
+            <div className="py-6 text-center space-y-2">
+              <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto" />
+              <p className="font-medium text-ink-primary">
+                Document Relationship Linked in PostgreSQL!
+              </p>
+              <p className="text-[11px] text-ink-muted">
+                Persisted with composite foreign key (org_id, ws_id, document_id).
+              </p>
+            </div>
+          ) : (
+            <>
+              {linkError && (
+                <div className="p-2.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs">
+                  {linkError}
                 </div>
-              ) : (
-                <>
-                  {linkError && (
-                    <div className="p-2.5 bg-rose-500/10 border border-rose-500/20 rounded text-rose-400 text-xs">
-                      {linkError}
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="block text-ink-secondary font-medium mb-1">
-                      Relationship Type
-                    </label>
-                    <select
-                      value={linkRelationship}
-                      onChange={(e) => setLinkRelationship(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-surface-card border border-hairline text-ink-primary focus:border-brand-light focus:outline-none"
-                    >
-                      <option value="PURCHASE_ORDER_TO_INVOICE">Purchase Order to Invoice</option>
-                      <option value="RECEIPT_TO_INVOICE">Goods Receipt to Invoice</option>
-                      <option value="VERSION_REVISION">Version Revision / Amendment</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-ink-secondary font-medium mb-1">
-                      Target Document UUID
-                    </label>
-                    <input
-                      type="text"
-                      value={linkTargetDoc}
-                      onChange={(e) => setLinkTargetDoc(e.target.value)}
-                      placeholder="e.g. a2000000-0000-0000-0000-000000004412"
-                      className="w-full px-3 py-2 rounded-lg bg-surface-card border border-hairline text-ink-primary font-mono focus:border-brand-light focus:outline-none text-[11px]"
-                    />
-                  </div>
-                </>
               )}
-            </div>
 
-            {!linkSuccess && (
-              <div className="p-3 border-t border-hairline bg-surface-subtle flex justify-end gap-2">
-                <button
-                  onClick={() => setShowLinkModal(false)}
-                  disabled={isLinking}
-                  className="px-3 py-1.5 rounded-md text-ink-secondary hover:text-ink-primary disabled:opacity-50"
+              <div>
+                <label className="block text-ink-secondary font-medium mb-1.5">
+                  Relationship Type
+                </label>
+                <select
+                  value={linkRelationship}
+                  onChange={(e) => setLinkRelationship(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-surface-card border border-hairline text-ink-primary focus:border-brand-light focus:outline-none text-xs"
                 >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleLinkSubmit}
-                  disabled={isLinking}
-                  className="px-4 py-1.5 rounded-md bg-brand hover:bg-brand-light disabled:bg-surface-elevated text-white font-semibold shadow-hairline-glow flex items-center gap-1.5"
-                >
-                  {isLinking && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>{isLinking ? "Linking..." : "Confirm Link"}</span>
-                </button>
+                  <option value="PURCHASE_ORDER_TO_INVOICE">Purchase Order to Invoice</option>
+                  <option value="RECEIPT_TO_INVOICE">Goods Receipt to Invoice</option>
+                  <option value="VERSION_REVISION">Version Revision / Amendment</option>
+                </select>
               </div>
-            )}
-          </div>
+
+              <div>
+                <Input
+                  label="Target Document UUID"
+                  value={linkTargetDoc}
+                  onChange={(e) => setLinkTargetDoc(e.target.value)}
+                  placeholder="e.g. a2000000-0000-0000-0000-000000004412"
+                  className="font-mono text-[11px]"
+                />
+              </div>
+            </>
+          )}
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Check, Calculator, ShieldAlert } from "lucide-react";
+import { Calculator } from "lucide-react";
 import { ExtractedLineItem } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/tokens";
+import { Modal, Button, Input } from "@/components/ui";
 
 interface CellCorrectionModalProps {
   isOpen: boolean;
@@ -43,121 +44,72 @@ export function CellCorrectionModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="fixed inset-0 -z-10" onClick={onClose} />
-      <div className="w-full max-w-md bg-surface-elevated border border-hairline-strong rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-hairline bg-surface-subtle">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-brand/10 border border-brand/20 flex items-center justify-center">
-              <Calculator className="w-3.5 h-3.5 text-brand-light" />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-ink-primary">
-                Human Reviewer Cell Correction
-              </h3>
-              <p className="text-[10px] text-ink-muted">
-                Line #{lineItem.line_number} • Real-time Decimal recalculator
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-md text-ink-muted hover:text-ink-primary transition"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Form Body */}
-        <div className="p-4 space-y-4 text-xs">
-          <div>
-            <label className="block text-ink-secondary font-medium mb-1">
-              Item Description
-            </label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-1.5 rounded-lg bg-surface-card border border-hairline text-ink-primary focus:border-brand-light focus:outline-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-ink-secondary font-medium mb-1">
-                Quantity
-              </label>
-              <input
-                type="number"
-                step="1"
-                min="1"
-                value={quantity}
-                onChange={(e) => setQuantity(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-1.5 rounded-lg bg-surface-card border border-hairline text-ink-primary font-mono tabular-nums focus:border-brand-light focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-ink-secondary font-medium mb-1">
-                Unit Price ($)
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={unitPrice}
-                onChange={(e) => setUnitPrice(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-1.5 rounded-lg bg-surface-card border border-hairline text-ink-primary font-mono tabular-nums focus:border-brand-light focus:outline-none"
-              />
-            </div>
-          </div>
-
-          {/* Real-time Math Recalculation Summary */}
-          <div className="p-3 rounded-lg bg-surface-subtle border border-hairline space-y-1.5 font-mono text-[11px]">
-            <div className="flex justify-between text-ink-muted">
-              <span>Recalculated Line Net:</span>
-              <span className="text-ink-primary font-semibold tabular-nums">
-                {formatCurrency(calculatedLineNet)}
-              </span>
-            </div>
-            <div className="flex justify-between text-ink-muted">
-              <span>Estimated Tax (10%):</span>
-              <span className="text-ink-secondary tabular-nums">
-                {formatCurrency(calculatedTax)}
-              </span>
-            </div>
-            <div className="flex justify-between text-brand-light font-bold pt-1 border-t border-hairline">
-              <span>New Line Total:</span>
-              <span className="tabular-nums">{formatCurrency(calculatedTotal)}</span>
-            </div>
-          </div>
-
-          {/* SoD Warning Notice */}
-          <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-300 flex items-start gap-2">
-            <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-            <span>
-              <strong>Dual-Custody Notice (AUTH_SOD_002):</strong> Modifying this line item will record your reviewer ID in the audit trail. You will be disqualified from approving this document.
-            </span>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="p-3 border-t border-hairline bg-surface-subtle flex items-center justify-end gap-2">
-          <button
-            onClick={onClose}
-            className="px-3 py-1.5 rounded-md text-xs text-ink-secondary hover:text-ink-primary transition"
-          >
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Cell Correction"
+      description={`Line Item #${lineItem.line_number} · Real-time Decimal recalculator`}
+      maxWidth="md"
+      footer={
+        <div className="flex items-center justify-end gap-2">
+          <Button variant="ghost" size="sm" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="px-4 py-1.5 rounded-md bg-brand hover:bg-brand-light text-white text-xs font-semibold shadow-hairline-glow transition flex items-center gap-1.5"
-          >
-            <Check className="w-3.5 h-3.5" />
-            <span>Save & Recalculate Invariants</span>
-          </button>
+          </Button>
+          <Button variant="primary" size="sm" onClick={handleSave}>
+            Apply Correction
+          </Button>
         </div>
+      }
+    >
+      <div className="space-y-4 text-xs">
+        <Input
+          label="Item Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            label="Quantity"
+            type="number"
+            step="1"
+            min="1"
+            value={quantity}
+            onChange={(e) => setQuantity(parseFloat(e.target.value) || 0)}
+            className="font-mono tabular-nums"
+          />
+
+          <Input
+            label="Unit Price ($)"
+            type="number"
+            step="0.01"
+            min="0"
+            value={unitPrice}
+            onChange={(e) => setUnitPrice(parseFloat(e.target.value) || 0)}
+            className="font-mono tabular-nums"
+          />
+        </div>
+
+        {/* Real-time Recalculated Ledger Preview */}
+        <div className="p-3 bg-surface-card rounded-xl border border-hairline space-y-1.5 font-mono text-[11px]">
+          <div className="flex items-center justify-between text-ink-muted">
+            <span>Calculated Net:</span>
+            <span className="text-ink-primary font-medium">{formatCurrency(calculatedLineNet)}</span>
+          </div>
+          <div className="flex items-center justify-between text-ink-muted">
+            <span>Estimated Tax (10%):</span>
+            <span className="text-ink-primary">{formatCurrency(calculatedTax)}</span>
+          </div>
+          <div className="pt-1.5 border-t border-hairline flex items-center justify-between font-semibold">
+            <span className="text-ink-primary">Recalculated Line Total:</span>
+            <span className="text-brand-light tabular-nums">{formatCurrency(calculatedTotal)}</span>
+          </div>
+        </div>
+
+        <p className="text-[10px] text-ink-muted leading-relaxed">
+          Modifying this cell will immediately trigger re-evaluation of Invariant INV-001 (Line Item Summation) and update the total commitment.
+        </p>
       </div>
-    </div>
+    </Modal>
   );
 }

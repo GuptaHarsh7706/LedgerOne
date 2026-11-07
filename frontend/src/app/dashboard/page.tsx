@@ -5,6 +5,7 @@ import { MetricCards } from "@/components/dashboard/MetricCards";
 import { ExceptionQueue } from "@/components/dashboard/ExceptionQueue";
 import { ProcessingStream } from "@/components/dashboard/ProcessingStream";
 import { ShieldCheck, Database, Server } from "lucide-react";
+import { Badge } from "@/components/ui";
 
 export default function DashboardPage() {
   return (
@@ -12,34 +13,36 @@ export default function DashboardPage() {
       {/* Top Banner / Environment Context */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-hairline">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-xl font-bold tracking-tight text-ink-primary">
-              Enterprise Document Intelligence Overview
+          <div className="flex items-center gap-2.5 mb-1">
+            <h1 className="text-lg font-semibold tracking-tight text-ink-primary">
+              Enterprise Document Intelligence
             </h1>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <Badge variant="verified" size="sm" dot>
               AUDITED V7.1
-            </span>
+            </Badge>
           </div>
           <p className="text-xs text-ink-muted">
-            Workspace: <strong className="text-ink-secondary">Production Financial Core</strong> | Tenant: <strong className="text-ink-secondary">Apex Global Capital</strong>
+            Workspace: <strong className="text-ink-secondary font-medium">Production Financial Core</strong>
+            <span className="mx-2 text-ink-disabled">·</span>
+            Tenant: <strong className="text-ink-secondary font-medium">Apex Global Capital</strong>
           </p>
         </div>
 
         {/* System Capabilities Pill */}
         <div className="flex items-center gap-2 self-start md:self-auto text-xs text-ink-muted bg-surface-card px-3 py-1.5 rounded-lg border border-hairline">
           <div className="flex items-center gap-1.5 text-emerald-400">
-            <ShieldCheck className="w-4 h-4" />
-            <span className="font-medium text-[11px]">SoD Dual-Control Active</span>
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span className="font-medium text-[11px]">SoD Dual-Control</span>
           </div>
-          <span className="text-ink-disabled">•</span>
-          <div className="flex items-center gap-1.5">
+          <span className="text-ink-disabled">·</span>
+          <div className="flex items-center gap-1.5 text-ink-secondary">
             <Database className="w-3.5 h-3.5 text-brand-light" />
             <span className="text-[11px]">Row-Level Security</span>
           </div>
-          <span className="text-ink-disabled">•</span>
-          <div className="flex items-center gap-1.5">
+          <span className="text-ink-disabled">·</span>
+          <div className="flex items-center gap-1.5 text-ink-secondary">
             <Server className="w-3.5 h-3.5 text-sky-400" />
-            <span className="text-[11px]">pgvector HNSW</span>
+            <span className="text-[11px] font-mono">pgvector HNSW</span>
           </div>
         </div>
       </div>

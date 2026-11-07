@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import {
-  X,
   UploadCloud,
   FileCheck,
   AlertCircle,
@@ -10,6 +9,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { api } from "@/lib/api-client";
+import { Modal, Button } from "@/components/ui";
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -83,189 +83,164 @@ export function UploadModal({ isOpen, onClose, onUploadSuccess }: UploadModalPro
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="fixed inset-0 -z-10" onClick={onClose} />
-      <div className="w-full max-w-lg bg-surface-elevated border border-hairline-strong rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-hairline bg-surface-subtle">
-          <div>
-            <h2 className="text-sm font-semibold text-ink-primary">
-              Ingest Document into LedgerOne
-            </h2>
-            <p className="text-[11px] text-ink-muted">
-              Direct streaming to Neon S3 Object Storage with instant OCR
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-md text-ink-muted hover:text-ink-primary hover:bg-surface-hover transition"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-5 space-y-4">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Ingest Document"
+      description="Direct streaming to Neon S3 Object Storage with instant OCR & vector chunking"
+      maxWidth="md"
+      footer={
+        <div className="flex items-center justify-end gap-2">
           {!completed ? (
             <>
-              {/* Category Selector */}
-              <div>
-                <label className="block text-xs font-medium text-ink-secondary mb-1.5">
-                  Expected Document Class
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  disabled={uploading}
-                  className="w-full px-3 py-2 rounded-lg bg-surface-card border border-hairline text-xs text-ink-primary focus:border-brand-light focus:outline-none"
-                >
-                  <option value="INVOICE">Commercial Invoice</option>
-                  <option value="PURCHASE_ORDER">Purchase Order (PO)</option>
-                  <option value="RECEIPT">Goods Receipt Note (GRN)</option>
-                  <option value="CONTRACT">Legal Contract / Statement of Work</option>
-                  <option value="TAX_SCHEDULE">Tax Schedule / IRS Form</option>
-                </select>
-              </div>
-
-              {/* Upload Error Banner */}
-              {uploadError && (
-                <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
-                  <span>{uploadError}</span>
-                </div>
-              )}
-
-              {/* Drag and Drop Box */}
-              {!selectedFile ? (
-                <div
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setDragOver(true);
-                  }}
-                  onDragLeave={() => setDragOver(false)}
-                  onDrop={handleDrop}
-                  className={`p-8 border-2 border-dashed rounded-xl text-center cursor-pointer transition ${
-                    dragOver
-                      ? "border-brand-light bg-brand/5"
-                      : "border-hairline hover:border-hairline-strong bg-surface-subtle"
-                  }`}
-                  onClick={() => document.getElementById("file-input")?.click()}
-                >
-                  <input
-                    id="file-input"
-                    type="file"
-                    className="hidden"
-                    accept=".pdf,.png,.jpg,.jpeg,.tiff,.xlsx,.csv"
-                    onChange={handleFileChange}
-                  />
-                  <UploadCloud className="w-10 h-10 text-brand-light mx-auto mb-3" />
-                  <p className="text-xs font-semibold text-ink-primary">
-                    Drop PDF, XLSX, CSV, or Image files here
-                  </p>
-                  <p className="text-[11px] text-ink-muted mt-1">
-                    Supports up to 50MB per document with SHA-256 deduplication
-                  </p>
-                </div>
-              ) : (
-                <div className="p-4 rounded-xl bg-surface-card border border-hairline flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center">
-                      <FileCheck className="w-5 h-5 text-brand-light" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold text-ink-primary truncate max-w-[260px]">
-                        {selectedFile.name}
-                      </div>
-                      <div className="text-[10px] text-ink-muted font-mono">
-                        {(selectedFile.size / 1024).toFixed(1)} KB • Ready for lease
-                      </div>
-                    </div>
-                  </div>
-                  {!uploading && (
-                    <button
-                      onClick={reset}
-                      className="text-xs text-rose-400 hover:underline"
-                    >
-                      Change
-                    </button>
-                  )}
-                </div>
-              )}
-
-              {/* Upload Progress Stream */}
-              {uploading && (
-                <div className="space-y-2 pt-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="flex items-center gap-2 text-ink-secondary font-medium">
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-light" />
-                      {processingStage}
-                    </span>
-                    <span className="font-mono text-ink-primary">{uploadProgress}%</span>
-                  </div>
-                  <div className="w-full h-1.5 rounded-full bg-surface-card overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-brand to-brand-light transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="py-6 text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-6 h-6" />
-              </div>
-              <h3 className="text-sm font-semibold text-ink-primary">
-                Document Successfully Ingested & Parsed
-              </h3>
-              <p className="text-xs text-ink-muted max-w-sm mx-auto">
-                High-DPI rendering, Hungarian table reconstruction, and Decimal invariant validation were completed.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-hairline bg-surface-subtle flex items-center justify-end gap-2">
-          {!completed ? (
-            <>
-              <button
-                onClick={onClose}
-                disabled={uploading}
-                className="px-3 py-1.5 rounded-md text-xs font-medium text-ink-secondary hover:text-ink-primary hover:bg-surface-hover transition"
-              >
+              <Button variant="ghost" size="sm" onClick={onClose} disabled={uploading}>
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={startUpload}
                 disabled={!selectedFile || uploading}
-                className={`px-4 py-1.5 rounded-md text-xs font-semibold shadow-hairline-glow transition flex items-center gap-1.5 ${
-                  !selectedFile || uploading
-                    ? "bg-surface-hover text-ink-disabled cursor-not-allowed"
-                    : "bg-brand hover:bg-brand-light text-white"
-                }`}
+                loading={uploading}
               >
-                {uploading ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Processing...</span>
-                  </>
-                ) : (
-                  <span>Start Pipeline Ingestion</span>
-                )}
-              </button>
+                {uploading ? "Ingesting..." : "Start Ingestion"}
+              </Button>
             </>
           ) : (
-            <button
-              onClick={onClose}
-              className="px-4 py-1.5 rounded-md bg-brand hover:bg-brand-light text-white text-xs font-semibold transition"
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => {
+                reset();
+                onClose();
+              }}
             >
               Done & Return to Library
-            </button>
+            </Button>
           )}
         </div>
+      }
+    >
+      <div className="space-y-4">
+        {!completed ? (
+          <>
+            {/* Category Selector */}
+            <div>
+              <label className="block text-xs font-medium text-ink-secondary mb-1.5">
+                Expected Document Class
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                disabled={uploading}
+                className="w-full px-3 py-2 rounded-lg bg-surface-card border border-hairline text-xs text-ink-primary focus:border-brand-light focus:outline-none"
+              >
+                <option value="INVOICE">Commercial Invoice</option>
+                <option value="PURCHASE_ORDER">Purchase Order (PO)</option>
+                <option value="RECEIPT">Goods Receipt Note (GRN)</option>
+                <option value="CONTRACT">Legal Contract / Statement of Work</option>
+                <option value="TAX_SCHEDULE">Tax Schedule / IRS Form</option>
+              </select>
+            </div>
+
+            {/* Upload Error Banner */}
+            {uploadError && (
+              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                <span>{uploadError}</span>
+              </div>
+            )}
+
+            {/* Drag and Drop Box */}
+            {!selectedFile ? (
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+                className={`p-7 border border-dashed rounded-xl text-center cursor-pointer transition ${
+                  dragOver
+                    ? "border-brand-light bg-brand/5"
+                    : "border-hairline hover:border-hairline-strong bg-surface-subtle"
+                }`}
+                onClick={() => document.getElementById("file-input")?.click()}
+              >
+                <input
+                  id="file-input"
+                  type="file"
+                  className="hidden"
+                  accept=".pdf,.png,.jpg,.jpeg,.tiff,.xlsx,.csv"
+                  onChange={handleFileChange}
+                />
+                <UploadCloud className="w-8 h-8 text-brand-light mx-auto mb-2.5 opacity-80" />
+                <p className="text-xs font-medium text-ink-primary">
+                  Drop PDF, XLSX, CSV, or Image files here
+                </p>
+                <p className="text-[11px] text-ink-muted mt-1">
+                  Supports up to 50MB with SHA-256 deduplication
+                </p>
+              </div>
+            ) : (
+              <div className="p-3.5 rounded-xl bg-surface-card border border-hairline flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center">
+                    <FileCheck className="w-4 h-4 text-brand-light" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-ink-primary truncate max-w-[260px]">
+                      {selectedFile.name}
+                    </div>
+                    <div className="text-[10px] text-ink-muted font-mono">
+                      {(selectedFile.size / 1024).toFixed(1)} KB · Ready for lease
+                    </div>
+                  </div>
+                </div>
+                {!uploading && (
+                  <button
+                    onClick={reset}
+                    className="text-xs text-rose-400 hover:underline"
+                  >
+                    Change
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Upload Progress Stream */}
+            {uploading && (
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="flex items-center gap-2 text-ink-secondary font-medium">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-light" />
+                    {processingStage}
+                  </span>
+                  <span className="font-mono text-ink-primary">{uploadProgress}%</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-surface-card overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-brand to-brand-light transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="py-6 text-center space-y-3">
+            <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <h3 className="text-sm font-semibold text-ink-primary">
+              Document Successfully Ingested & Parsed
+            </h3>
+            <p className="text-xs text-ink-muted max-w-sm mx-auto leading-relaxed">
+              High-DPI rendering, Hungarian table reconstruction, and Decimal invariant validation were completed.
+            </p>
+          </div>
+        )}
       </div>
-    </div>
+    </Modal>
   );
 }

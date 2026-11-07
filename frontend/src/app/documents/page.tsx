@@ -7,6 +7,7 @@ import { CategoryFilterBar } from "@/components/documents/CategoryFilterBar";
 import { UploadModal } from "@/components/documents/UploadModal";
 import { MOCK_DOCUMENTS, DocumentItem, api } from "@/lib/api-client";
 import { Upload, Database, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui";
 
 function DocumentsContent() {
   const searchParams = useSearchParams();
@@ -92,7 +93,7 @@ function DocumentsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-hairline">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-ink-primary">
+          <h1 className="text-lg font-semibold tracking-tight text-ink-primary">
             Document Repository & Ingestion Hub
           </h1>
           <p className="text-xs text-ink-muted">
@@ -100,28 +101,30 @@ function DocumentsContent() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-card border border-hairline text-xs text-ink-muted">
             <Database className="w-3.5 h-3.5 text-emerald-400" />
-            <span>S3 Assets: ap-southeast-1</span>
+            <span className="font-mono text-[11px]">S3 Assets: ap-southeast-1</span>
           </div>
 
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={fetchDocuments}
             disabled={isLoading}
-            className="p-1.5 rounded-lg bg-surface-card hover:bg-surface-hover border border-hairline text-ink-muted hover:text-ink-primary transition"
-            title="Refresh from PostgreSQL"
+            aria-label="Refresh from PostgreSQL"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-brand-light" : ""}`} />
-          </button>
+          </Button>
 
-          <button
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => setIsUploadOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-brand hover:bg-brand-light text-white text-xs font-semibold shadow-hairline-glow transition"
+            icon={<Upload className="w-3.5 h-3.5" />}
           >
-            <Upload className="w-3.5 h-3.5" />
-            <span>Upload Document</span>
-          </button>
+            Upload Document
+          </Button>
         </div>
       </div>
 

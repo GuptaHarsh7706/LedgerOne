@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  BarChart3,
   Building2,
   TrendingUp,
   AlertTriangle,
@@ -11,6 +10,15 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/tokens";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+  Badge,
+} from "@/components/ui";
 
 interface VendorSpend {
   name: string;
@@ -102,14 +110,15 @@ export function AnalyticsPage() {
     };
   }, []);
 
-  const discrepancyRate = docCount > 0 ? ((openDiscrepancies / docCount) * 100).toFixed(1) : "0.0";
+  const discrepancyRate =
+    docCount > 0 ? ((openDiscrepancies / docCount) * 100).toFixed(1) : "0.0";
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-hairline">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-ink-primary">
+          <h1 className="text-lg font-semibold tracking-tight text-ink-primary">
             Workspace Spend & Exposure Analytics
           </h1>
           <p className="text-xs text-ink-muted">
@@ -117,7 +126,7 @@ export function AnalyticsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 font-mono text-xs bg-surface-card px-3 py-1.5 rounded-lg border border-hairline text-ink-muted">
+        <div className="flex items-center gap-2 font-mono text-[11px] bg-surface-card px-3 py-1.5 rounded-lg border border-hairline text-ink-muted">
           <span>Fiscal Period: Q4 2026 (Live Ledger)</span>
         </div>
       </div>
@@ -126,30 +135,30 @@ export function AnalyticsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 rounded-xl bg-surface-card border border-hairline shadow-subtle-card">
           <div className="flex items-center justify-between text-xs text-ink-muted mb-2">
-            <span className="font-semibold uppercase tracking-wider text-[10px]">
+            <span className="font-mono text-[10px] uppercase tracking-wider font-semibold">
               Total Workspace Spend
             </span>
             <TrendingUp className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-2xl font-mono font-bold text-ink-primary tabular-nums flex items-center gap-2">
+          <div className="text-2xl font-mono font-semibold text-ink-primary tabular-nums flex items-center gap-2">
             <span>{formatCurrency(totalSpend)}</span>
-            {loading && <Loader2 className="w-4 h-4 animate-spin text-ink-muted" />}
+            {loading && <Loader2 className="w-3.5 h-3.5 animate-spin text-ink-muted" />}
           </div>
           <p className="text-[11px] text-ink-muted mt-1">
             Across {docCount} indexed workspace documents
           </p>
         </div>
 
-        <div className="p-4 rounded-xl bg-surface-card border border-rose-500/30 shadow-subtle-card">
+        <div className="p-4 rounded-xl bg-surface-card border border-rose-500/20 shadow-subtle-card">
           <div className="flex items-center justify-between text-xs text-ink-muted mb-2">
-            <span className="font-semibold uppercase tracking-wider text-[10px] text-rose-400">
+            <span className="font-mono text-[10px] uppercase tracking-wider font-semibold text-rose-400">
               Total Variance Exposure
             </span>
             <AlertTriangle className="w-4 h-4 text-rose-400" />
           </div>
-          <div className="text-2xl font-mono font-bold text-rose-400 tabular-nums flex items-center gap-2">
+          <div className="text-2xl font-mono font-semibold text-rose-400 tabular-nums flex items-center gap-2">
             <span>{formatCurrency(varianceExposure)}</span>
-            {loading && <Loader2 className="w-4 h-4 animate-spin text-ink-muted" />}
+            {loading && <Loader2 className="w-3.5 h-3.5 animate-spin text-ink-muted" />}
           </div>
           <p className="text-[11px] text-ink-muted mt-1">
             {openDiscrepancies} active 3-way discrepancies requiring resolution
@@ -158,14 +167,14 @@ export function AnalyticsPage() {
 
         <div className="p-4 rounded-xl bg-surface-card border border-hairline shadow-subtle-card">
           <div className="flex items-center justify-between text-xs text-ink-muted mb-2">
-            <span className="font-semibold uppercase tracking-wider text-[10px]">
+            <span className="font-mono text-[10px] uppercase tracking-wider font-semibold">
               Discrepancy Rate
             </span>
             <ShieldCheck className="w-4 h-4 text-brand-light" />
           </div>
-          <div className="text-2xl font-mono font-bold text-brand-light tabular-nums flex items-center gap-2">
+          <div className="text-2xl font-mono font-semibold text-brand-light tabular-nums flex items-center gap-2">
             <span>{discrepancyRate}%</span>
-            {loading && <Loader2 className="w-4 h-4 animate-spin text-ink-muted" />}
+            {loading && <Loader2 className="w-3.5 h-3.5 animate-spin text-ink-muted" />}
           </div>
           <p className="text-[11px] text-ink-muted mt-1">
             Audited against pure Decimal invariants
@@ -174,57 +183,55 @@ export function AnalyticsPage() {
       </div>
 
       {/* Top Vendors Table */}
-      <div className="rounded-xl border border-hairline bg-surface-card shadow-subtle-card overflow-hidden">
-        <div className="p-3.5 bg-surface-subtle border-b border-hairline flex items-center justify-between text-xs">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Building2 className="w-4 h-4 text-brand-light" />
-            <span className="font-semibold text-ink-primary">
+            <h2 className="text-xs font-semibold text-ink-primary">
               Top Vendor Spend Concentration
-            </span>
+            </h2>
           </div>
           <span className="text-[11px] font-mono text-ink-muted">
             {vendors.length} Indexed Entities
           </span>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="border-b border-hairline bg-surface-subtle/50 text-[10px] font-mono uppercase text-ink-muted">
-                <th className="py-2.5 px-4">Vendor Entity</th>
-                <th className="py-2.5 px-3 text-center">Documents</th>
-                <th className="py-2.5 px-4 text-right">Total Invoiced</th>
-                <th className="py-2.5 px-4 text-center">Discrepancy Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-hairline">
-              {vendors.map((v) => (
-                <tr key={v.name} className="hover:bg-surface-hover/80 transition">
-                  <td className="py-3 px-4 font-semibold text-ink-primary">
-                    {v.name}
-                  </td>
-                  <td className="py-3 px-3 text-center font-mono text-ink-secondary">
-                    {v.docCount}
-                  </td>
-                  <td className="py-3 px-4 text-right font-mono font-bold text-ink-primary tabular-nums">
-                    {formatCurrency(v.spend)}
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    {v.discrepancyCount === 0 ? (
-                      <span className="inline-block text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                        Zero Variances
-                      </span>
-                    ) : (
-                      <span className="inline-block text-[10px] font-mono text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
-                        {v.discrepancyCount} Flagged
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Vendor Entity</TableHead>
+              <TableHead align="center">Documents</TableHead>
+              <TableHead align="right">Total Invoiced</TableHead>
+              <TableHead align="center">Discrepancy Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {vendors.map((v) => (
+              <TableRow key={v.name}>
+                <TableCell className="font-medium text-ink-primary">
+                  {v.name}
+                </TableCell>
+                <TableCell align="center" mono>
+                  {v.docCount}
+                </TableCell>
+                <TableCell align="right" mono>
+                  {formatCurrency(v.spend)}
+                </TableCell>
+                <TableCell align="center">
+                  {v.discrepancyCount === 0 ? (
+                    <Badge variant="verified" size="sm" dot>
+                      Zero Variances
+                    </Badge>
+                  ) : (
+                    <Badge variant="discrepancy" size="sm" dot>
+                      {v.discrepancyCount} Flagged
+                    </Badge>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

@@ -10,7 +10,6 @@ import {
   XCircle,
   Lock,
   GitCompare,
-  Sparkles,
   Edit2,
 } from "lucide-react";
 import {
@@ -22,6 +21,7 @@ import {
 import { TabularLineItemsTable } from "./TabularLineItemsTable";
 import { InvariantPanel } from "./InvariantPanel";
 import { formatConfidence } from "@/lib/tokens";
+import { Badge, Button } from "@/components/ui";
 
 interface ExtractionInspectorProps {
   document: DocumentItem;
@@ -62,7 +62,7 @@ export function ExtractionInspector({
       <div className="p-2 border-b border-hairline bg-surface-subtle/80 flex items-center gap-1">
         <button
           onClick={() => setActiveTab("FIELDS")}
-          className={`flex-1 py-1.5 rounded-md text-xs font-medium transition flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5 ${
             activeTab === "FIELDS"
               ? "bg-brand/10 text-brand-light border border-brand/20 shadow-sm"
               : "text-ink-secondary hover:text-ink-primary hover:bg-surface-hover"
@@ -74,7 +74,7 @@ export function ExtractionInspector({
 
         <button
           onClick={() => setActiveTab("TABLE")}
-          className={`flex-1 py-1.5 rounded-md text-xs font-medium transition flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5 ${
             activeTab === "TABLE"
               ? "bg-brand/10 text-brand-light border border-brand/20 shadow-sm"
               : "text-ink-secondary hover:text-ink-primary hover:bg-surface-hover"
@@ -86,7 +86,7 @@ export function ExtractionInspector({
 
         <button
           onClick={() => setActiveTab("INVARIANTS")}
-          className={`flex-1 py-1.5 rounded-md text-xs font-medium transition flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5 ${
             activeTab === "INVARIANTS"
               ? "bg-brand/10 text-brand-light border border-brand/20 shadow-sm"
               : "text-ink-secondary hover:text-ink-primary hover:bg-surface-hover"
@@ -98,15 +98,15 @@ export function ExtractionInspector({
       </div>
 
       {/* Tab Content Area */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-3">
+      <div className="flex-1 p-3.5 overflow-y-auto space-y-3">
         {activeTab === "FIELDS" && (
           <div className="space-y-2">
             <div className="flex items-center justify-between pb-1">
-              <span className="text-xs font-semibold text-ink-primary">
+              <span className="text-xs font-medium text-ink-primary">
                 Normalized Scalar Extractions
               </span>
               <span className="text-[10px] font-mono text-ink-muted">
-                Zero False Acceptance Mode
+                Zero False Acceptance
               </span>
             </div>
 
@@ -118,9 +118,9 @@ export function ExtractionInspector({
                 <div
                   key={f.name}
                   onClick={() => onSelectField(f.name)}
-                  className={`p-2.5 rounded-lg border text-xs cursor-pointer transition ${
+                  className={`p-2.5 rounded-xl border text-xs cursor-pointer transition ${
                     isSelected
-                      ? "bg-amber-500/10 border-amber-500/30 text-amber-200"
+                      ? "bg-amber-500/10 border-amber-500/30 text-amber-200 shadow-sm"
                       : "bg-surface-card border-hairline hover:border-hairline-strong text-ink-secondary"
                   }`}
                 >
@@ -130,7 +130,7 @@ export function ExtractionInspector({
                     </span>
                     <div className="flex items-center gap-1.5 font-mono text-[10px]">
                       <span className="text-ink-muted">P.{f.page_number}</span>
-                      <span className={`px-1.5 py-0.2 rounded ${conf.colorClass}`}>
+                      <span className={`px-1.5 py-0.2 rounded font-medium ${conf.colorClass}`}>
                         {conf.text}
                       </span>
                     </div>
@@ -148,6 +148,7 @@ export function ExtractionInspector({
                         }}
                         className="p-1 rounded hover:bg-surface-elevated text-ink-muted hover:text-brand-light transition"
                         title="Edit field value"
+                        aria-label="Edit field value"
                       >
                         <Edit2 className="w-3 h-3" />
                       </button>
@@ -181,49 +182,52 @@ export function ExtractionInspector({
       </div>
 
       {/* Dual-Custody Verification Actions Bar */}
-      <div className="p-4 border-t border-hairline bg-surface-subtle space-y-3">
+      <div className="p-3.5 border-t border-hairline bg-surface-subtle space-y-2.5">
         {/* SoD Compliance Banner */}
         <div className="flex items-center justify-between text-[11px] text-ink-muted bg-surface-card p-2 rounded-lg border border-hairline">
           <div className="flex items-center gap-1.5">
             <Lock className="w-3.5 h-3.5 text-brand-light" />
             <span>Dual-Custody SoD Gate</span>
           </div>
-          <span className="font-mono text-[10px] text-emerald-400">
+          <Badge variant={canApprove ? "verified" : "discrepancy"} size="sm" dot>
             {canApprove ? "ELIGIBLE" : "BARRED (UPLOADER)"}
-          </span>
+          </Badge>
         </div>
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
-          <button
+          <Button
+            variant="danger"
+            size="sm"
             onClick={onRejectDocument}
-            className="flex-1 py-2 px-3 rounded-md bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-xs font-semibold transition flex items-center justify-center gap-1.5"
+            className="flex-1"
+            icon={<XCircle className="w-3.5 h-3.5" />}
           >
-            <XCircle className="w-3.5 h-3.5" />
-            <span>Reject</span>
-          </button>
+            Reject
+          </Button>
 
-          <button
+          <Button
+            variant="primary"
+            size="sm"
             onClick={onApproveDocument}
             disabled={!canApprove}
-            className={`flex-1 py-2 px-3 rounded-md text-xs font-semibold shadow-hairline-glow transition flex items-center justify-center gap-1.5 ${
-              canApprove
-                ? "bg-brand hover:bg-brand-light text-white"
-                : "bg-surface-elevated text-ink-disabled border border-hairline cursor-not-allowed"
-            }`}
+            className="flex-1"
+            icon={<CheckCircle className="w-3.5 h-3.5" />}
           >
-            <CheckCircle className="w-3.5 h-3.5" />
-            <span>Verify & Approve</span>
-          </button>
+            Verify & Approve
+          </Button>
         </div>
 
         {/* 3-Way Reconciler Deep Link */}
-        <Link
-          href="/matching"
-          className="w-full py-1.5 rounded bg-surface-card hover:bg-surface-hover border border-hairline text-[11px] text-ink-secondary hover:text-ink-primary font-medium text-center flex items-center justify-center gap-1.5 transition"
-        >
-          <GitCompare className="w-3 h-3 text-brand-light" />
-          <span>Cross-Reference against PO & GRN</span>
+        <Link href="/matching" className="block w-full">
+          <Button
+            variant="subtle"
+            size="xs"
+            className="w-full"
+            icon={<GitCompare className="w-3 h-3 text-brand-light" />}
+          >
+            Cross-Reference against PO & GRN
+          </Button>
         </Link>
       </div>
     </div>

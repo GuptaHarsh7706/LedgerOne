@@ -10,8 +10,9 @@ import {
   ArrowUpRight,
   Loader2,
 } from "lucide-react";
-import { api, DocumentItem, ReviewQueueItem, WorkspaceAnalytics } from "@/lib/api-client";
+import { api } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/tokens";
+import { Badge } from "@/components/ui";
 
 export function MetricCards() {
   const [loading, setLoading] = useState(true);
@@ -37,16 +38,28 @@ export function MetricCards() {
 
         if (Array.isArray(docs)) {
           setTotalDocs(docs.length);
-          const totalSum = docs.reduce((acc, d) => acc + (typeof d.total_amount === "number" ? d.total_amount : parseFloat(d.total_amount || "0") || 0), 0);
+          const totalSum = docs.reduce(
+            (acc, d) =>
+              acc +
+              (typeof d.total_amount === "number"
+                ? d.total_amount
+                : parseFloat(d.total_amount || "0") || 0),
+            0
+          );
           if (totalSum > 0) setTotalExposure(totalSum);
 
           const verifiedCount = docs.filter((d) => d.status === "VERIFIED").length;
-          const passRate = docs.length > 0 ? ((verifiedCount / docs.length) * 100).toFixed(1) + "%" : "100%";
+          const passRate =
+            docs.length > 0
+              ? ((verifiedCount / docs.length) * 100).toFixed(1) + "%"
+              : "100%";
           setInvariantPassRate(passRate);
         }
 
         if (Array.isArray(queue)) {
-          const pending = queue.filter((q) => q.status === "NEEDS_REVIEW" || q.has_failed_invariants);
+          const pending = queue.filter(
+            (q) => q.status === "NEEDS_REVIEW" || q.has_failed_invariants
+          );
           setPendingReviewCount(pending.length > 0 ? pending.length : queue.length);
         }
 
@@ -70,48 +83,46 @@ export function MetricCards() {
   const metrics = [
     {
       id: "metric-total",
-      title: "Total Ingested Documents",
+      title: "Ingested Documents",
       value: loading ? "..." : String(totalDocs),
       subtext: loading ? "Calculating..." : `${formatCurrency(totalExposure)} active commitments`,
       icon: FileText,
-      accent: "text-brand-light",
-      bgAccent: "bg-brand/10 border-brand/20",
-      href: "/documents",
+      badgeVariant: "brand" as const,
       tag: "Live Ledger",
+      href: "/documents",
     },
     {
       id: "metric-review",
-      title: "Pending Human Review",
+      title: "Pending Review",
       value: loading ? "..." : String(pendingReviewCount),
       subtext: "Dual-custody verification required",
       icon: AlertTriangle,
-      accent: "text-amber-400",
-      bgAccent: "bg-amber-500/10 border-amber-500/20",
-      href: "/review-queue",
+      badgeVariant: "review" as const,
       tag: "Action Required",
-      pulsing: pendingReviewCount > 0,
+      href: "/review-queue",
+      dot: pendingReviewCount > 0,
     },
     {
       id: "metric-discrepancies",
-      title: "3-Way Match Discrepancies",
+      title: "Match Discrepancies",
       value: loading ? "..." : String(discrepancyCount),
       subtext: loading ? "Calculating..." : `${formatCurrency(discrepancyExposure)} variance exposure`,
       icon: GitCompare,
-      accent: "text-rose-400",
-      bgAccent: "bg-rose-500/10 border-rose-500/20",
-      href: "/matching",
+      badgeVariant: "discrepancy" as const,
       tag: "Variance Flag",
+      href: "/matching",
+      dot: discrepancyCount > 0,
     },
     {
       id: "metric-invariants",
-      title: "Accounting Invariant Pass Rate",
+      title: "Invariant Pass Rate",
       value: loading ? "..." : invariantPassRate,
-      subtext: "Pure Decimal validation across 10 invariants",
+      subtext: "Decimal validation across 10 invariants",
       icon: ShieldCheck,
-      accent: "text-emerald-400",
-      bgAccent: "bg-emerald-500/10 border-emerald-500/20",
-      href: "/review-queue",
+      badgeVariant: "verified" as const,
       tag: "Zero Drift",
+      href: "/review-queue",
+      dot: true,
     },
   ];
 
@@ -123,35 +134,33 @@ export function MetricCards() {
           <Link
             key={m.id}
             href={m.href}
-            className="group relative p-4 rounded-xl bg-surface-card border border-hairline hover:border-hairline-strong hover:bg-surface-hover transition-all duration-150 shadow-subtle-card flex flex-col justify-between"
+            className="group relative p-4 rounded-xl bg-surface-card border border-hairline hover:border-hairline-strong hover:bg-surface-hover/80 transition-all duration-150 shadow-subtle-card flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-mono uppercase tracking-wider font-semibold text-ink-muted">
-                  {m.title}
-                </span>
-                <span
-                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${m.bgAccent} ${m.accent} flex items-center gap-1`}
-                >
-                  {m.pulsing && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-                  )}
+                <div className="flex items-center gap-1.5 text-ink-muted">
+                  <Icon className="w-3.5 h-3.5 text-ink-secondary" />
+                  <span className="text-[11px] font-mono uppercase tracking-wider font-medium text-ink-muted">
+                    {m.title}
+                  </span>
+                </div>
+                <Badge variant={m.badgeVariant} size="sm" dot={m.dot}>
                   {m.tag}
-                </span>
+                </Badge>
               </div>
 
-              <div className="flex items-baseline gap-2 mb-1">
+              <div className="flex items-baseline gap-2 mb-1.5">
                 <span className="text-2xl font-semibold tracking-tight text-ink-primary font-mono tabular-nums">
                   {m.value}
                 </span>
-                {loading && <Loader2 className="w-4 h-4 animate-spin text-ink-muted" />}
+                {loading && <Loader2 className="w-3.5 h-3.5 animate-spin text-ink-muted" />}
               </div>
-              <p className="text-xs text-ink-muted">{m.subtext}</p>
+              <p className="text-[11px] text-ink-muted leading-relaxed">{m.subtext}</p>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-hairline flex items-center justify-between text-xs text-ink-secondary group-hover:text-brand-light transition">
+            <div className="mt-4 pt-3 border-t border-hairline flex items-center justify-between text-xs text-ink-secondary group-hover:text-brand-light transition-colors">
               <span className="text-[11px] font-medium">Inspect queue</span>
-              <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" />
+              <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </div>
           </Link>
         );
