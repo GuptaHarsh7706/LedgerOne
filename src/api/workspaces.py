@@ -6,7 +6,8 @@ import uuid
 from pydantic import BaseModel, Field
 from fastapi import APIRouter, Depends, status
 
-from src.auth.dependencies import get_current_user, require_role
+from src.auth.dependencies import get_current_user, require_org_permission, require_role
+from src.auth.permissions import Permission
 from src.db.rls import TenantContext
 from src.services.workspace_service import workspace_service, VALID_WORKSPACE_ROLES
 
@@ -28,7 +29,7 @@ async def create_workspace(
     org_id: uuid.UUID,
     payload: CreateWorkspaceRequest,
     current_user: Dict[str, Any] = Depends(get_current_user),
-    tenant: TenantContext = Depends(require_role(["ORGANIZATION_ADMIN"])),
+    tenant: TenantContext = Depends(require_org_permission(Permission.ORG_WORKSPACES_MANAGE.value)),
 ) -> Dict[str, Any]:
     """Create a new workspace within the organization (requires ORGANIZATION_ADMIN)."""
     ws = await workspace_service.create_workspace(
@@ -53,7 +54,7 @@ async def create_workspace(
 async def list_workspaces(
     org_id: uuid.UUID,
     current_user: Dict[str, Any] = Depends(get_current_user),
-    tenant: TenantContext = Depends(require_role(["ORGANIZATION_ADMIN", "MEMBER"])),
+    tenant: TenantContext = Depends(require_org_permission(Permission.ORG_READ.value)),
 ) -> List[Dict[str, Any]]:
     """List workspaces in the organization accessible to the current user."""
     workspaces = await workspace_service.list_workspaces(
@@ -80,7 +81,7 @@ async def add_workspace_member(
     workspace_id: uuid.UUID,
     payload: AddWorkspaceMemberRequest,
     current_user: Dict[str, Any] = Depends(get_current_user),
-    tenant: TenantContext = Depends(require_role(["ORGANIZATION_ADMIN", "WORKSPACE_ADMIN"])),
+    tenant: TenantContext = Depends(require_org_permission(Permission.WS_MEMBERS_MANAGE.value)),
 ) -> Dict[str, Any]:
     """Assign a user to a workspace with a specific role."""
     membership = await workspace_service.add_workspace_member(

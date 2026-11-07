@@ -6,7 +6,8 @@ import uuid
 from pydantic import BaseModel, Field
 from fastapi import APIRouter, Depends, status
 
-from src.auth.dependencies import get_current_user, require_role
+from src.auth.dependencies import get_current_user, require_org_permission, require_role
+from src.auth.permissions import Permission
 from src.db.rls import TenantContext
 from src.services.organization_service import organization_service
 
@@ -85,7 +86,7 @@ async def add_member(
     org_id: uuid.UUID,
     payload: AddOrgMemberRequest,
     current_user: Dict[str, Any] = Depends(get_current_user),
-    tenant: TenantContext = Depends(require_role(["ORGANIZATION_ADMIN"])),
+    tenant: TenantContext = Depends(require_org_permission(Permission.ORG_MEMBERS_MANAGE.value)),
 ) -> Dict[str, Any]:
     """Add or update member in organization (requires ORGANIZATION_ADMIN)."""
     membership = await organization_service.add_organization_member(
@@ -109,7 +110,7 @@ async def add_member(
 async def list_members(
     org_id: uuid.UUID,
     current_user: Dict[str, Any] = Depends(get_current_user),
-    tenant: TenantContext = Depends(require_role(["ORGANIZATION_ADMIN", "MEMBER"])),
+    tenant: TenantContext = Depends(require_org_permission(Permission.ORG_MEMBERS_READ.value)),
 ) -> List[Dict[str, Any]]:
     """List all active members of the organization."""
     members = await organization_service.list_organization_members(

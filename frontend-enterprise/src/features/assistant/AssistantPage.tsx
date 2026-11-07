@@ -15,8 +15,10 @@ import {
 import { Button, Input, Badge, PageTransition } from "../../components/ui";
 import { api } from "../../services/api";
 import { AssistantCitation, AssistantMessage } from "../../services/types";
+import { useActiveRole } from "../../services/permissions";
 
 export const AssistantPage: React.FC = () => {
+  const { can, role } = useActiveRole();
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<AssistantMessage[]>([
     {
@@ -198,26 +200,36 @@ export const AssistantPage: React.FC = () => {
         )}
       </div>
 
-      {/* Query Dispatch Input Form */}
-      <form onSubmit={handleSend} className="flex items-center gap-2">
-        <Input
-          placeholder="Ask document questions (e.g., 'What is the invoiced unit price for SAN nodes vs PO commitment?')..."
-          value={inputQuery}
-          onChange={(e) => setInputQuery(e.target.value)}
-          disabled={isLoading}
-          className="flex-1"
-        />
-        <Button
-          type="submit"
-          variant="primary"
-          size="md"
-          disabled={!inputQuery.trim() || isLoading}
-          isLoading={isLoading}
-          icon={<Send className="w-3.5 h-3.5" />}
-        >
-          Query Assistant
-        </Button>
-      </form>
+      {/* Query Dispatch Input Form or RBAC Restricted State */}
+      {can("assistant.use") ? (
+        <form onSubmit={handleSend} className="flex items-center gap-2">
+          <Input
+            placeholder="Ask document questions (e.g., 'What is the invoiced unit price for SAN nodes vs PO commitment?')..."
+            value={inputQuery}
+            onChange={(e) => setInputQuery(e.target.value)}
+            disabled={isLoading}
+            className="flex-1"
+          />
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            disabled={!inputQuery.trim() || isLoading}
+            isLoading={isLoading}
+            icon={<Send className="w-3.5 h-3.5" />}
+          >
+            Query Assistant
+          </Button>
+        </form>
+      ) : (
+        <div className="p-3 rounded-xl border border-hairline bg-surface-subtle flex items-center justify-between text-xs text-ink-muted">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-400" />
+            <span>AI Interaction Restricted: Role '{role}' possesses read-only document browsing privileges.</span>
+          </div>
+          <Badge variant="neutral" size="sm">RBAC Gated</Badge>
+        </div>
+      )}
     </PageTransition>
   );
 };

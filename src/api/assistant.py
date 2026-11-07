@@ -10,6 +10,7 @@ import uuid
 from fastapi import APIRouter, Depends, Path, status
 
 from src.auth.dependencies import get_current_user, get_tenant_context, get_workspace_role
+from src.auth.permissions import Permission, assert_permission
 from src.db.rls import TenantContext
 from src.exceptions import AuthorizationError
 from src.services.assistant_service import (
@@ -48,8 +49,7 @@ async def create_session_endpoint(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
-    if ws_role not in MEMBER_ROLES:
-        raise AuthorizationError(f"Role '{ws_role}' cannot create conversation sessions")
+    assert_permission(ws_role, Permission.ASSISTANT_USE.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await assistant_service.create_session(
         org_id=org_id,
@@ -79,8 +79,7 @@ async def list_sessions_endpoint(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
-    if ws_role not in MEMBER_ROLES:
-        raise AuthorizationError(f"Role '{ws_role}' cannot view conversation sessions")
+    assert_permission(ws_role, Permission.ASSISTANT_READ_HISTORY.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await assistant_service.list_sessions(
         org_id=org_id,
@@ -111,8 +110,7 @@ async def get_session_detail_endpoint(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
-    if ws_role not in MEMBER_ROLES:
-        raise AuthorizationError(f"Role '{ws_role}' cannot view this session")
+    assert_permission(ws_role, Permission.ASSISTANT_READ_HISTORY.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await assistant_service.get_session_detail(
         org_id=org_id,
@@ -145,8 +143,7 @@ async def ask_question_endpoint(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
-    if ws_role not in MEMBER_ROLES:
-        raise AuthorizationError(f"Role '{ws_role}' cannot interact with the assistant")
+    assert_permission(ws_role, Permission.ASSISTANT_USE.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await assistant_service.ask_question_in_session(
         org_id=org_id,

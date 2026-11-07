@@ -10,6 +10,7 @@ import uuid
 from fastapi import APIRouter, Depends, Path, Query, status
 
 from src.auth.dependencies import get_current_user, get_tenant_context, get_workspace_role
+from src.auth.permissions import Permission, assert_permission
 from src.db.rls import TenantContext
 from src.exceptions import AuthorizationError
 from src.intelligence.document_diff import DocumentComparisonResult
@@ -51,8 +52,7 @@ async def link_documents_endpoint(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
-    if ws_role not in OPERATOR_ROLES:
-        raise AuthorizationError(f"Role '{ws_role}' cannot establish document relationships")
+    assert_permission(ws_role, Permission.MATCHING_CREATE.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await cross_document_service.link_documents(
         org_id=org_id,
@@ -84,8 +84,7 @@ async def list_relationships_endpoint(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
-    if ws_role not in READ_ROLES:
-        raise AuthorizationError(f"Role '{ws_role}' cannot view document relationships")
+    assert_permission(ws_role, Permission.MATCHING_READ.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await cross_document_service.list_relationships(
         org_id=org_id,
@@ -118,8 +117,7 @@ async def match_3way_endpoint(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
-    if ws_role not in OPERATOR_ROLES:
-        raise AuthorizationError(f"Role '{ws_role}' cannot execute 3-way matching")
+    assert_permission(ws_role, Permission.MATCHING_CREATE.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await cross_document_service.execute_three_way_match(
         org_id=org_id,
@@ -153,8 +151,7 @@ async def compare_documents_endpoint(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
-    if ws_role not in READ_ROLES:
-        raise AuthorizationError(f"Role '{ws_role}' cannot execute document comparisons")
+    assert_permission(ws_role, Permission.MATCHING_READ.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await cross_document_service.execute_document_comparison(
         org_id=org_id,
@@ -185,8 +182,7 @@ async def get_analytics_endpoint(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
-    if ws_role not in READ_ROLES:
-        raise AuthorizationError(f"Role '{ws_role}' cannot view workspace analytics")
+    assert_permission(ws_role, Permission.ANALYTICS_READ.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await cross_document_service.get_workspace_spend_analytics(
         org_id=org_id,

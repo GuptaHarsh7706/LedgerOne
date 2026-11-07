@@ -122,6 +122,23 @@ def require_role(allowed_roles: List[str]) -> Callable:
     return role_checker
 
 
+def require_org_permission(permission: str) -> Callable:
+    """Enforce organization-level granular permission check."""
+
+    async def permission_checker(tenant: TenantContext = Depends(get_tenant_context)) -> TenantContext:
+        if tenant.is_platform_admin:
+            return tenant
+
+        if not tenant.org_id:
+            raise AuthorizationError("Active organization context required")
+
+        from src.auth.permissions import assert_permission
+        assert_permission(tenant.user_role, permission, is_platform_admin=tenant.is_platform_admin)
+        return tenant
+
+    return permission_checker
+
+
 async def get_workspace_role(
     org_id: uuid.UUID,
     workspace_id: uuid.UUID,
@@ -131,13 +148,31 @@ async def get_workspace_role(
 ) -> str:
     """
     Resolve a user's effective role within a workspace.
-    Platform admins and organization admins automatically possess full administrative authority.
-    Ordinary members must have an active workspace_membership.
+    Platform admins automatically possess full administrative authority.
+    Organization admins possess full administrative authority within their own organization.
+    Ordinary members must have an active workspace_membership in this specific workspace.
     """
-    if is_platform_admin or org_role == "ORGANIZATION_ADMIN":
+    if is_platform_admin:
         return "ORGANIZATION_ADMIN"
 
     async with db_manager.pool.acquire() as conn:
+        # First verify user is an active member of the target organization
+        org_member = await conn.fetchrow(
+            """
+            SELECT role, is_active FROM organization_memberships
+            WHERE organization_id = $1 AND user_id = $2
+            """,
+            org_id,
+            user_id,
+        )
+        if not org_member or not org_member["is_active"]:
+            raise AuthorizationError("User is not an active member of the requested organization")
+
+        # If user is ORGANIZATION_ADMIN in the target organization, grant full admin authority
+        if org_member["role"] == "ORGANIZATION_ADMIN":
+            return "ORGANIZATION_ADMIN"
+
+        # Otherwise verify explicit workspace membership
         ws_member = await conn.fetchrow(
             """
             SELECT role, is_active FROM workspace_memberships

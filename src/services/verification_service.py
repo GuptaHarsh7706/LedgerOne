@@ -959,11 +959,6 @@ class VerificationService:
                 if not doc:
                     raise NotFoundError("Document not found in workspace")
 
-                if doc["status"] != "VERIFIED":
-                    raise ValidationError(
-                        f"Document must be in 'VERIFIED' status before approval (current: '{doc['status']}')."
-                    )
-
                 # Segregation of Duties Rule 1 (AUTH_SOD_001): Uploader cannot approve
                 if doc["uploaded_by_user_id"] == actor_id:
                     raise AuthorizationError(
@@ -986,6 +981,11 @@ class VerificationService:
                 if corrector_row:
                     raise AuthorizationError(
                         "Segregation of Duties violation: The reviewer who performed field corrections cannot approve it (AUTH_SOD_002)"
+                    )
+
+                if doc["status"] != "VERIFIED":
+                    raise ValidationError(
+                        f"Document must be in 'VERIFIED' status before approval (current: '{doc['status']}')."
                     )
 
                 meta = doc["metadata"] or {}

@@ -6,10 +6,16 @@ import {
   Bell,
   ShieldCheck,
   Building,
-  ExternalLink,
   ChevronRight,
+  UserCheck,
 } from "lucide-react";
-import { Button, Badge } from "../ui";
+import { Badge } from "../ui";
+import {
+  ALL_ROLES,
+  EnterpriseRole,
+  ROLE_DISPLAY_NAMES,
+  useActiveRole,
+} from "../../services/permissions";
 
 interface HeaderProps {
   onOpenCommandPalette: () => void;
@@ -17,6 +23,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onOpenCommandPalette }) => {
   const location = useLocation();
+  const { role, setRole } = useActiveRole();
 
   const getBreadcrumbs = () => {
     const path = location.pathname;
@@ -57,6 +64,24 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCommandPalette }) => {
             <Command className="w-2.5 h-2.5" /> K
           </kbd>
         </button>
+
+        {/* Dynamic Enterprise RBAC Role Simulator */}
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-surface-elevated/70 border border-hairline text-xs">
+          <UserCheck className="w-3.5 h-3.5 text-brand" />
+          <span className="text-[10px] text-ink-muted uppercase font-mono tracking-wider">Role:</span>
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value as EnterpriseRole)}
+            className="bg-transparent text-xs font-semibold text-ink-primary focus:outline-none cursor-pointer pr-1"
+            title="Switch Simulated Active Role"
+          >
+            {ALL_ROLES.map((r) => (
+              <option key={r} value={r} className="bg-surface-elevated text-ink-primary">
+                {r} ({ROLE_DISPLAY_NAMES[r]})
+              </option>
+            ))}
+          </select>
+        </div>
 
         {/* Dual Custody Segregation of Duties Badge */}
         <Badge variant="verified" size="sm" dot>

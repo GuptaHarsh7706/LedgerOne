@@ -28,6 +28,7 @@ import {
   triggerApprovalConfetti,
 } from "../../components/ui";
 import { api } from "../../services/api";
+import { useActiveRole } from "../../services/permissions";
 import {
   ReviewBundle,
   ExtractedField,
@@ -36,6 +37,7 @@ import {
 } from "../../services/types";
 
 export const DocumentWorkspacePage: React.FC = () => {
+  const { can, role } = useActiveRole();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const documentId = id || "a1000000-0000-0000-0000-000000009041";
@@ -189,25 +191,34 @@ export const DocumentWorkspacePage: React.FC = () => {
 
         {/* Dual-Custody Approval Actions */}
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsRejectModalOpen(true)}
-            className="text-status-danger hover:bg-status-danger/10"
-            icon={<XCircle className="w-3.5 h-3.5" />}
-          >
-            Reject Document
-          </Button>
+          {can("review.reject") && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsRejectModalOpen(true)}
+              className="text-status-danger hover:bg-status-danger/10"
+              icon={<XCircle className="w-3.5 h-3.5" />}
+            >
+              Reject Document
+            </Button>
+          )}
 
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleVerify}
-            isLoading={isVerifying}
-            icon={<CheckCircle2 className="w-3.5 h-3.5" />}
-          >
-            Authorize & Verify Document
-          </Button>
+          {can("review.approve") ? (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleVerify}
+              isLoading={isVerifying}
+              icon={<CheckCircle2 className="w-3.5 h-3.5" />}
+            >
+              Authorize & Verify Document
+            </Button>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-hairline bg-surface-subtle text-[11px] font-mono text-ink-muted">
+              <span>Approval Restricted for {role}</span>
+              <Badge variant="neutral" size="sm">SoD Guard</Badge>
+            </div>
+          )}
         </div>
       </div>
 
@@ -429,17 +440,19 @@ export const DocumentWorkspacePage: React.FC = () => {
                           <span className="font-mono text-[10px] text-brand-light">
                             {(field.confidence_score * 100).toFixed(0)}% Conf
                           </span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setFieldToCorrect(field);
-                              setCorrectionValue(field.raw_value);
-                            }}
-                            className="p-1 rounded text-ink-muted hover:text-ink-primary hover:bg-surface-hover"
-                            title="Correct Field"
-                          >
-                            <Edit2 className="w-3 h-3" />
-                          </button>
+                          {can("review.correct") && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setFieldToCorrect(field);
+                                setCorrectionValue(field.raw_value);
+                              }}
+                              className="p-1 rounded text-ink-muted hover:text-ink-primary hover:bg-surface-hover"
+                              title="Correct Field"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                            </button>
+                          )}
                         </div>
                       </div>
 
@@ -470,15 +483,17 @@ export const DocumentWorkspacePage: React.FC = () => {
                       <span className="font-mono text-[10px] text-ink-muted uppercase">
                         Line {item.line_index + 1}
                       </span>
-                      <button
-                        onClick={() => {
-                          setLineToCorrect(item);
-                          setLineFieldValue(String(item.unit_price));
-                        }}
-                        className="text-xs text-brand-light hover:underline flex items-center gap-1 font-mono"
-                      >
-                        <Edit2 className="w-3 h-3" /> Edit
-                      </button>
+                      {can("review.correct") && (
+                        <button
+                          onClick={() => {
+                            setLineToCorrect(item);
+                            setLineFieldValue(String(item.unit_price));
+                          }}
+                          className="text-xs text-brand-light hover:underline flex items-center gap-1 font-mono"
+                        >
+                          <Edit2 className="w-3 h-3" /> Edit
+                        </button>
+                      )}
                     </div>
 
                     <div className="font-semibold text-ink-primary">
@@ -533,14 +548,20 @@ export const DocumentWorkspacePage: React.FC = () => {
                     </p>
 
                     {!inv.is_satisfied && !inv.is_overridden && (
-                      <Button
-                        variant="danger"
-                        size="xs"
-                        onClick={() => setInvariantToOverride(inv)}
-                        className="w-full mt-2"
-                      >
-                        Override Invariant (Auditor Rationale)
-                      </Button>
+                      can("review.override") ? (
+                        <Button
+                          variant="danger"
+                          size="xs"
+                          onClick={() => setInvariantToOverride(inv)}
+                          className="w-full mt-2"
+                        >
+                          Override Invariant (Auditor Rationale)
+                        </Button>
+                      ) : (
+                        <div className="w-full mt-2 py-1 px-2 text-center rounded bg-surface-subtle border border-hairline text-[10px] font-mono text-ink-muted">
+                          Override Restricted for {role}
+                        </div>
+                      )
                     )}
 
                     {inv.is_overridden && (

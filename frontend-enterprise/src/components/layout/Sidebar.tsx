@@ -13,11 +13,12 @@ import {
   Cpu,
   Database,
   Building2,
-  ChevronDown,
+  Lock,
   LogOut,
 } from "lucide-react";
 import { Badge } from "../ui";
 import { api } from "../../services/api";
+import { useActiveRole } from "../../services/permissions";
 
 interface SidebarProps {
   onLogout?: () => void;
@@ -27,6 +28,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const user = api.getCurrentUser();
+  const { role, can } = useActiveRole();
 
   const navigationGroups = [
     {
@@ -36,12 +38,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
           name: "Dashboard",
           href: "/dashboard",
           icon: LayoutDashboard,
+          requiredPermission: "workspace.read",
           badge: undefined,
         },
         {
           name: "Document Library",
           href: "/documents",
           icon: Files,
+          requiredPermission: "documents.read",
           badge: undefined,
         },
       ],
@@ -53,6 +57,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
           name: "Review Queue",
           href: "/review-queue",
           icon: CheckSquare,
+          requiredPermission: "review.read",
           badge: "6 Due",
           variant: "review" as const,
         },
@@ -60,6 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
           name: "Document Intelligence",
           href: "/documents/a1000000-0000-0000-0000-000000009041/review",
           icon: FileSearch,
+          requiredPermission: "documents.read",
           badge: "Forensics",
           variant: "brand" as const,
         },
@@ -67,6 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
           name: "3-Way Matching",
           href: "/matching",
           icon: GitCompare,
+          requiredPermission: "matching.read",
           badge: "1 Discrepancy",
           variant: "discrepancy" as const,
         },
@@ -74,6 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
           name: "Evidence-Grounded AI",
           href: "/assistant",
           icon: Bot,
+          requiredPermission: "assistant.use",
           badge: "RTX 3050",
           variant: "ready" as const,
         },
@@ -86,12 +94,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
           name: "Spend Analytics",
           href: "/analytics",
           icon: BarChart3,
+          requiredPermission: "analytics.read",
           badge: undefined,
         },
         {
           name: "Governance & RBAC",
           href: "/settings",
           icon: Settings,
+          requiredPermission: "workspace.read",
           badge: undefined,
         },
       ],
@@ -134,10 +144,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
               <div className="space-y-0.5">
                 {group.items.map((item) => {
                   const Icon = item.icon;
+                  const isAllowed = can(item.requiredPermission);
                   const isActive =
                     item.href === "/dashboard"
                       ? currentPath === "/dashboard"
                       : currentPath.startsWith(item.href);
+
+                  if (!isAllowed) {
+                    return (
+                      <div
+                        key={item.href}
+                        className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium text-ink-muted/50 cursor-not-allowed opacity-60"
+                        title={`Action requires permission: ${item.requiredPermission}`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Lock className="w-3.5 h-3.5 shrink-0 text-ink-muted/40" />
+                          <span className="truncate">{item.name}</span>
+                        </div>
+                        <Badge variant="neutral" size="sm">
+                          Restricted
+                        </Badge>
+                      </div>
+                    );
+                  }
 
                   return (
                     <Link
@@ -192,7 +221,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
           </div>
         </div>
 
-        {/* User Identity & Session */}
+        {/* User Identity & Active Simulated Role */}
         <div className="p-3 border-t border-hairline flex items-center justify-between bg-surface-primary">
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-7 h-7 rounded-full bg-brand/20 border border-brand/30 flex items-center justify-center text-xs font-mono font-bold text-brand-light shrink-0">
@@ -202,8 +231,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
               <div className="text-xs font-semibold text-ink-primary truncate">
                 {user?.name || "Senior Reviewer"}
               </div>
-              <div className="text-[10px] font-mono text-ink-muted truncate">
-                {user?.role || "WORKSPACE_ADMIN"}
+              <div className="text-[10px] font-mono text-brand font-semibold truncate">
+                {role}
               </div>
             </div>
           </div>

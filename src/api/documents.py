@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 from pydantic import BaseModel, Field
 
 from src.auth.dependencies import get_current_user, get_tenant_context, get_workspace_role
+from src.auth.permissions import Permission, assert_permission
 from src.db.rls import TenantContext
 from src.exceptions import AuthorizationError, ValidationError
 from src.services.document_service import document_service
@@ -59,6 +60,7 @@ async def create_upload_intent(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.DOC_UPLOAD.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     result = await document_service.create_upload_intent(
         org_id=org_id,
@@ -90,6 +92,7 @@ async def complete_upload(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.DOC_UPLOAD.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     doc = await document_service.complete_upload(
         org_id=org_id,
@@ -118,6 +121,7 @@ async def upload_document_direct(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.DOC_UPLOAD.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     file_bytes = await file.read()
     if not file_bytes:
@@ -154,6 +158,7 @@ async def list_documents(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.DOC_READ.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     docs = await document_service.list_documents(
         org_id=org_id,
@@ -184,6 +189,7 @@ async def get_document(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.DOC_READ.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     doc = await document_service.get_document(
         org_id=org_id,
@@ -211,6 +217,7 @@ async def delete_document(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.DOC_DELETE.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     await document_service.delete_document(
         org_id=org_id,
@@ -237,6 +244,7 @@ async def restore_document(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.DOC_DELETE.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     doc = await document_service.restore_document(
         org_id=org_id,

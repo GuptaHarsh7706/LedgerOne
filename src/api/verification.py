@@ -8,6 +8,7 @@ import uuid
 from fastapi import APIRouter, Depends, Query, status
 
 from src.auth.dependencies import get_current_user, get_tenant_context, get_workspace_role
+from src.auth.permissions import Permission, assert_permission
 from src.db.rls import TenantContext
 from src.intelligence.verification_schemas import (
     FieldCorrectionRequest,
@@ -46,6 +47,7 @@ async def get_review_queue(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.REVIEW_READ.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await verification_service.get_review_queue(
         org_id=org_id,
@@ -76,6 +78,7 @@ async def get_document_review_detail(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.REVIEW_READ.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await verification_service.get_document_review_detail(
         org_id=org_id,
@@ -102,6 +105,7 @@ async def claim_document_for_review(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.REVIEW_CLAIM.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await verification_service.claim_document_for_review(
         org_id=org_id,
@@ -129,6 +133,7 @@ async def correct_field(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.REVIEW_CORRECT.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await verification_service.correct_field(
         org_id=org_id,
@@ -157,6 +162,7 @@ async def correct_line_item(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.REVIEW_CORRECT.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await verification_service.correct_line_item(
         org_id=org_id,
@@ -185,6 +191,7 @@ async def override_invariant(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.REVIEW_OVERRIDE.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await verification_service.apply_auditor_override(
         org_id=org_id,
@@ -212,6 +219,7 @@ async def verify_document(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.REVIEW_VERIFY.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await verification_service.verify_document(
         org_id=org_id,
@@ -241,6 +249,7 @@ async def approve_document(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.REVIEW_APPROVE.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await verification_service.approve_document(
         org_id=org_id,
@@ -268,6 +277,7 @@ async def reject_document(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.REVIEW_REJECT.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await verification_service.reject_document(
         org_id=org_id,
@@ -296,6 +306,7 @@ async def reopen_document(
         is_platform_admin=current_user.get("is_platform_admin", False),
         org_role=tenant.user_role,
     )
+    assert_permission(ws_role, Permission.REVIEW_REOPEN.value, is_platform_admin=current_user.get("is_platform_admin", False))
 
     return await verification_service.reopen_document(
         org_id=org_id,

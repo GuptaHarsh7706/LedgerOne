@@ -37,32 +37,44 @@ interface Member {
 export const SettingsPage: React.FC = () => {
   const roles = [
     {
+      name: "PLATFORM_ADMIN",
+      desc: "Platform-wide system configuration, tenant provisioning, cross-organization administration",
+      badge: "Platform Root",
+      variant: "brand" as const,
+    },
+    {
+      name: "ORGANIZATION_ADMIN",
+      desc: "Full tenant-level governance, workspace provisioning, organization user management",
+      badge: "Tenant Authority",
+      variant: "brand" as const,
+    },
+    {
       name: "WORKSPACE_ADMIN",
-      desc: "Full administrative governance, dual-custody document approval, user management",
-      badge: "Highest Authority",
+      desc: "Workspace governance, dual-custody document approval, member assignment",
+      badge: "Workspace Authority",
       variant: "brand" as const,
     },
     {
       name: "DOCUMENT_MANAGER",
-      desc: "Upload documents, manage metadata, manage jobs (strictly barred from approval)",
+      desc: "Upload documents, manage metadata, manage jobs (strictly barred from approval & review under SoD)",
       badge: "Ingestion Lead",
       variant: "neutral" as const,
     },
     {
       name: "REVIEWER",
-      desc: "Inspect extractions, correct cell values, request overrides (SoD gated from approval)",
+      desc: "Inspect extractions, correct cell values, request overrides (SoD dual-custody enforced)",
       badge: "Verification Specialist",
       variant: "review" as const,
     },
     {
       name: "ANALYST",
-      desc: "Execute hybrid search, converse with AI assistant, view spend analytics",
+      desc: "Execute hybrid search, converse with AI assistant, view spend & risk analytics",
       badge: "Read & Query",
       variant: "verified" as const,
     },
     {
       name: "VIEWER",
-      desc: "Read-only document access, cannot initiate matches or edits (HTTP 403 barred)",
+      desc: "Read-only document access, cannot initiate matches, edits, or assistant queries (HTTP 403)",
       badge: "Auditor Read-Only",
       variant: "neutral" as const,
     },

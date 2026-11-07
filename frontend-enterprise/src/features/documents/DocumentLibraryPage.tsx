@@ -28,8 +28,10 @@ import {
 import { UploadModal } from "./UploadModal";
 import { api } from "../../services/api";
 import { DocumentMetadata } from "../../services/types";
+import { useActiveRole } from "../../services/permissions";
 
 export const DocumentLibraryPage: React.FC = () => {
+  const { can } = useActiveRole();
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
@@ -102,14 +104,20 @@ export const DocumentLibraryPage: React.FC = () => {
           </p>
         </div>
 
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => setIsUploadOpen(true)}
-          icon={<Upload className="w-3.5 h-3.5" />}
-        >
-          Upload Document
-        </Button>
+        {can("documents.upload") ? (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setIsUploadOpen(true)}
+            icon={<Upload className="w-3.5 h-3.5" />}
+          >
+            Upload Document
+          </Button>
+        ) : (
+          <div className="text-[11px] font-mono text-ink-muted/60 px-3 py-1.5 rounded-lg border border-hairline bg-surface-subtle">
+            Upload Restricted ({can("documents.upload") ? "Allowed" : "Read-Only Role"})
+          </div>
+        )}
       </div>
 
       {/* Filter Tabs & Search Bar */}
@@ -261,15 +269,17 @@ export const DocumentLibraryPage: React.FC = () => {
                         Inspect
                       </Button>
                     </Link>
-                    <Button
-                      variant="ghost"
-                      size="xs"
-                      onClick={() => setDocToDelete(doc)}
-                      className="text-ink-muted hover:text-status-danger"
-                      aria-label="Delete document"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
+                    {can("documents.delete") && (
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        onClick={() => setDocToDelete(doc)}
+                        className="text-ink-muted hover:text-status-danger"
+                        aria-label="Delete document"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

@@ -21,8 +21,10 @@ import {
 import { ReconciliationFlowGraph } from "../../components/3d/ReconciliationFlowGraph";
 import { api } from "../../services/api";
 import { ThreeWayMatchResult } from "../../services/types";
+import { useActiveRole } from "../../services/permissions";
 
 export const ThreeWayMatchingPage: React.FC = () => {
+  const { can, role } = useActiveRole();
   const [matchResult, setMatchResult] = useState<ThreeWayMatchResult | null>(null);
   const [activeTab, setActiveTab] = useState("flow");
   const [isLinkingOpen, setIsLinkingOpen] = useState(false);
@@ -71,24 +73,32 @@ export const ThreeWayMatchingPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setIsLinkingOpen(true)}
-            icon={<LinkIcon className="w-3.5 h-3.5" />}
-          >
-            Link PO / Receipt
-          </Button>
+          {can("matching.create") ? (
+            <>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsLinkingOpen(true)}
+                icon={<LinkIcon className="w-3.5 h-3.5" />}
+              >
+                Link PO / Receipt
+              </Button>
 
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={runMatch}
-            isLoading={isLoading}
-            icon={<RefreshCw className="w-3.5 h-3.5" />}
-          >
-            Execute Invariant Match
-          </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={runMatch}
+                isLoading={isLoading}
+                icon={<RefreshCw className="w-3.5 h-3.5" />}
+              >
+                Execute Invariant Match
+              </Button>
+            </>
+          ) : (
+            <div className="px-3 py-1.5 rounded-lg border border-hairline bg-surface-subtle text-[11px] font-mono text-ink-muted">
+              Matching Execution Restricted ({role})
+            </div>
+          )}
         </div>
       </div>
 

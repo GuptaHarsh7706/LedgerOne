@@ -2,6 +2,7 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppShell } from "../components/layout/AppShell";
 import { AuthGuard } from "../features/auth/AuthGuard";
+import { PermissionGuard } from "../features/auth/PermissionGuard";
 import { LoginPage } from "../features/auth/LoginPage";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
 import { DocumentLibraryPage } from "../features/documents/DocumentLibraryPage";
@@ -25,10 +26,38 @@ export const AppRoutes: React.FC = () => {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/documents" element={<DocumentLibraryPage />} />
           <Route path="/documents/:id/review" element={<DocumentWorkspacePage />} />
-          <Route path="/review-queue" element={<ReviewQueuePage />} />
-          <Route path="/matching" element={<ThreeWayMatchingPage />} />
-          <Route path="/assistant" element={<AssistantPage />} />
-          <Route path="/analytics" element={<SpendAnalyticsPage />} />
+          <Route
+            path="/review-queue"
+            element={
+              <PermissionGuard permission="review.read">
+                <ReviewQueuePage />
+              </PermissionGuard>
+            }
+          />
+          <Route
+            path="/matching"
+            element={
+              <PermissionGuard permission="matching.read">
+                <ThreeWayMatchingPage />
+              </PermissionGuard>
+            }
+          />
+          <Route
+            path="/assistant"
+            element={
+              <PermissionGuard permission="assistant.use">
+                <AssistantPage />
+              </PermissionGuard>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <PermissionGuard permission="analytics.read">
+                <SpendAnalyticsPage />
+              </PermissionGuard>
+            }
+          />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>
