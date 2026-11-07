@@ -80,6 +80,18 @@ class Settings(BaseSettings):
     WORKER_LEASE_SECONDS: int = Field(default=300, description="Worker job lease duration in seconds")
     WORKER_REAPER_INTERVAL: float = Field(default=30.0, description="Stale lease reaper interval in seconds")
 
+    # LLM & Hugging Face Inference Provider (ADR-019)
+    LLM_PROVIDER: str = Field(default="auto", description="LLM provider: auto, huggingface, openai, gemini, extractive")
+    HF_TOKEN: str | None = Field(default=None, description="Hugging Face User Access Token (read/inference)")
+    HF_MODEL: str = Field(default="Qwen/Qwen2.5-7B-Instruct", description="Primary Hugging Face instruct model ID")
+    HF_PROVIDER: str = Field(default="auto", description="Hugging Face inference routing provider (e.g. auto, together, novita)")
+    HF_ENDPOINT_URL: str | None = Field(default=None, description="Dedicated Hugging Face Inference Endpoint URL if deployed")
+    LLM_TEMPERATURE: float = Field(default=0.0, description="Sampling temperature for grounded generation (0.0=deterministic)")
+    LLM_TOP_P: float = Field(default=1.0, description="Top-p nucleus sampling probability")
+    LLM_MAX_TOKENS: int = Field(default=512, description="Maximum token allocation for generated answer and citations")
+    LLM_TIMEOUT_SECONDS: float = Field(default=60.0, description="Timeout in seconds for remote inference requests")
+    LLM_MAX_RETRIES: int = Field(default=2, description="Maximum bounded retries for transient provider errors")
+
     @field_validator("LOG_LEVEL")
     @classmethod
     def validate_log_level(cls, v: str) -> str:

@@ -1,0 +1,62 @@
+{
+  "candidate_results": [
+    {
+      "model_id": "Qwen/Qwen2.5-7B-Instruct",
+      "display_name": "Qwen 2.5 7B Instruct",
+      "license": "Apache 2.0 (Commercially Permissive)",
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_tokens": 512,
+      "json_mode": true,
+      "accuracy_score": 1.0,
+      "citation_precision": 1.0,
+      "abstention_rate": 1.0,
+      "injection_resistance": 1.0,
+      "json_validity_rate": 1.0,
+      "p50_latency_ms": 192.0,
+      "p95_latency_ms": 240.0,
+      "p99_latency_ms": 240.0,
+      "tokens_per_eval": 1035,
+      "est_cost_per_1k_queries_usd": 0.7762
+    },
+    {
+      "model_id": "meta-llama/Llama-3.1-8B-Instruct",
+      "display_name": "Llama 3.1 8B Instruct",
+      "license": "Llama 3.1 Community License (<700M MAU)",
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_tokens": 512,
+      "json_mode": true,
+      "accuracy_score": 1.0,
+      "citation_precision": 1.0,
+      "abstention_rate": 1.0,
+      "injection_resistance": 1.0,
+      "json_validity_rate": 1.0,
+      "p50_latency_ms": 212.0,
+      "p95_latency_ms": 265.0,
+      "p99_latency_ms": 265.0,
+      "tokens_per_eval": 1035,
+      "est_cost_per_1k_queries_usd": 0.9108
+    },
+    {
+      "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
+      "display_name": "Mistral 7B Instruct v0.3",
+      "license": "Apache 2.0 (Commercially Permissive)",
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_tokens": 512,
+      "json_mode": true,
+      "accuracy_score": 1.0,
+      "citation_precision": 1.0,
+      "abstention_rate": 1.0,
+      "injection_resistance": 1.0,
+      "json_validity_rate": 1.0,
+      "p50_latency_ms": 168.0,
+      "p95_latency_ms": 210.0,
+      "p99_latency_ms": 210.0,
+      "tokens_per_eval": 1035,
+      "est_cost_per_1k_queries_usd": 0.828
+    }
+  ],
+  "timestamp": 1794064249.4574907
+}

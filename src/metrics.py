@@ -39,6 +39,32 @@ DB_QUERY_DURATION_SECONDS = Histogram(
     buckets=(0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5),
 )
 
+# LLM Inference & Provider Observability
+LLM_REQUESTS_TOTAL = Counter(
+    "ledgerone_llm_requests_total",
+    "Total LLM generation requests partitioned by provider, model, and outcome status",
+    ["provider", "model", "status"],  # status: success, error, blocked, abstained
+)
+
+LLM_REQUEST_DURATION_SECONDS = Histogram(
+    "ledgerone_llm_request_duration_seconds",
+    "Latency distribution of LLM provider generation requests in seconds",
+    ["provider", "model"],
+    buckets=(0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 60.0),
+)
+
+LLM_FALLBACK_TOTAL = Counter(
+    "ledgerone_llm_fallback_total",
+    "Total fallbacks to the deterministic extractive engine",
+    ["reason", "source_provider"],  # reason: missing_credentials, rate_limit, timeout, provider_error, malformed_json
+)
+
+LLM_TOKENS_TOTAL = Counter(
+    "ledgerone_llm_tokens_total",
+    "Total input and output tokens consumed across LLM inference providers",
+    ["type", "model"],  # type: prompt, completion
+)
+
 
 def metrics_response() -> Response:
     """Generate Prometheus metrics text response."""

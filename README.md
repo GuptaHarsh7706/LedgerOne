@@ -319,11 +319,12 @@ flowchart TD
     RRF --> TopChunks[("Top-K Authorized Retrieved Chunks\nwith Spatial Bounding Boxes [x0, y0, x1, y1]")]
     
     TopChunks --> ProviderRoute{"LLM Provider\nConfiguration"}
+    ProviderRoute -- "HF_TOKEN" --> HFProv["HuggingFaceInferenceProvider\n(Qwen/Qwen2.5-7B-Instruct via Router)"]
     ProviderRoute -- "OPENAI_API_KEY" --> OpenAIProv["OpenAICompatibleProvider\n(GPT-4o / DeepSeek / Local vLLM)"]
     ProviderRoute -- "GEMINI_API_KEY" --> GeminiProv["GoogleGeminiProvider\n(gemini-2.0-flash / 1.5-pro)"]
     ProviderRoute -- "No External Keys" --> ExtractiveProv["ExtractiveFallbackProvider\n(Deterministic Salient Line Scoring)"]
     
-    OpenAIProv & GeminiProv & ExtractiveProv --> RawAnswer["Synthesized Answer & Candidate Citations"]
+    HFProv & OpenAIProv & GeminiProv & ExtractiveProv --> RawAnswer["Synthesized Answer & Candidate Citations"]
     RawAnswer --> CitationValidator{"validate_and_enrich_citations\n(Verifies Exact Quote Substring in Chunk Spans)"}
     
     CitationValidator -- "Quote Corroborated" --> EnrichBBox["Enrich Citation Badges with\nDocument ID, Page #, Bounding Box [x0, y0, x1, y1]"]
@@ -436,9 +437,19 @@ S3_BUCKET_NAME=assets
 S3_REGION=ap-southeast-1
 
 # Multimodal LLM Providers (Optional - Extractive fallback used if absent)
+LLM_PROVIDER=huggingface             # huggingface | openai | gemini | extractive
+HF_TOKEN=hf_...                      # Hugging Face User Access Token (ADR-019)
+HF_MODEL=Qwen/Qwen2.5-7B-Instruct    # Selected Top Candidate Model (Apache 2.0, 128k context)
+HF_PROVIDER=auto                     # Routing provider (auto | together | novita | sambanova)
+HF_ENDPOINT_URL=                     # Custom dedicated Inference Endpoint URL (optional)
+LLM_TEMPERATURE=0.0                  # Optimal greedy decoding for deterministic financial grounding
+LLM_TOP_P=1.0                        # Nucleus sampling probability
+LLM_MAX_TOKENS=512                   # Maximum output token budget
+LLM_TIMEOUT_SECONDS=60               # Bounded request timeout
+LLM_MAX_RETRIES=2                    # Bounded exponential retries on 429/503
+
 OPENAI_API_KEY=sk-...               # OpenAI GPT-4o / Compatible provider
 GEMINI_API_KEY=AIza...              # Google Gemini 2.0 Flash / 1.5 Pro
-LLM_PROVIDER=openai                 # openai | gemini | extractive
 
 # Background Processing & Ingestion
 WORKER_ENABLED=True                 # Enable PostgreSQL SKIP LOCKED worker daemon
