@@ -45,13 +45,13 @@ export const FAQSection: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <SectionBadge number="09" total="11" label="FAQ" className="mb-4" />
-          <CategoryPill label="COMMON QUESTIONS" className="mb-4" />
+          <SectionBadge number="06" total="07" label="TECHNICAL ARCHITECTURE FAQ" className="mb-4" />
+          <CategoryPill label="SYSTEM VERIFICATION" className="mb-4" />
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-6">
-            Your Questions, <span className="text-ops-gradient">Answered</span>
+            Frequently Asked <span className="text-ops-gradient">Technical Questions</span>
           </h2>
           <p className="text-white/60 text-base sm:text-lg leading-relaxed">
-            Everything you need to know about LedgerOne’s mathematical invariants, security boundaries, and ERP integrations.
+            Detailed specifications on LedgerOne’s mathematical invariants, security boundaries, and enterprise ERP integrations.
           </p>
         </div>
 
@@ -60,9 +60,9 @@ export const FAQSection: React.FC = () => {
 
         {/* Footer Support Prompt */}
         <div className="mt-12 text-center text-xs font-mono text-white/40">
-          HAVE A COMPLEX ARCHITECTURAL REQUIREMENT?{' '}
+          REQUIRE CUSTOM INVARIANT EQUATIONS OR ON-PREM AIR-GAP ASSISTANCE?{' '}
           <a href="/workspace" className="text-ops-cyan hover:underline ml-1">
-            CONSULT WITH OUR SOLUTIONS ARCHITECT →
+            OPEN ARCHITECTURE WORKSPACE →
           </a>
         </div>
       </div>

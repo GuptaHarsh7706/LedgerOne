@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowUpRight, Menu, X, Shield, Cpu } from 'lucide-react';
+import { ArrowRight, Menu, X, Shield, Cpu, ExternalLink } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 export const FloatingNavbar: React.FC = () => {
@@ -17,12 +17,12 @@ export const FloatingNavbar: React.FC = () => {
   }, []);
 
   const navLinks = [
-    { label: 'about', href: '#who-we-are' },
-    { label: 'Why LedgerOne', href: '#why-opsayra' },
-    { label: 'How It Works', href: '#how-it-works' },
-    { label: 'Process', href: '#process' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'Case Studies', href: '#case-studies' },
+    { label: 'Spatial OCR', href: '#spatial-grounding' },
+    { label: 'Invariant Engine', href: '#invariant-engine' },
+    { label: '3-Way Match', href: '#three-way-matching' },
+    { label: 'Dual Custody', href: '#dual-custody' },
+    { label: 'Air-Gapped AI', href: '#air-gapped-copilot' },
+    { label: 'ERP Connectors', href: '#enterprise-integrations' },
     { label: 'FAQ', href: '#faq' },
   ];
 
@@ -36,7 +36,7 @@ export const FloatingNavbar: React.FC = () => {
         }`}
       >
         {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group">
+        <Link to="/" className="flex items-center gap-2.5 group mr-6 shrink-0">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-ops-blue via-ops-cyan to-ops-yellow p-[1px] flex items-center justify-center transition-transform group-hover:scale-105">
             <div className="w-full h-full bg-ops-bg rounded-[7px] flex items-center justify-center">
               <span className="font-mono font-bold text-xs text-ops-cyan">L1</span>
@@ -44,57 +44,56 @@ export const FloatingNavbar: React.FC = () => {
           </div>
           <div className="flex flex-col">
             <span className="font-bold tracking-tight text-white text-base leading-none">LedgerOne</span>
-            <span className="font-mono text-[9px] text-ops-textDim tracking-widest uppercase">Autonomous AI</span>
+            <span className="font-mono text-[9px] text-ops-textDim tracking-widest uppercase">FINANCIAL AI</span>
           </div>
         </Link>
 
-        {/* Desktop Nav Links */}
-        <div className="hidden lg:flex items-center gap-7">
+        {/* Desktop Navigation Links */}
+        <div className="hidden lg:flex items-center gap-5 xl:gap-6">
           {navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              className="text-xs font-mono tracking-wider uppercase text-ops-textMuted hover:text-white transition-colors duration-150"
+              className="text-xs font-mono tracking-wider uppercase text-ops-textMuted hover:text-white transition-colors duration-200"
             >
               {link.label}
             </a>
           ))}
         </div>
 
-        {/* Action Button & App Access */}
+        {/* Action Controls */}
         <div className="hidden sm:flex items-center gap-3">
-          <button
-            onClick={() => navigate('/workspace')}
-            className="px-4 py-2 rounded-full border border-white/15 text-xs font-mono uppercase tracking-wider text-ops-cyan bg-ops-cyan/5 hover:bg-ops-cyan/15 hover:border-ops-cyan/40 transition-all flex items-center gap-1.5"
+          <Link
+            to="/workspace"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-ops-cyan/40 bg-ops-cyan/10 hover:bg-ops-cyan/20 text-ops-cyan text-xs font-mono font-semibold transition-all shadow-[0_0_15px_rgba(0,255,204,0.15)]"
           >
-            <Cpu className="w-3.5 h-3.5" />
-            <span>Workspace</span>
-          </button>
+            <span className="w-1.5 h-1.5 rounded-full bg-ops-cyan animate-pulse" />
+            <span>WORKSPACE</span>
+          </Link>
 
           <Button
             size="sm"
             variant="primary"
-            withArrow
             onClick={() => navigate('/workspace')}
-            className="text-xs tracking-wider uppercase font-mono font-semibold"
+            icon={<ArrowRight className="w-3.5 h-3.5" />}
           >
-            Book Strategy Call
+            Launch Core
           </Button>
         </div>
 
         {/* Mobile Menu Trigger */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden p-1.5 text-ops-textMuted hover:text-white"
+          className="lg:hidden p-2 rounded-full text-ops-textMuted hover:text-white focus:outline-none"
           aria-label="Toggle Navigation"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </nav>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-4 top-20 bg-ops-card border border-white/15 rounded-3xl p-6 shadow-2xl backdrop-blur-2xl flex flex-col gap-4 z-50">
+        <div className="fixed inset-x-4 top-24 rounded-2xl bg-ops-card border border-white/15 p-6 shadow-2xl flex flex-col gap-4 lg:hidden z-50">
           {navLinks.map((link) => (
             <a
               key={link.label}
@@ -105,27 +104,17 @@ export const FloatingNavbar: React.FC = () => {
               {link.label}
             </a>
           ))}
-          <div className="pt-2 flex flex-col gap-3">
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                navigate('/workspace');
-              }}
-              className="w-full py-3 rounded-full border border-ops-cyan/40 text-ops-cyan font-mono text-xs uppercase tracking-wider text-center"
-            >
-              Open Enterprise Workspace
-            </button>
-            <Button
-              variant="primary"
-              className="w-full text-xs font-mono uppercase"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                navigate('/workspace');
-              }}
-            >
-              Book Strategy Call
-            </Button>
-          </div>
+          <Button
+            size="md"
+            variant="primary"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              navigate('/workspace');
+            }}
+            className="w-full mt-2"
+          >
+            Launch Enterprise Workspace
+          </Button>
         </div>
       )}
     </header>

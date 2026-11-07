@@ -2,16 +2,14 @@ import React from 'react';
 import { FloatingNavbar } from '../../components/layout/FloatingNavbar';
 import { MegaFooter } from '../../components/layout/MegaFooter';
 import { HeroSection } from './sections/HeroSection';
-import { WhoWeAreSection } from './sections/WhoWeAreSection';
-import { WhyOpsayraSection } from './sections/WhyOpsayraSection';
-import { HowItWorksSection } from './sections/HowItWorksSection';
-import { ProcessSection } from './sections/ProcessSection';
-import { CaseStudySection } from './sections/CaseStudySection';
-import { TestimonialSection } from './sections/TestimonialSection';
-import { PricingSection } from './sections/PricingSection';
+import { SpatialExtractionSection } from './sections/SpatialExtractionSection';
+import { InvariantEngineSection } from './sections/InvariantEngineSection';
+import { ThreeWayMatchingSection } from './sections/ThreeWayMatchingSection';
+import { DualCustodyGovernanceSection } from './sections/DualCustodyGovernanceSection';
+import { LocalCopilotSection } from './sections/LocalCopilotSection';
+import { EnterpriseIntegrationsSection } from './sections/EnterpriseIntegrationsSection';
 import { FAQSection } from './sections/FAQSection';
-import { InsightsSection } from './sections/InsightsSection';
-import { CTASection } from './sections/CTASection';
+import { PlatformCTASection } from './sections/PlatformCTASection';
 
 export const LandingPage: React.FC = () => {
   return (
@@ -22,22 +20,20 @@ export const LandingPage: React.FC = () => {
       {/* Floating Pill Navigation */}
       <FloatingNavbar />
 
-      {/* Main Sections 01 through 11 */}
+      {/* Main Core Platform Capabilities */}
       <main className="relative z-10">
         <HeroSection />
-        <WhoWeAreSection />
-        <WhyOpsayraSection />
-        <HowItWorksSection />
-        <ProcessSection />
-        <CaseStudySection />
-        <TestimonialSection />
-        <PricingSection />
+        <SpatialExtractionSection />
+        <InvariantEngineSection />
+        <ThreeWayMatchingSection />
+        <DualCustodyGovernanceSection />
+        <LocalCopilotSection />
+        <EnterpriseIntegrationsSection />
         <FAQSection />
-        <InsightsSection />
-        <CTASection />
+        <PlatformCTASection />
       </main>
 
-      {/* Mega Footer matching Opsyra */}
+      {/* Product-Centric Footer */}
       <MegaFooter />
     </div>
   );

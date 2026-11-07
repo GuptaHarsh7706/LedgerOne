@@ -1,31 +1,33 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, ShieldCheck, Database, Cpu } from 'lucide-react';
 
 export const MegaFooter: React.FC = () => {
-  const quickLinks = [
-    { label: 'about', href: '#who-we-are' },
-    { label: 'how it works', href: '#how-it-works' },
-    { label: 'process', href: '#process' },
-    { label: 'pricing', href: '#pricing' },
-    { label: 'case Study', href: '#case-studies' },
-    { label: 'FAQ', href: '#faq' },
-    { label: 'Insights', href: '#insights' },
-    { label: 'Reviews', href: '#testimonials' },
+  const productSections = [
+    { label: 'Spatial OCR Grounding', href: '#spatial-grounding' },
+    { label: 'Deterministic Invariant Engine', href: '#invariant-engine' },
+    { label: 'Three-Way Graph Reconciler', href: '#three-way-matching' },
+    { label: 'Dual-Custody Segregation of Duties', href: '#dual-custody' },
+    { label: 'Local Air-Gapped Copilot', href: '#air-gapped-copilot' },
+    { label: 'Enterprise ERP Connectors', href: '#enterprise-integrations' },
+    { label: 'Architecture FAQ', href: '#faq' },
+  ];
+
+  const workspaceLinks = [
+    { label: 'Operational Dashboard', href: '/workspace' },
+    { label: 'Document Studio Workstation', href: '/workspace/documents' },
+    { label: 'Dual-Custody Review Queue', href: '/workspace/review' },
+    { label: 'Three-Way Reconciler', href: '/workspace/matching' },
+    { label: 'Financial AI Copilot', href: '/workspace/assistant' },
+    { label: 'Spend Analytics Telemetry', href: '/workspace/analytics' },
+    { label: '7-Tier RBAC Governance', href: '/workspace/settings' },
   ];
 
   const legalLinks = [
-    { label: 'Privacy Policy', href: '#' },
-    { label: 'Terms of Service', href: '#' },
-    { label: 'SOC 2 Type II Certification', href: '#' },
-    { label: 'Security & Privacy Architecture', href: '#' },
-  ];
-
-  const socialLinks = [
-    { label: '[ X / TWITTER ]', href: 'https://x.com' },
-    { label: '[ LINKEDIN ]', href: 'https://linkedin.com' },
-    { label: '[ GITHUB ]', href: 'https://github.com/GuptaHarsh7706/autonomous-ai-engineering-ecosystem' },
-    { label: '[ DISCORD ]', href: 'https://discord.com' },
+    { label: 'SOC 2 Type II Compliance', href: '#' },
+    { label: 'PostgreSQL Row-Level Security (RLS)', href: '#' },
+    { label: 'RTX 3050 CUDA 12.4 Air-Gap Architecture', href: '#' },
+    { label: 'FastAPI OpenAPI Specifications', href: 'http://127.0.0.1:8000/docs' },
   ];
 
   return (
@@ -50,87 +52,80 @@ export const MegaFooter: React.FC = () => {
             </div>
 
             <p className="text-ops-textMuted text-sm max-w-sm leading-relaxed">
-              Autonomous AI-powered document intelligence and financial operations platform. Reconciling invoices, purchase orders, and goods receipts with zero human cognitive fatigue.
+              Autonomous enterprise document intelligence platform reconciling invoices, purchase orders, and goods receipts with cent-level mathematical precision and dual-custody governance.
             </p>
 
             <div className="pt-2 flex flex-col gap-1.5 font-mono text-xs">
-              <a href="mailto:hello@ledgerone.internal" className="text-white hover:text-ops-cyan transition-colors flex items-center gap-2">
-                <span>hello@ledgerone.internal</span>
-                <ArrowUpRight className="w-3.5 h-3.5 opacity-60" />
-              </a>
-              <span className="text-ops-textMuted">+1 (415) 245-8890 • San Francisco, CA</span>
+              <div className="flex items-center gap-2 text-white/70">
+                <ShieldCheck className="w-4 h-4 text-ops-cyan" />
+                <span>Zero-Tolerance Invariant Parity Active</span>
+              </div>
+              <div className="flex items-center gap-2 text-white/70">
+                <Cpu className="w-4 h-4 text-ops-blue" />
+                <span>Local CUDA 12.4 Hardware Inference Engine</span>
+              </div>
             </div>
           </div>
 
-          {/* Navigation Links Column */}
-          <div className="lg:col-span-3 space-y-4">
-            <span className="font-mono text-xs font-semibold uppercase tracking-widest text-ops-cyan block">
-              [ NAVIGATION ]
-            </span>
-            <ul className="space-y-2.5">
-              {quickLinks.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="font-mono text-xs uppercase tracking-wider text-ops-textMuted hover:text-white transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Links Columns */}
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-8">
+            {/* Column 1: Core Platform */}
+            <div className="space-y-4">
+              <span className="font-mono text-xs font-semibold uppercase tracking-widest text-white block">
+                [ PLATFORM_CORE ]
+              </span>
+              <ul className="space-y-2.5 font-mono text-xs text-ops-textMuted">
+                {productSections.map((item) => (
+                  <li key={item.label}>
+                    <a href={item.href} className="hover:text-ops-cyan transition-colors">
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Legal Links Column */}
-          <div className="lg:col-span-2 space-y-4">
-            <span className="font-mono text-xs font-semibold uppercase tracking-widest text-ops-cyan block">
-              [ LEGAL & TRUST ]
-            </span>
-            <ul className="space-y-2.5">
-              {legalLinks.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="font-mono text-xs uppercase tracking-wider text-ops-textMuted hover:text-white transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+            {/* Column 2: Workspace */}
+            <div className="space-y-4">
+              <span className="font-mono text-xs font-semibold uppercase tracking-widest text-white block">
+                [ WORKSPACE_APPS ]
+              </span>
+              <ul className="space-y-2.5 font-mono text-xs text-ops-textMuted">
+                {workspaceLinks.map((item) => (
+                  <li key={item.label}>
+                    <Link to={item.href} className="hover:text-ops-cyan transition-colors">
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Socials & Community */}
-          <div className="lg:col-span-2 space-y-4">
-            <span className="font-mono text-xs font-semibold uppercase tracking-widest text-ops-cyan block">
-              [ COMMUNITY ]
-            </span>
-            <ul className="space-y-2.5">
-              {socialLinks.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-mono text-xs uppercase tracking-wider text-ops-textMuted hover:text-ops-cyan transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {/* Column 3: Security & Architecture */}
+            <div className="space-y-4">
+              <span className="font-mono text-xs font-semibold uppercase tracking-widest text-white block">
+                [ GOVERNANCE ]
+              </span>
+              <ul className="space-y-2.5 font-mono text-xs text-ops-textMuted">
+                {legalLinks.map((item) => (
+                  <li key={item.label}>
+                    <a href={item.href} className="hover:text-ops-cyan transition-colors">
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 
-        {/* Bottom Copyright & Status */}
+        {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-ops-textDim">
-          <div className="flex items-center gap-3">
-            <span className="inline-block w-2 h-2 rounded-full bg-ops-cyan animate-pulse" />
-            <span>Systems Normal: Neon Cloud + RTX 3050 CUDA 12.4 Operational</span>
-          </div>
-
           <div>
-            &copy; {new Date().getFullYear()} LedgerOne Platform Inc. Inspired by Opsyra Design Language.
+            &copy; 2026 LedgerOne Technologies Inc. All rights reserved.
+          </div>
+          <div className="flex items-center gap-6">
+            <span>[ SYSTEM_STATUS ]: OPERATIONAL (100.0%)</span>
           </div>
         </div>
       </div>
