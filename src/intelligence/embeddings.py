@@ -6,6 +6,7 @@ Includes L2-normalization for zero-cost cosine distance calculations in pgvector
 """
 from __future__ import annotations
 
+from functools import lru_cache
 import hashlib
 import logging
 from typing import List, Optional, Sequence
@@ -71,8 +72,9 @@ def embed_texts(texts: Sequence[str]) -> List[List[float]]:
     return [_generate_deterministic_fallback_vector(t) for t in texts]
 
 
+@lru_cache(maxsize=1024)
 def embed_query(query: str) -> List[float]:
-    """Generate normalized 384-dimensional embedding for a single search query."""
+    """Generate normalized 384-dimensional embedding for a single search query (LRU cached)."""
     res = embed_texts([query])
     return res[0] if res else [0.0] * EMBEDDING_DIMENSION
 

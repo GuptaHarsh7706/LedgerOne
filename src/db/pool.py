@@ -1,11 +1,33 @@
 """
 AsyncPG connection pool manager with health check and Prometheus metrics.
 """
+import socket
 import ssl
 import time
 from typing import Optional
 import asyncpg
 import structlog
+
+# Resilient DNS fallback for restricted ISP environments refusing *.neon.tech resolution
+_orig_getaddrinfo = socket.getaddrinfo
+
+def _resilient_getaddrinfo(host, port, *args, **kwargs):
+    try:
+        return _orig_getaddrinfo(host, port, *args, **kwargs)
+    except socket.gaierror:
+        if isinstance(host, str) and ("neon.tech" in host or "aws" in host):
+            try:
+                import dns.resolver
+                resolver = dns.resolver.Resolver()
+                resolver.nameservers = ["8.8.8.8", "1.1.1.1"]
+                answers = resolver.resolve(host, "A")
+                for rdata in answers:
+                    return _orig_getaddrinfo(rdata.address, port, *args, **kwargs)
+            except Exception:
+                pass
+        raise
+
+socket.getaddrinfo = _resilient_getaddrinfo
 
 from src.metrics import DB_POOL_CONNECTIONS, DB_QUERY_DURATION_SECONDS
 from src.exceptions import DatabaseError

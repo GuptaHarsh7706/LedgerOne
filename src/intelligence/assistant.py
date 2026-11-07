@@ -43,8 +43,10 @@ INJECTION_PATTERNS = [
     re.compile(r"ignore\s+(all\s+)?(previous|prior)\s+instructions", re.IGNORECASE),
     re.compile(r"disregard\s+(all\s+)?(previous|prior)\s+rules", re.IGNORECASE),
     re.compile(r"you\s+are\s+now\s+(an?\s+)?unrestricted", re.IGNORECASE),
+    re.compile(r"act\s+as\s+(an?\s+)?(unrestricted|uncensored)", re.IGNORECASE),
+    re.compile(r"extract\s+(all\s+)?(internal\s+)?(keys?|credentials?|passwords?)", re.IGNORECASE),
     re.compile(r"system\s*prompt", re.IGNORECASE),
-    re.compile(r"print\s+database\s+passwords?", re.IGNORECASE),
+    re.compile(r"print\s+(all\s+)?(database\s+)?(passwords?|credentials?|keys?)", re.IGNORECASE),
     re.compile(r"drop\s+table", re.IGNORECASE),
 ]
 
@@ -78,18 +80,23 @@ def detect_prompt_injection(user_query: str) -> bool:
 
 def build_grounded_context_prompt(
     query: str,
-    chunks: List[RetrievedChunkResponse],
+    chunks: Sequence[Any],
 ) -> str:
     """
     Format retrieved chunks into an isolated, tamper-evident context block.
     Explicitly assigns monotonic citation IDs [citation:1], [citation:2]...
+    Supports both RetrievedChunkResponse and dict payloads.
     """
     context_blocks = []
     for i, chunk in enumerate(chunks, start=1):
-        bbox_str = f" BBOX:{chunk.bounding_box}" if chunk.bounding_box else ""
+        c_bbox = getattr(chunk, "bounding_box", None) if not isinstance(chunk, dict) else chunk.get("bounding_box")
+        c_doc_id = getattr(chunk, "document_id", "UNKNOWN") if not isinstance(chunk, dict) else chunk.get("document_id", "UNKNOWN")
+        c_page = getattr(chunk, "page_number", 1) if not isinstance(chunk, dict) else chunk.get("page_number", 1)
+        c_content = getattr(chunk, "content", "") if not isinstance(chunk, dict) else chunk.get("content", "")
+        bbox_str = f" BBOX:{c_bbox}" if c_bbox else ""
         context_blocks.append(
-            f"--- [CITATION #{i}] Document: {chunk.document_id} | Page: {chunk.page_number}{bbox_str} ---\n"
-            f"{chunk.content}\n"
+            f"--- [CITATION #{i}] Document: {c_doc_id} | Page: {c_page}{bbox_str} ---\n"
+            f"{c_content}\n"
         )
 
     return (
@@ -110,7 +117,7 @@ def build_grounded_context_prompt(
 
 def synthesize_grounded_response(
     query: str,
-    chunks: List[RetrievedChunkResponse],
+    chunks: Sequence[Any],
 ) -> AssistantAnswer:
     """
     Synthesize an evidence-grounded response with explicit citation tracking.
@@ -128,8 +135,11 @@ def synthesize_grounded_response(
             confidence=0.0,
         )
 
+    def _get_val(c, attr, default=None):
+        return getattr(c, attr, default) if not isinstance(c, dict) else c.get(attr, default)
+
     # 2. Empty or Zero-Score Context Handling
-    if not chunks or all(c.rrf_score <= 0.0 for c in chunks):
+    if not chunks or all((_get_val(c, "rrf_score", 0.0) or 0.0) <= 0.0 for c in chunks):
         return AssistantAnswer(
             answer=STRICT_REFUSAL_MESSAGE,
             is_grounded=False,
@@ -146,13 +156,15 @@ def synthesize_grounded_response(
     content_tokens = [w for w in all_tokens if w not in ENGLISH_STOPWORDS and len(w) > 2]
     query_tokens = content_tokens if content_tokens else [w for w in all_tokens if len(w) > 2]
 
-    matching_chunks: List[Tuple[int, RetrievedChunkResponse]] = []
+    matching_chunks: List[Tuple[int, Any]] = []
 
     for idx, c in enumerate(chunks, start=1):
-        c_lower = c.content.lower()
+        c_content = _get_val(c, "content", "")
+        c_lower = c_content.lower()
+        dense_score = _get_val(c, "dense_score", 0.0) or 0.0
         # Require meaningful content token overlap or high semantic dense similarity
         has_token_overlap = any(token in c_lower for token in content_tokens) if content_tokens else False
-        has_high_dense = c.dense_score >= 0.50
+        has_high_dense = dense_score >= 0.50
         if has_token_overlap or has_high_dense:
             matching_chunks.append((idx, c))
 
@@ -167,8 +179,13 @@ def synthesize_grounded_response(
     # Formulate answer from the top matching chunks
     answer_sentences = []
     for cit_idx, chunk in matching_chunks[:3]:
-        # Extract the most salient lines from the chunk scored by query token relevance
-        lines = [ln.strip() for ln in chunk.content.split("\n") if ln.strip()]
+        c_content = _get_val(chunk, "content", "")
+        c_doc_id = _get_val(chunk, "document_id", "UNKNOWN")
+        c_page = int(_get_val(chunk, "page_number", 1) or 1)
+        c_bbox = _get_val(chunk, "bounding_box", None)
+        c_score = float(_get_val(chunk, "dense_score", 0.8) or 0.8)
+
+        lines = [ln.strip() for ln in c_content.split("\n") if ln.strip()]
         candidate_lines: List[Tuple[int, str]] = []
         for ln in lines:
             if ln.startswith("[PAGE") or ln.startswith("---") or ln.startswith("[DOCUMENT HEADER"):
@@ -193,25 +210,31 @@ def synthesize_grounded_response(
                 citations.append(
                     CitationItem(
                         citation_index=cit_idx,
-                        document_id=chunk.document_id,
-                        page_number=chunk.page_number,
-                        bounding_box=chunk.bounding_box,
+                        document_id=str(c_doc_id),
+                        page_number=c_page,
+                        bounding_box=c_bbox,
                         quote=best_ln[:200],
                     )
                 )
 
     if not answer_sentences:
         top_idx, top_chunk = matching_chunks[0]
+        top_dense = float(_get_val(top_chunk, "dense_score", 0.0) or 0.0)
+        top_content = str(_get_val(top_chunk, "content", ""))
+        top_doc_id = str(_get_val(top_chunk, "document_id", "UNKNOWN"))
+        top_page = int(_get_val(top_chunk, "page_number", 1) or 1)
+        top_bbox = _get_val(top_chunk, "bounding_box", None)
+
         # Only fallback to top chunk if high dense similarity was demonstrated
-        if top_chunk.dense_score >= 0.55:
-            snippet = top_chunk.content.split("\n")[0][:150]
+        if top_dense >= 0.55:
+            snippet = top_content.split("\n")[0][:150]
             answer_sentences.append(f"Based on the verified records, {snippet} [citation:{top_idx}].")
             citations.append(
                 CitationItem(
                     citation_index=top_idx,
-                    document_id=top_chunk.document_id,
-                    page_number=top_chunk.page_number,
-                    bounding_box=top_chunk.bounding_box,
+                    document_id=top_doc_id,
+                    page_number=top_page,
+                    bounding_box=top_bbox,
                     quote=snippet,
                 )
             )
@@ -225,9 +248,10 @@ def synthesize_grounded_response(
 
     answer_text = "\n".join(answer_sentences)
 
+    top_dense_final = float(_get_val(matching_chunks[0][1], "dense_score", 0.5) or 0.5)
     return AssistantAnswer(
         answer=answer_text,
         is_grounded=True,
         citations=citations,
-        confidence=round(min(1.0, matching_chunks[0][1].dense_score + 0.3), 2),
+        confidence=round(min(1.0, top_dense_final + 0.3), 2),
     )
