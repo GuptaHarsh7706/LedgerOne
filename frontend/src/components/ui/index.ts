@@ -5,3 +5,7 @@ export * from "./Table";
 export * from "./Tabs";
 export * from "./Modal";
 export * from "./EmptyState";
+export * from "./SpotlightCard";
+export * from "./AnimatedNumber";
+export * from "./Confetti";
+export * from "./MotionWrappers";

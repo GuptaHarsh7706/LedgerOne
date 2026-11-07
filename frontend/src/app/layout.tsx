@@ -18,15 +18,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className="bg-canvas text-ink-primary font-sans antialiased overflow-hidden">
-        <div className="flex h-screen w-screen overflow-hidden">
+      <body className="bg-canvas text-ink-primary font-sans antialiased overflow-hidden selection:bg-brand/30 selection:text-white">
+        {/* Ambient Atmospheric Lighting Mesh (Linear/Vercel Aesthetic) */}
+        <div className="fixed top-0 left-1/3 -translate-x-1/2 w-[650px] h-[320px] bg-gradient-to-tr from-brand/12 via-indigo-600/8 to-transparent blur-[140px] pointer-events-none z-0 rounded-full" />
+        <div className="fixed -bottom-24 right-1/4 w-[500px] h-[300px] bg-gradient-to-tl from-emerald-500/6 via-teal-500/4 to-transparent blur-[130px] pointer-events-none z-0 rounded-full" />
+
+        <div className="flex h-screen w-screen overflow-hidden relative z-10">
           {/* Collapsible Left Navigation Shell */}
           <Sidebar />
 
           {/* Main Viewport Shell */}
           <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
             <Header />
-            <main className="flex-1 overflow-y-auto bg-canvas">
+            <main className="flex-1 overflow-y-auto bg-transparent scrollbar-thin scrollbar-thumb-white/10">
               {children}
             </main>
           </div>

@@ -56,9 +56,34 @@ const config: Config = {
         ],
       },
       boxShadow: {
-        "hairline-glow": "0 0 0 1px rgba(99, 102, 241, 0.25), 0 4px 20px -2px rgba(99, 102, 241, 0.10)",
+        "hairline-glow": "0 0 0 1px rgba(99, 102, 241, 0.25), 0 4px 20px -2px rgba(99, 102, 241, 0.15)",
         "subtle-card": "0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3)",
         "floating-panel": "0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08)",
+        "spotlight": "0 0 50px -10px rgba(99, 102, 241, 0.2)",
+      },
+      keyframes: {
+        shimmer: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        pulseSlow: {
+          "0%, 100%": { opacity: "0.3", transform: "scale(1)" },
+          "50%": { opacity: "0.7", transform: "scale(1.04)" },
+        },
+        floatSlow: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-5px)" },
+        },
+        glowMesh: {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 2.5s infinite",
+        pulseSlow: "pulseSlow 4s ease-in-out infinite",
+        floatSlow: "floatSlow 6s ease-in-out infinite",
+        glowMesh: "glowMesh 15s ease infinite",
       },
     },
   },

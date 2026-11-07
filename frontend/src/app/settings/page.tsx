@@ -26,6 +26,8 @@ import {
   Badge,
   Modal,
   Input,
+  PageTransition,
+  SpotlightCard,
 } from "@/components/ui";
 
 interface Member {
@@ -177,7 +179,7 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6 relative">
+    <PageTransition className="p-6 max-w-5xl mx-auto space-y-6 relative">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-surface-elevated border border-hairline-strong shadow-floating-panel text-xs text-ink-primary animate-in slide-in-from-bottom-3 duration-200">
@@ -216,7 +218,7 @@ export function SettingsPage() {
       </div>
 
       {/* Tenancy Security Card */}
-      <div className="p-4 rounded-xl bg-surface-card border border-hairline shadow-subtle-card space-y-3">
+      <SpotlightCard className="p-4 rounded-xl bg-surface-card border border-hairline shadow-subtle-card space-y-3">
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
             <Database className="w-4 h-4 text-emerald-400" />
@@ -235,10 +237,10 @@ export function SettingsPage() {
           </code>{" "}
           ensuring zero cross-tenant data leakage.
         </p>
-      </div>
+      </SpotlightCard>
 
       {/* API Keys & ETL Authentication Card */}
-      <div className="p-4 rounded-xl bg-surface-card border border-hairline shadow-subtle-card space-y-3">
+      <SpotlightCard className="p-4 rounded-xl bg-surface-card border border-hairline shadow-subtle-card space-y-3">
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
             <Key className="w-4 h-4 text-brand-light" />
@@ -285,7 +287,7 @@ export function SettingsPage() {
             </Button>
           </div>
         </div>
-      </div>
+      </SpotlightCard>
 
       {/* Role Hierarchy Matrix */}
       <div className="space-y-3">
@@ -480,7 +482,7 @@ export function SettingsPage() {
           </div>
         </div>
       </Modal>
-    </div>
+    </PageTransition>
   );
 }
 

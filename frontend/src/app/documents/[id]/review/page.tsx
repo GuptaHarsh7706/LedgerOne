@@ -18,6 +18,7 @@ import {
   api,
 } from "@/lib/api-client";
 import { CheckCircle2, XCircle } from "lucide-react";
+import { triggerApprovalConfetti } from "@/components/ui";
 
 export default function DocumentReviewStudioPage() {
   const params = useParams();
@@ -169,6 +170,7 @@ export default function DocumentReviewStudioPage() {
     }
     setApprovedSuccess(true);
     setRejectedMessage(null);
+    triggerApprovalConfetti();
   };
 
   const handleConfirmReject = async (reason: string) => {

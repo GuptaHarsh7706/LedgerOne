@@ -18,6 +18,9 @@ import {
   TableHead,
   TableCell,
   Badge,
+  PageTransition,
+  SpotlightCard,
+  AnimatedNumber,
 } from "@/components/ui";
 
 interface VendorSpend {
@@ -111,10 +114,10 @@ export function AnalyticsPage() {
   }, []);
 
   const discrepancyRate =
-    docCount > 0 ? ((openDiscrepancies / docCount) * 100).toFixed(1) : "0.0";
+    docCount > 0 ? parseFloat(((openDiscrepancies / docCount) * 100).toFixed(1)) : 0;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <PageTransition className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-hairline">
         <div>
@@ -133,7 +136,7 @@ export function AnalyticsPage() {
 
       {/* Top 3 Metric Blocks */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 rounded-xl bg-surface-card border border-hairline shadow-subtle-card">
+        <SpotlightCard spotlightColor="rgba(16, 185, 129, 0.18)" className="p-4">
           <div className="flex items-center justify-between text-xs text-ink-muted mb-2">
             <span className="font-mono text-[10px] uppercase tracking-wider font-semibold">
               Total Workspace Spend
@@ -141,15 +144,19 @@ export function AnalyticsPage() {
             <TrendingUp className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-2xl font-mono font-semibold text-ink-primary tabular-nums flex items-center gap-2">
-            <span>{formatCurrency(totalSpend)}</span>
+            {loading ? (
+              <span>...</span>
+            ) : (
+              <AnimatedNumber value={totalSpend} format={(n) => formatCurrency(n)} />
+            )}
             {loading && <Loader2 className="w-3.5 h-3.5 animate-spin text-ink-muted" />}
           </div>
           <p className="text-[11px] text-ink-muted mt-1">
             Across {docCount} indexed workspace documents
           </p>
-        </div>
+        </SpotlightCard>
 
-        <div className="p-4 rounded-xl bg-surface-card border border-rose-500/20 shadow-subtle-card">
+        <SpotlightCard spotlightColor="rgba(239, 68, 68, 0.18)" className="p-4 border-rose-500/20">
           <div className="flex items-center justify-between text-xs text-ink-muted mb-2">
             <span className="font-mono text-[10px] uppercase tracking-wider font-semibold text-rose-400">
               Total Variance Exposure
@@ -157,15 +164,19 @@ export function AnalyticsPage() {
             <AlertTriangle className="w-4 h-4 text-rose-400" />
           </div>
           <div className="text-2xl font-mono font-semibold text-rose-400 tabular-nums flex items-center gap-2">
-            <span>{formatCurrency(varianceExposure)}</span>
+            {loading ? (
+              <span>...</span>
+            ) : (
+              <AnimatedNumber value={varianceExposure} format={(n) => formatCurrency(n)} />
+            )}
             {loading && <Loader2 className="w-3.5 h-3.5 animate-spin text-ink-muted" />}
           </div>
           <p className="text-[11px] text-ink-muted mt-1">
             {openDiscrepancies} active 3-way discrepancies requiring resolution
           </p>
-        </div>
+        </SpotlightCard>
 
-        <div className="p-4 rounded-xl bg-surface-card border border-hairline shadow-subtle-card">
+        <SpotlightCard spotlightColor="rgba(99, 102, 241, 0.18)" className="p-4">
           <div className="flex items-center justify-between text-xs text-ink-muted mb-2">
             <span className="font-mono text-[10px] uppercase tracking-wider font-semibold">
               Discrepancy Rate
@@ -173,13 +184,17 @@ export function AnalyticsPage() {
             <ShieldCheck className="w-4 h-4 text-brand-light" />
           </div>
           <div className="text-2xl font-mono font-semibold text-brand-light tabular-nums flex items-center gap-2">
-            <span>{discrepancyRate}%</span>
+            {loading ? (
+              <span>...</span>
+            ) : (
+              <AnimatedNumber value={discrepancyRate} format={(n) => `${n.toFixed(1)}%`} />
+            )}
             {loading && <Loader2 className="w-3.5 h-3.5 animate-spin text-ink-muted" />}
           </div>
           <p className="text-[11px] text-ink-muted mt-1">
             Audited against pure Decimal invariants
           </p>
-        </div>
+        </SpotlightCard>
       </div>
 
       {/* Top Vendors Table */}
@@ -233,7 +248,7 @@ export function AnalyticsPage() {
           </TableBody>
         </Table>
       </div>
-    </div>
+    </PageTransition>
   );
 }
 

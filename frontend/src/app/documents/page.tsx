@@ -7,7 +7,7 @@ import { CategoryFilterBar } from "@/components/documents/CategoryFilterBar";
 import { UploadModal } from "@/components/documents/UploadModal";
 import { MOCK_DOCUMENTS, DocumentItem, api } from "@/lib/api-client";
 import { Upload, Database, RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui";
+import { Button, PageTransition } from "@/components/ui";
 
 function DocumentsContent() {
   const searchParams = useSearchParams();
@@ -89,7 +89,7 @@ function DocumentsContent() {
   }, [documents, selectedCategory, searchQuery]);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <PageTransition className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-hairline">
         <div>
@@ -150,7 +150,7 @@ function DocumentsContent() {
         onClose={() => setIsUploadOpen(false)}
         onUploadSuccess={fetchDocuments}
       />
-    </div>
+    </PageTransition>
   );
 }
 

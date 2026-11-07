@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { ThreeWayMatchMatrix } from "@/components/matching/ThreeWayMatchMatrix";
 import { DiscrepancyCard } from "@/components/matching/DiscrepancyCard";
 import { VersionDiffViewer } from "@/components/matching/VersionDiffViewer";
+import { ReconciliationFlowGraph } from "@/components/3d/ReconciliationFlowGraph";
 import { api, ThreeWayMatchResult, MOCK_3WAY_MATCH } from "@/lib/api-client";
 import {
   GitCompare,
@@ -13,15 +14,16 @@ import {
   Link as LinkIcon,
   CheckCircle2,
   Loader2,
+  Layers,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/tokens";
-import { Button, Badge, Modal, Input } from "@/components/ui";
+import { Button, Badge, Modal, Input, PageTransition, triggerApprovalConfetti } from "@/components/ui";
 
 const DEFAULT_INVOICE_ID = "a1000000-0000-0000-0000-000000009041";
 const DEFAULT_PO_ID = "a2000000-0000-0000-0000-000000004412";
 
 export function MatchingPage() {
-  const [activeTab, setActiveTab] = useState<"3WAY" | "DIFF">("3WAY");
+  const [activeTab, setActiveTab] = useState<"FLOW" | "3WAY" | "DIFF">("FLOW");
   const [matchResult, setMatchResult] = useState<ThreeWayMatchResult>(MOCK_3WAY_MATCH);
   const [isLoading, setIsLoading] = useState(true);
   const [isReconciling, setIsReconciling] = useState(false);
@@ -45,6 +47,7 @@ export function MatchingPage() {
       setMatchResult(result);
       if (isSilent) {
         setReconcileSuccess(true);
+        triggerApprovalConfetti();
         setTimeout(() => setReconcileSuccess(false), 3500);
       }
     } catch (err: any) {
@@ -68,6 +71,7 @@ export function MatchingPage() {
       const success = await api.matching.link(DEFAULT_INVOICE_ID, linkTargetDoc, linkRelationship);
       if (success) {
         setLinkSuccess(true);
+        triggerApprovalConfetti();
         setTimeout(() => {
           setLinkSuccess(false);
           setShowLinkModal(false);
@@ -86,7 +90,7 @@ export function MatchingPage() {
   const isMatched = matchResult.match_status === "PERFECT_MATCH";
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6 relative">
+    <PageTransition className="p-6 max-w-7xl mx-auto space-y-6 relative">
       {/* Toast Alert */}
       {reconcileSuccess && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl bg-emerald-500 text-black font-semibold text-xs shadow-floating-panel flex items-center gap-2 animate-in slide-in-from-top-4 duration-200">
@@ -134,8 +138,19 @@ export function MatchingPage() {
             Re-Run Match
           </Button>
 
-          {/* Tab switch between 3-Way and Version Diff */}
+          {/* Tab switch between Visual Flow, 3-Way Table, and Version Diff */}
           <div className="flex items-center gap-1 bg-surface-card p-1 rounded-lg border border-hairline text-xs ml-1">
+            <button
+              onClick={() => setActiveTab("FLOW")}
+              className={`px-3 py-1 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${
+                activeTab === "FLOW"
+                  ? "bg-brand/10 text-brand-light shadow-sm"
+                  : "text-ink-secondary hover:text-ink-primary"
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Flow Graph</span>
+            </button>
             <button
               onClick={() => setActiveTab("3WAY")}
               className={`px-3 py-1 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${
@@ -145,7 +160,7 @@ export function MatchingPage() {
               }`}
             >
               <GitCompare className="w-3.5 h-3.5" />
-              <span>3-Way Matrix</span>
+              <span>Matrix</span>
             </button>
             <button
               onClick={() => setActiveTab("DIFF")}
@@ -156,7 +171,7 @@ export function MatchingPage() {
               }`}
             >
               <FileSpreadsheet className="w-3.5 h-3.5" />
-              <span>Version Redline</span>
+              <span>Redline Diff</span>
             </button>
           </div>
         </div>
@@ -175,9 +190,12 @@ export function MatchingPage() {
           <p className="font-medium text-ink-primary">Executing Autonomous 3-Way Reconciliation...</p>
           <p className="text-[11px] text-ink-muted">Querying Neon PostgreSQL line-item bounds and evaluating financial invariants.</p>
         </div>
-      ) : activeTab === "3WAY" ? (
+      ) : activeTab === "FLOW" ? (
         <div className="space-y-6">
-          {/* Main 3-Way Matrix */}
+          {/* Interactive Flow Graph */}
+          <ReconciliationFlowGraph />
+
+          {/* Matrix & Discrepancies */}
           <ThreeWayMatchMatrix matchResult={matchResult} />
 
           {/* Detected Discrepancies Details */}
@@ -202,6 +220,27 @@ export function MatchingPage() {
                   <DiscrepancyCard key={idx} discrepancy={d} />
                 ))
               )}
+            </div>
+          </div>
+        </div>
+      ) : activeTab === "3WAY" ? (
+        <div className="space-y-6">
+          <ThreeWayMatchMatrix matchResult={matchResult} />
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-ink-primary">
+                Identified Discrepancies ({matchResult.discrepancies.length})
+              </span>
+              <span className="font-mono text-xs text-rose-400 font-semibold tabular-nums">
+                Total Financial Exposure: {formatCurrency(matchResult.total_discrepancy_amount)}
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {matchResult.discrepancies.map((d, idx) => (
+                <DiscrepancyCard key={idx} discrepancy={d} />
+              ))}
             </div>
           </div>
         </div>
@@ -286,7 +325,7 @@ export function MatchingPage() {
           )}
         </div>
       </Modal>
-    </div>
+    </PageTransition>
   );
 }
 

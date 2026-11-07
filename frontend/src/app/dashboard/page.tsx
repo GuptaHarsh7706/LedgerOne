@@ -4,12 +4,13 @@ import React from "react";
 import { MetricCards } from "@/components/dashboard/MetricCards";
 import { ExceptionQueue } from "@/components/dashboard/ExceptionQueue";
 import { ProcessingStream } from "@/components/dashboard/ProcessingStream";
-import { ShieldCheck, Database, Server } from "lucide-react";
-import { Badge } from "@/components/ui";
+import { DocumentVectorCore3D } from "@/components/3d/DocumentVectorCore3D";
+import { ShieldCheck, Database, Server, Sparkles } from "lucide-react";
+import { Badge, PageTransition } from "@/components/ui";
 
 export default function DashboardPage() {
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <PageTransition className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Top Banner / Environment Context */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-hairline">
         <div>
@@ -29,7 +30,7 @@ export default function DashboardPage() {
         </div>
 
         {/* System Capabilities Pill */}
-        <div className="flex items-center gap-2 self-start md:self-auto text-xs text-ink-muted bg-surface-card px-3 py-1.5 rounded-lg border border-hairline">
+        <div className="flex items-center gap-2 self-start md:self-auto text-xs text-ink-muted bg-surface-card px-3 py-1.5 rounded-lg border border-hairline shadow-subtle-card">
           <div className="flex items-center gap-1.5 text-emerald-400">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span className="font-medium text-[11px]">SoD Dual-Control</span>
@@ -52,6 +53,11 @@ export default function DashboardPage() {
         <MetricCards />
       </section>
 
+      {/* Interactive 3D WebGL Vector Core Canvas */}
+      <section aria-label="3D Vector Space Intelligence">
+        <DocumentVectorCore3D />
+      </section>
+
       {/* Main Split Grid: High-Priority Exceptions & Live Pipeline Stream */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <section aria-label="Exception Queue">
@@ -61,6 +67,6 @@ export default function DashboardPage() {
           <ProcessingStream />
         </section>
       </div>
-    </div>
+    </PageTransition>
   );
 }

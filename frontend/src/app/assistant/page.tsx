@@ -4,10 +4,11 @@ import React from "react";
 import { ChatInterface } from "@/components/assistant/ChatInterface";
 import { PromptDefenseBanner } from "@/components/assistant/PromptDefenseBanner";
 import { Bot, Sparkles, Database } from "lucide-react";
+import { PageTransition } from "@/components/ui";
 
 export function AssistantPage() {
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-4">
+    <PageTransition className="p-6 max-w-5xl mx-auto space-y-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-hairline">
         <div className="flex items-center gap-3">
@@ -40,7 +41,7 @@ export function AssistantPage() {
 
       {/* Interactive Chat Copilot Interface */}
       <ChatInterface />
-    </div>
+    </PageTransition>
   );
 }
 
