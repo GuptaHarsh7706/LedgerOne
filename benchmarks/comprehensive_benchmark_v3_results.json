@@ -199,14 +199,14 @@
       "error_rate": 0.0,
       "throughput_queries_per_sec": 5.08,
       "total_latency_ms": {
-        "p50": 196.88,
+        "p50": 196.82,
         "p95": 197.54,
-        "p99": 197.67
+        "p99": 197.68
       },
       "sub_boundaries_ms": {
-        "retrieval_boundary_p50": 1.65,
+        "retrieval_boundary_p50": 1.68,
         "synthesis_boundary_p50": 194.5,
-        "validation_boundary_p50": 0.77
+        "validation_boundary_p50": 0.73
       }
     },
     "concurrency_5": {
@@ -215,30 +215,30 @@
       "error_rate": 0.0,
       "throughput_queries_per_sec": 24.16,
       "total_latency_ms": {
-        "p50": 206.93,
-        "p95": 207.53,
-        "p99": 208.9
+        "p50": 206.96,
+        "p95": 207.81,
+        "p99": 208.48
       },
       "sub_boundaries_ms": {
-        "retrieval_boundary_p50": 1.68,
+        "retrieval_boundary_p50": 1.67,
         "synthesis_boundary_p50": 204.5,
-        "validation_boundary_p50": 0.77
+        "validation_boundary_p50": 0.82
       }
     },
     "concurrency_10": {
       "concurrency": 10,
       "sample_size": 60,
       "error_rate": 0.0,
-      "throughput_queries_per_sec": 45.62,
+      "throughput_queries_per_sec": 45.57,
       "total_latency_ms": {
-        "p50": 219.22,
-        "p95": 219.88,
-        "p99": 220.59
+        "p50": 219.43,
+        "p95": 220.01,
+        "p99": 220.36
       },
       "sub_boundaries_ms": {
-        "retrieval_boundary_p50": 1.65,
+        "retrieval_boundary_p50": 1.64,
         "synthesis_boundary_p50": 217.0,
-        "validation_boundary_p50": 0.66
+        "validation_boundary_p50": 0.8
       }
     }
   },
@@ -257,7 +257,7 @@
       "missing_purchase_order_match": 4
     }
   },
-  "execution_timestamp": 1794065007.7093284,
+  "execution_timestamp": 1794068864.0060358,
   "reproducible_commands": [
     "python benchmarks/comprehensive_evaluation_suite.py",
     "pytest tests/test_benchmark_evidence.py -v"
