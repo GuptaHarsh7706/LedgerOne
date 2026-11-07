@@ -1,7 +1,9 @@
 # Environment & Neon Credentials
 .env
-.env.local
 .neon
+
+# Agent Frameworks & Skills
+.agents/
 
 # Python Artifacts
 __pycache__/
@@ -41,3 +43,9 @@ htmlcov/
 # FAISS local indices & cache
 data/
 *.index
+
+# Frontend Build Artifacts & Dependencies
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/tsconfig.tsbuildinfo
