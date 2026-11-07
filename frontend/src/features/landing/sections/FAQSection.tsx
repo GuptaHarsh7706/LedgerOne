@@ -61,7 +61,7 @@ export const FAQSection: React.FC = () => {
         {/* Footer Support Prompt */}
         <div className="mt-12 text-center text-xs font-mono text-white/40">
           REQUIRE CUSTOM INVARIANT EQUATIONS OR ON-PREM AIR-GAP ASSISTANCE?{' '}
-          <a href="/workspace" className="text-ops-cyan hover:underline ml-1">
+          <a href="/login" className="text-ops-cyan hover:underline ml-1">
             OPEN ARCHITECTURE WORKSPACE →
           </a>
         </div>

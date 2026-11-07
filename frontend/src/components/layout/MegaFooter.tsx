@@ -14,6 +14,7 @@ export const MegaFooter: React.FC = () => {
   ];
 
   const workspaceLinks = [
+    { label: 'Sign In to Workspace Gateway', href: '/login' },
     { label: 'Operational Dashboard', href: '/workspace' },
     { label: 'Document Studio Workstation', href: '/workspace/documents' },
     { label: 'Dual-Custody Review Queue', href: '/workspace/review' },

@@ -70,18 +70,10 @@ export const FloatingNavbar: React.FC = () => {
             Sign In
           </Link>
 
-          <Link
-            to="/workspace"
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-ops-cyan/40 bg-ops-cyan/10 hover:bg-ops-cyan/20 text-ops-cyan text-xs font-mono font-semibold transition-all shadow-[0_0_15px_rgba(0,255,204,0.15)]"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-ops-cyan animate-pulse" />
-            <span>WORKSPACE</span>
-          </Link>
-
           <Button
             size="sm"
             variant="primary"
-            onClick={() => navigate('/workspace')}
+            onClick={() => navigate('/login')}
             icon={<ArrowRight className="w-3.5 h-3.5" />}
           >
             Launch Core
@@ -116,7 +108,7 @@ export const FloatingNavbar: React.FC = () => {
             variant="primary"
             onClick={() => {
               setMobileMenuOpen(false);
-              navigate('/workspace');
+              navigate('/login');
             }}
             className="w-full mt-2"
           >

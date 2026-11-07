@@ -91,7 +91,7 @@ export const EnterpriseIntegrationsSection: React.FC = () => {
             <span>Standardized JSON Journal Payload Parity across SAP BKPF, NetSuite VendorBill, and Dynamics JournalEntry.</span>
           </div>
           <a
-            href="/workspace"
+            href="/login"
             className="text-ops-cyan hover:underline shrink-0 text-xs flex items-center gap-1"
           >
             Inspect API Schema →

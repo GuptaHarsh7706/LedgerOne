@@ -110,7 +110,7 @@ export const LocalCopilotSection: React.FC = () => {
 
               <div className="pt-4">
                 <a
-                  href="/workspace/assistant"
+                  href="/login"
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-ops-blue/20 hover:bg-ops-blue/30 border border-ops-blue/40 text-xs font-mono text-white transition-all group"
                 >
                   <span>Open Full AI Copilot Console</span>

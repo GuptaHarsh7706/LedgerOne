@@ -1,9 +1,16 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Navigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
 
 export const AppShell: React.FC = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (!isAuthenticated && !isLoading) {
+    return <Navigate to="/login" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-[#080911] text-white flex overflow-hidden font-sans">
       {/* Persistent Left Sidebar */}

@@ -32,7 +32,7 @@ export const PlatformCTASection: React.FC = () => {
               <Button
                 variant="gradient"
                 size="lg"
-                onClick={() => window.location.href = '/workspace'}
+                onClick={() => window.location.href = '/login'}
                 icon={<ArrowRight className="w-5 h-5" />}
               >
                 Launch Enterprise Workspace
@@ -40,7 +40,7 @@ export const PlatformCTASection: React.FC = () => {
               <Button
                 variant="secondary"
                 size="lg"
-                onClick={() => window.location.href = '/workspace/documents/doc-001'}
+                onClick={() => window.location.href = '/login'}
               >
                 Open Spatial Document Studio
               </Button>

@@ -155,28 +155,15 @@ const USER_KEY = 'ledgerone_authenticated_user';
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(() => {
     const cached = localStorage.getItem(USER_KEY);
-    if (cached) {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (cached && token) {
       try {
         return JSON.parse(cached);
       } catch {
         return null;
       }
     }
-    // Default initial persona: Workspace Admin (Controller)
-    const defaultPersona = PERSONA_PRESETS[0];
-    return {
-      id: '638a6104-716d-4cb3-8ca1-301fc4de7fa5',
-      email: defaultPersona.email,
-      full_name: defaultPersona.name,
-      is_platform_admin: false,
-      role: defaultPersona.role,
-      org_id: defaultPersona.orgId,
-      org_name: defaultPersona.orgName,
-      org_slug: 'apex-capital',
-      ws_id: defaultPersona.wsId,
-      ws_name: defaultPersona.wsName,
-      ws_slug: 'prod-financial-core',
-    };
+    return null;
   });
 
   const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));

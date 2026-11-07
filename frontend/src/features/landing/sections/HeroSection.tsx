@@ -120,7 +120,7 @@ export const HeroSection: React.FC = () => {
           <Button
             variant="gradient"
             size="lg"
-            onClick={() => window.location.href = '/workspace'}
+            onClick={() => window.location.href = '/login'}
             icon={<ArrowRight className="w-4 h-4" />}
           >
             Launch Enterprise Workspace
@@ -317,7 +317,7 @@ export const HeroSection: React.FC = () => {
                   </div>
 
                   <a
-                    href="/workspace/documents/doc-001"
+                    href="/login"
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-ops-blue/20 hover:bg-ops-blue/30 border border-ops-blue/40 text-xs font-mono text-white transition-all group"
                   >
                     <span>Open in Document Studio Workstation</span>

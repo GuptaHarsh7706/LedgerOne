@@ -185,7 +185,7 @@ export const ThreeWayMatchingSection: React.FC = () => {
             </div>
 
             <a
-              href="/workspace/matching"
+              href="/login"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-ops-cyan/15 text-ops-cyan border border-ops-cyan/40 hover:bg-ops-cyan/25 transition-colors shrink-0"
             >
               <span>Inspect Matching Engine</span>
