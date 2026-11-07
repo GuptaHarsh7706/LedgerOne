@@ -36,11 +36,19 @@ redis>=5.2.0
 # --- Vector Indexing & Similarity Search ---
 faiss-cpu>=1.9.0
 
-# --- Document Processing & OCR ---
+# --- Document Processing, OCR & Spreadsheets ---
 pypdfium2>=4.30.0
 pdf2image>=1.17.0
 pytesseract>=0.3.13
 pillow>=10.4.0
+opencv-python-headless>=4.10.0
+openpyxl>=3.1.2
+polars>=1.0.0
+
+# --- Mathematical, Numerical & System Runtimes ---
+numpy>=1.26.0
+scipy>=1.11.0
+psutil>=5.9.0
 
 # --- AI/ML, Embeddings & Vision-Language Models (VLM) ---
 transformers>=4.46.0
@@ -49,6 +57,8 @@ accelerate>=1.0.0
 timm>=1.0.0
 safetensors>=0.4.5
 tokenizers>=0.20.0
+openai>=1.50.0
+google-genai>=0.1.1
 
 # --- RAG Evaluation & Observability ---
 ragas>=0.2.0

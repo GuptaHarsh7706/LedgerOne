@@ -38,11 +38,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN groupadd -r -g 10001 ledgerone && \
     useradd -r -u 10001 -g ledgerone -m -d /home/ledgerone ledgerone
 
-# Copy application source code
-COPY . .
-
-# Ensure proper file ownership
-RUN chown -R ledgerone:ledgerone /app
+# Copy application source code with non-root ownership in a single layer
+COPY --chown=ledgerone:ledgerone . .
 
 # Switch to non-root execution
 USER ledgerone
@@ -51,7 +48,7 @@ USER ledgerone
 EXPOSE 8000
 
 # Automated container healthcheck
-HEALTHCHECK --interval=20s --timeout=5s --start-period=15s --retries=3 \
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=5 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Launch production server with embedded worker daemon

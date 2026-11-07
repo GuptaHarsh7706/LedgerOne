@@ -13,6 +13,16 @@ logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/health", tags=["Health & Observability"])
 
 
+@router.get("", summary="Overall health probe")
+async def health_check() -> Dict[str, Any]:
+    """Lightweight health probe indicating service is reachable."""
+    return {
+        "status": "healthy",
+        "service": "ledgerone-api",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 @router.get("/live", summary="Liveness probe")
 async def liveness() -> Dict[str, Any]:
     """Lightweight liveness probe indicating the HTTP service is alive."""
