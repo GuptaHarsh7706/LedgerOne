@@ -26,6 +26,7 @@ from src.intelligence.assistant import (
     build_grounded_context_prompt,
     synthesize_grounded_response,
 )
+from src.config import get_settings
 from src.services.retrieval_service import RetrievedChunkResponse
 from src.metrics import (
     LLM_REQUESTS_TOTAL,
@@ -275,6 +276,9 @@ class GoogleGeminiProvider(BaseLLMProvider):
             return await fallback.generate_grounded_answer(query, retrieved_chunks)
 
 
+_UNSET = object()
+
+
 class HuggingFaceInferenceProvider(BaseLLMProvider):
     """
     Hugging Face Hosted Inference Provider (ADR-019).
@@ -293,7 +297,7 @@ class HuggingFaceInferenceProvider(BaseLLMProvider):
 
     def __init__(
         self,
-        token: Optional[str] = None,
+        token: Any = _UNSET,
         model: Optional[str] = None,
         provider: Optional[str] = None,
         endpoint_url: Optional[str] = None,
@@ -304,17 +308,39 @@ class HuggingFaceInferenceProvider(BaseLLMProvider):
         max_retries: Optional[int] = None,
         client: Optional[Any] = None,
     ) -> None:
-        self.token = token or os.getenv("HF_TOKEN")
-        self.model = model or os.getenv("HF_MODEL", "Qwen/Qwen2.5-7B-Instruct")
-        self.provider = provider or os.getenv("HF_PROVIDER", "auto")
-        self.endpoint_url = endpoint_url or os.getenv("HF_ENDPOINT_URL")
+        settings = get_settings()
+        if token is not _UNSET:
+            self.token = token
+        elif "HF_TOKEN" in os.environ:
+            self.token = os.getenv("HF_TOKEN")
+        else:
+            self.token = getattr(settings, "HF_TOKEN", None)
+
+        self.model = model or os.getenv("HF_MODEL") or getattr(settings, "HF_MODEL", "Qwen/Qwen2.5-7B-Instruct")
+        self.provider = provider or os.getenv("HF_PROVIDER") or getattr(settings, "HF_PROVIDER", "auto")
+        self.endpoint_url = endpoint_url or os.getenv("HF_ENDPOINT_URL") or getattr(settings, "HF_ENDPOINT_URL", None)
 
         # Hyperparameters (empirical defaults for enterprise financial documents)
-        self.temperature = float(temperature if temperature is not None else os.getenv("LLM_TEMPERATURE", "0.0"))
-        self.top_p = float(top_p if top_p is not None else os.getenv("LLM_TOP_P", "1.0"))
-        self.max_tokens = int(max_tokens if max_tokens is not None else os.getenv("LLM_MAX_TOKENS", "512"))
-        self.timeout_seconds = float(timeout_seconds if timeout_seconds is not None else os.getenv("LLM_TIMEOUT_SECONDS", "60.0"))
-        self.max_retries = int(max_retries if max_retries is not None else os.getenv("LLM_MAX_RETRIES", "2"))
+        self.temperature = float(
+            temperature if temperature is not None
+            else (os.getenv("LLM_TEMPERATURE") or getattr(settings, "LLM_TEMPERATURE", 0.0))
+        )
+        self.top_p = float(
+            top_p if top_p is not None
+            else (os.getenv("LLM_TOP_P") or getattr(settings, "LLM_TOP_P", 1.0))
+        )
+        self.max_tokens = int(
+            max_tokens if max_tokens is not None
+            else (os.getenv("LLM_MAX_TOKENS") or getattr(settings, "LLM_MAX_TOKENS", 512))
+        )
+        self.timeout_seconds = float(
+            timeout_seconds if timeout_seconds is not None
+            else (os.getenv("LLM_TIMEOUT_SECONDS") or getattr(settings, "LLM_TIMEOUT_SECONDS", 60.0))
+        )
+        self.max_retries = int(
+            max_retries if max_retries is not None
+            else (os.getenv("LLM_MAX_RETRIES") or getattr(settings, "LLM_MAX_RETRIES", 2))
+        )
         self._injected_client = client
 
     @property
@@ -327,13 +353,18 @@ class HuggingFaceInferenceProvider(BaseLLMProvider):
             return self._injected_client
         from huggingface_hub import AsyncInferenceClient
 
-        return AsyncInferenceClient(
-            model=self.model,
-            provider=self.provider if self.provider and self.provider != "auto" else None,
-            token=self.token,
-            timeout=self.timeout_seconds,
-            base_url=self.endpoint_url,
-        )
+        client_kwargs: Dict[str, Any] = {
+            "token": self.token,
+            "timeout": self.timeout_seconds,
+        }
+        if self.endpoint_url and self.endpoint_url.strip():
+            client_kwargs["base_url"] = self.endpoint_url.strip()
+        else:
+            client_kwargs["model"] = self.model
+            if self.provider and self.provider != "auto":
+                client_kwargs["provider"] = self.provider
+
+        return AsyncInferenceClient(**client_kwargs)
 
     def _safe_log_metadata(self) -> Dict[str, Any]:
         """Safe logging envelope with credentials completely redacted."""
@@ -584,7 +615,8 @@ def get_llm_provider() -> BaseLLMProvider:
     4. GEMINI_API_KEY -> GoogleGeminiProvider
     5. Fallback -> ExtractiveFallbackProvider
     """
-    provider_type = (os.getenv("LLM_PROVIDER") or "").strip().lower()
+    settings = get_settings()
+    provider_type = (os.getenv("LLM_PROVIDER") or getattr(settings, "LLM_PROVIDER", None) or "").strip().lower()
 
     if provider_type == "huggingface":
         return HuggingFaceInferenceProvider()
@@ -596,7 +628,7 @@ def get_llm_provider() -> BaseLLMProvider:
         return ExtractiveFallbackProvider()
 
     # Automatic provider detection based on configured secrets
-    hf_token = os.getenv("HF_TOKEN")
+    hf_token = os.getenv("HF_TOKEN") if "HF_TOKEN" in os.environ else getattr(settings, "HF_TOKEN", None)
     openai_key = os.getenv("OPENAI_API_KEY")
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 

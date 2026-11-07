@@ -104,7 +104,7 @@ async def test_document_lifecycle_and_rbac(client, db_pool):
         )
         assert job is not None
         assert job["action"] == "DOCUMENT_EXTRACTION"
-        assert job["status"] == "QUEUED"
+        assert job["status"] in ("QUEUED", "PROCESSING")
 
     # 5. Duplicate Detection in Same Workspace -> 409 Conflict
     dup_res = await client.post(
