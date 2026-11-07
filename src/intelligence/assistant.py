@@ -14,6 +14,26 @@ from src.services.retrieval_service import RetrievedChunkResponse
 
 logger = logging.getLogger(__name__)
 
+ENGLISH_STOPWORDS = {
+    "a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are",
+    "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both",
+    "but", "by", "can", "can't", "cannot", "could", "couldn't", "did", "didn't", "do", "does", "doesn't",
+    "doing", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn't",
+    "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here",
+    "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll",
+    "i'm", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's",
+    "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of", "off", "on",
+    "once", "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own",
+    "same", "shan't", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some",
+    "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then",
+    "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this",
+    "those", "through", "to", "too", "under", "until", "up", "very", "was", "wasn't", "we",
+    "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's",
+    "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with",
+    "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours",
+    "yourself", "yourselves"
+}
+
 STRICT_REFUSAL_MESSAGE = (
     "I cannot establish this from the provided documents. The authorized documents "
     "do not contain verifiable evidence to answer this inquiry."
@@ -121,15 +141,19 @@ def synthesize_grounded_response(
     citations: List[CitationItem] = []
     relevant_lines: List[str] = []
 
-    # Filter chunks that contain relevant terms from the query
-    query_tokens = [w for w in re.findall(r"\w+", query_lower) if len(w) > 2]
+    # Extract meaningful content tokens (filtering common English stopwords)
+    all_tokens = [w for w in re.findall(r"\w+", query_lower) if len(w) > 1]
+    content_tokens = [w for w in all_tokens if w not in ENGLISH_STOPWORDS and len(w) > 2]
+    query_tokens = content_tokens if content_tokens else [w for w in all_tokens if len(w) > 2]
+
     matching_chunks: List[Tuple[int, RetrievedChunkResponse]] = []
 
     for idx, c in enumerate(chunks, start=1):
         c_lower = c.content.lower()
-        # Check token overlap or high dense similarity
-        has_overlap = any(token in c_lower for token in query_tokens) or c.dense_score > 0.40
-        if has_overlap:
+        # Require meaningful content token overlap or high semantic dense similarity
+        has_token_overlap = any(token in c_lower for token in content_tokens) if content_tokens else False
+        has_high_dense = c.dense_score >= 0.50
+        if has_token_overlap or has_high_dense:
             matching_chunks.append((idx, c))
 
     if not matching_chunks:
@@ -150,7 +174,8 @@ def synthesize_grounded_response(
                 continue
 
             ln_lower = ln.lower()
-            if any(tok in ln_lower for tok in query_tokens) or len(lines) <= 2:
+            matches_content = any(tok in ln_lower for tok in content_tokens) if content_tokens else any(tok in ln_lower for tok in query_tokens)
+            if matches_content:
                 # Add citation
                 citation_ref = f"[citation:{cit_idx}]"
                 clean_ln = ln.replace("|", "—").strip()
@@ -170,19 +195,27 @@ def synthesize_grounded_response(
                 break
 
     if not answer_sentences:
-        # Fallback to synthesizing from the top matching chunk
         top_idx, top_chunk = matching_chunks[0]
-        snippet = top_chunk.content.split("\n")[0][:150]
-        answer_sentences.append(f"Based on the verified records, {snippet} [citation:{top_idx}].")
-        citations.append(
-            CitationItem(
-                citation_index=top_idx,
-                document_id=top_chunk.document_id,
-                page_number=top_chunk.page_number,
-                bounding_box=top_chunk.bounding_box,
-                quote=snippet,
+        # Only fallback to top chunk if high dense similarity was demonstrated
+        if top_chunk.dense_score >= 0.55:
+            snippet = top_chunk.content.split("\n")[0][:150]
+            answer_sentences.append(f"Based on the verified records, {snippet} [citation:{top_idx}].")
+            citations.append(
+                CitationItem(
+                    citation_index=top_idx,
+                    document_id=top_chunk.document_id,
+                    page_number=top_chunk.page_number,
+                    bounding_box=top_chunk.bounding_box,
+                    quote=snippet,
+                )
             )
-        )
+        else:
+            return AssistantAnswer(
+                answer=STRICT_REFUSAL_MESSAGE,
+                is_grounded=False,
+                citations=[],
+                confidence=0.0,
+            )
 
     answer_text = "\n".join(answer_sentences)
 

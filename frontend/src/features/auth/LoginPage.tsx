@@ -18,8 +18,8 @@ import {
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login, switchPersona, isLoading } = useAuth();
-  const [email, setEmail] = useState('ws_admin@apexcapital.internal');
-  const [password, setPassword] = useState('LedgerOne@2026!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -120,9 +120,9 @@ export const LoginPage: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-xs font-mono text-white/70">
-                    Master Password
+                    Corporate Password
                   </label>
-                  <span className="text-[10px] font-mono text-white/40">Default: LedgerOne@2026!</span>
+                  <span className="text-[10px] font-mono text-white/40">Authorized SSO / Password</span>
                 </div>
                 <input
                   type="password"

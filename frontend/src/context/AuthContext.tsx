@@ -263,26 +263,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     setIsLoading(true);
     try {
-      // Execute live real login against FastAPI backend with standard password
+      // Authenticate against FastAPI backend with persona credentials
       await login(preset.email, 'LedgerOne@2026!');
     } catch (err) {
-      console.warn('Real login fallback to preset state:', err);
-      // Fallback offline preset if network/backend is briefly unreachable
-      const profile: UserProfile = {
-        id: `usr-${preset.key}`,
-        email: preset.email,
-        full_name: preset.name,
-        is_platform_admin: preset.role === 'PLATFORM_ADMIN',
-        role: preset.role,
-        org_id: preset.orgId,
-        org_name: preset.orgName,
-        org_slug: preset.key === 'meridian_auditor' ? 'meridian-dynamics' : 'apex-capital',
-        ws_id: preset.wsId,
-        ws_name: preset.wsName,
-        ws_slug: preset.key === 'meridian_auditor' ? 'meridian-operations' : 'prod-financial-core',
-      };
-      setUser(profile);
-      window.dispatchEvent(new Event('ledgerone-auth-change'));
+      console.error('Persona authentication failed against backend:', err);
+      throw err;
     } finally {
       setIsLoading(false);
     }
