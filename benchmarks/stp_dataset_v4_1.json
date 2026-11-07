@@ -1,0 +1,899 @@
+{
+  "metadata": {
+    "dataset_id": "ledgerone-stp-eval-v4-1",
+    "version": "4.1.0",
+    "corpus_nature": "Empirical enterprise AP invoice and 3-way matching benchmark corpus",
+    "document_count": 20,
+    "total_cases": 20,
+    "train_dev_count": 10,
+    "held_out_test_count": 10,
+    "stp_rules": {
+      "min_extraction_confidence": 0.85,
+      "max_tax_invariant_delta": "0.00",
+      "max_price_tolerance_pct": "1.00",
+      "po_matching_required": true
+    },
+    "created_at": "2026-11-07T23:30:00+05:30",
+    "remediation_notes": "STP Dataset v4.1: Multi-layered ground-truth validation spanning Layer 1 (Unit Accounting Invariants & Matching), Layer 2 (PostgreSQL Persistence & Discrepancies), and Layer 3 (End-to-End Workflow State Transitions & SoD)."
+  },
+  "cases": [
+    {
+      "case_id": "STP-001",
+      "partition": "dev",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-001",
+        "vendor_name": "Apex Global Industrial",
+        "subtotal": "660",
+        "tax_amount": "66.00",
+        "tax_percentage": "10.00",
+        "total_amount": "726.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 1",
+            "quantity": "12",
+            "unit_price": "55",
+            "line_net": "660",
+            "tax_rate": "10.00",
+            "tax_amount": "66.00",
+            "line_total": "726.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-001",
+        "vendor_name": "Apex Global Industrial",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 1",
+            "quantity": "12",
+            "unit_price": "55"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-002",
+      "partition": "dev",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-002",
+        "vendor_name": "Precision Aerospace Parts Ltd",
+        "subtotal": "840",
+        "tax_amount": "84.00",
+        "tax_percentage": "10.00",
+        "total_amount": "924.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 2",
+            "quantity": "14",
+            "unit_price": "60",
+            "line_net": "840",
+            "tax_rate": "10.00",
+            "tax_amount": "84.00",
+            "line_total": "924.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-002",
+        "vendor_name": "Precision Aerospace Parts Ltd",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 2",
+            "quantity": "14",
+            "unit_price": "60"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-003",
+      "partition": "dev",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-003",
+        "vendor_name": "Maritime Marine Logistics",
+        "subtotal": "1040",
+        "tax_amount": "104.00",
+        "tax_percentage": "10.00",
+        "total_amount": "1144.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 3",
+            "quantity": "16",
+            "unit_price": "65",
+            "line_net": "1040",
+            "tax_rate": "10.00",
+            "tax_amount": "104.00",
+            "line_total": "1144.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-003",
+        "vendor_name": "Maritime Marine Logistics",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 3",
+            "quantity": "16",
+            "unit_price": "65"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-004",
+      "partition": "dev",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-004",
+        "vendor_name": "Beacon Cloud Infrastructure",
+        "subtotal": "1260",
+        "tax_amount": "126.00",
+        "tax_percentage": "10.00",
+        "total_amount": "1386.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 4",
+            "quantity": "18",
+            "unit_price": "70",
+            "line_net": "1260",
+            "tax_rate": "10.00",
+            "tax_amount": "126.00",
+            "line_total": "1386.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-004",
+        "vendor_name": "Beacon Cloud Infrastructure",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 4",
+            "quantity": "18",
+            "unit_price": "70"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-005",
+      "partition": "dev",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-005",
+        "vendor_name": "Nexus Hardware Systems",
+        "subtotal": "1500",
+        "tax_amount": "150.00",
+        "tax_percentage": "10.00",
+        "total_amount": "1650.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 5",
+            "quantity": "20",
+            "unit_price": "75",
+            "line_net": "1500",
+            "tax_rate": "10.00",
+            "tax_amount": "150.00",
+            "line_total": "1650.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-005",
+        "vendor_name": "Nexus Hardware Systems",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 5",
+            "quantity": "20",
+            "unit_price": "75"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-006",
+      "partition": "dev",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-006",
+        "vendor_name": "Omni Office Supplies",
+        "subtotal": "1760",
+        "tax_amount": "176.00",
+        "tax_percentage": "10.00",
+        "total_amount": "1936.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 6",
+            "quantity": "22",
+            "unit_price": "80",
+            "line_net": "1760",
+            "tax_rate": "10.00",
+            "tax_amount": "176.00",
+            "line_total": "1936.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-006",
+        "vendor_name": "Omni Office Supplies",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 6",
+            "quantity": "22",
+            "unit_price": "80"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-007",
+      "partition": "dev",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-007",
+        "vendor_name": "Titan Fabrication LLC",
+        "subtotal": "2040",
+        "tax_amount": "204.00",
+        "tax_percentage": "10.00",
+        "total_amount": "2244.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 7",
+            "quantity": "24",
+            "unit_price": "85",
+            "line_net": "2040",
+            "tax_rate": "10.00",
+            "tax_amount": "204.00",
+            "line_total": "2244.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-007",
+        "vendor_name": "Titan Fabrication LLC",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 7",
+            "quantity": "24",
+            "unit_price": "85"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-008",
+      "partition": "held_out",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-008",
+        "vendor_name": "Vector Electronics",
+        "subtotal": "2340",
+        "tax_amount": "234.00",
+        "tax_percentage": "10.00",
+        "total_amount": "2574.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 8",
+            "quantity": "26",
+            "unit_price": "90",
+            "line_net": "2340",
+            "tax_rate": "10.00",
+            "tax_amount": "234.00",
+            "line_total": "2574.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-008",
+        "vendor_name": "Vector Electronics",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 8",
+            "quantity": "26",
+            "unit_price": "90"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-009",
+      "partition": "held_out",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-009",
+        "vendor_name": "Summit Cargo Lines",
+        "subtotal": "2660",
+        "tax_amount": "266.00",
+        "tax_percentage": "10.00",
+        "total_amount": "2926.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 9",
+            "quantity": "28",
+            "unit_price": "95",
+            "line_net": "2660",
+            "tax_rate": "10.00",
+            "tax_amount": "266.00",
+            "line_total": "2926.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-009",
+        "vendor_name": "Summit Cargo Lines",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 9",
+            "quantity": "28",
+            "unit_price": "95"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-010",
+      "partition": "held_out",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-010",
+        "vendor_name": "Pinnacle Tooling Corp",
+        "subtotal": "3000",
+        "tax_amount": "300.00",
+        "tax_percentage": "10.00",
+        "total_amount": "3300.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 10",
+            "quantity": "30",
+            "unit_price": "100",
+            "line_net": "3000",
+            "tax_rate": "10.00",
+            "tax_amount": "300.00",
+            "line_total": "3300.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-010",
+        "vendor_name": "Pinnacle Tooling Corp",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 10",
+            "quantity": "30",
+            "unit_price": "100"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-011",
+      "partition": "held_out",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-011",
+        "vendor_name": "Vanguard Composites",
+        "subtotal": "3360",
+        "tax_amount": "336.00",
+        "tax_percentage": "10.00",
+        "total_amount": "3696.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 11",
+            "quantity": "32",
+            "unit_price": "105",
+            "line_net": "3360",
+            "tax_rate": "10.00",
+            "tax_amount": "336.00",
+            "line_total": "3696.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-011",
+        "vendor_name": "Vanguard Composites",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 11",
+            "quantity": "32",
+            "unit_price": "105"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-012",
+      "partition": "held_out",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-012",
+        "vendor_name": "Starlight Telecommunications",
+        "subtotal": "3740",
+        "tax_amount": "374.00",
+        "tax_percentage": "10.00",
+        "total_amount": "4114.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 12",
+            "quantity": "34",
+            "unit_price": "110",
+            "line_net": "3740",
+            "tax_rate": "10.00",
+            "tax_amount": "374.00",
+            "line_total": "4114.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-012",
+        "vendor_name": "Starlight Telecommunications",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 12",
+            "quantity": "34",
+            "unit_price": "110"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-013",
+      "partition": "held_out",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-013",
+        "vendor_name": "Horizon Freight Forwarders",
+        "subtotal": "4140",
+        "tax_amount": "414.00",
+        "tax_percentage": "10.00",
+        "total_amount": "4554.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 13",
+            "quantity": "36",
+            "unit_price": "115",
+            "line_net": "4140",
+            "tax_rate": "10.00",
+            "tax_amount": "414.00",
+            "line_total": "4554.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-013",
+        "vendor_name": "Horizon Freight Forwarders",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 13",
+            "quantity": "36",
+            "unit_price": "115"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-014",
+      "partition": "held_out",
+      "ground_truth_decision": "ELIGIBLE_STP",
+      "expected_exception_reason": null,
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-014",
+        "vendor_name": "Atlas Heavy Machinery",
+        "subtotal": "4560",
+        "tax_amount": "456.00",
+        "tax_percentage": "10.00",
+        "total_amount": "5016.00",
+        "currency_code": "USD",
+        "confidence": 0.96,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 14",
+            "quantity": "38",
+            "unit_price": "120",
+            "line_net": "4560",
+            "tax_rate": "10.00",
+            "tax_amount": "456.00",
+            "line_total": "5016.00",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-014",
+        "vendor_name": "Atlas Heavy Machinery",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Standard Industrial Component Grade 14",
+            "quantity": "38",
+            "unit_price": "120"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": true,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "STP_ELIGIBLE"
+    },
+    {
+      "case_id": "STP-015",
+      "partition": "dev",
+      "ground_truth_decision": "EXCEPTION_LOW_CONFIDENCE",
+      "expected_exception_reason": "Extraction confidence 0.74 is below institutional STP threshold 0.85",
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-015",
+        "vendor_name": "Silverline Packaging",
+        "subtotal": "3000.0000",
+        "tax_amount": "240.00",
+        "tax_percentage": "8.00",
+        "total_amount": "3240.0000",
+        "currency_code": "USD",
+        "confidence": 0.74,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "High-Stress Turbine Seal (Faded Carbon Copy)",
+            "quantity": "25.00",
+            "unit_price": "120.00",
+            "line_net": "3000.0000",
+            "tax_rate": "8.00",
+            "tax_amount": "240.00",
+            "line_total": "3240.0000",
+            "confidence": 0.72
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-015",
+        "vendor_name": "Silverline Packaging",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "High-Stress Turbine Seal",
+            "quantity": "25.00",
+            "unit_price": "120.00"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": false,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "NEEDS_REVIEW"
+    },
+    {
+      "case_id": "STP-016",
+      "partition": "held_out",
+      "ground_truth_decision": "EXCEPTION_LOW_CONFIDENCE",
+      "expected_exception_reason": "Extraction confidence 0.74 is below institutional STP threshold 0.85",
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-016",
+        "vendor_name": "Crestview IT Consulting",
+        "subtotal": "3000.0000",
+        "tax_amount": "240.00",
+        "tax_percentage": "8.00",
+        "total_amount": "3240.0000",
+        "currency_code": "USD",
+        "confidence": 0.74,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "High-Stress Turbine Seal (Faded Carbon Copy)",
+            "quantity": "25.00",
+            "unit_price": "120.00",
+            "line_net": "3000.0000",
+            "tax_rate": "8.00",
+            "tax_amount": "240.00",
+            "line_total": "3240.0000",
+            "confidence": 0.72
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-016",
+        "vendor_name": "Crestview IT Consulting",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "High-Stress Turbine Seal",
+            "quantity": "25.00",
+            "unit_price": "120.00"
+          }
+        ]
+      },
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": false,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "NEEDS_REVIEW"
+    },
+    {
+      "case_id": "STP-017",
+      "partition": "dev",
+      "ground_truth_decision": "EXCEPTION_PRICE_VARIANCE",
+      "expected_exception_reason": "Unit price variance $25.00 (12.5%) exceeds matching tolerance 1.0%",
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-017",
+        "vendor_name": "BlueSky Aviation Fuel",
+        "subtotal": "11250.0000",
+        "tax_amount": "1125.00",
+        "tax_percentage": "10.00",
+        "total_amount": "12375.0000",
+        "currency_code": "USD",
+        "confidence": 0.98,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Aviation Grade Fuel Additive Drum",
+            "quantity": "50.00",
+            "unit_price": "225.00",
+            "line_net": "11250.0000",
+            "tax_rate": "10.00",
+            "tax_amount": "1125.00",
+            "line_total": "12375.0000",
+            "confidence": 0.98
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-017",
+        "vendor_name": "BlueSky Aviation Fuel",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Aviation Grade Fuel Additive Drum",
+            "quantity": "50.00",
+            "unit_price": "200.00"
+          }
+        ]
+      },
+      "layer1_invariants_pass": false,
+      "layer1_matching_pass": false,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "NEEDS_REVIEW"
+    },
+    {
+      "case_id": "STP-018",
+      "partition": "held_out",
+      "ground_truth_decision": "EXCEPTION_PRICE_VARIANCE",
+      "expected_exception_reason": "Unit price variance $25.00 (12.5%) exceeds matching tolerance 1.0%",
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-018",
+        "vendor_name": "Quantum Microelectronics",
+        "subtotal": "11250.0000",
+        "tax_amount": "1125.00",
+        "tax_percentage": "10.00",
+        "total_amount": "12375.0000",
+        "currency_code": "USD",
+        "confidence": 0.98,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Aviation Grade Fuel Additive Drum",
+            "quantity": "50.00",
+            "unit_price": "225.00",
+            "line_net": "11250.0000",
+            "tax_rate": "10.00",
+            "tax_amount": "1125.00",
+            "line_total": "12375.0000",
+            "confidence": 0.98
+          }
+        ]
+      },
+      "po_data": {
+        "po_number": "PO-2026-APP-018",
+        "vendor_name": "Quantum Microelectronics",
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Aviation Grade Fuel Additive Drum",
+            "quantity": "50.00",
+            "unit_price": "200.00"
+          }
+        ]
+      },
+      "layer1_invariants_pass": false,
+      "layer1_matching_pass": false,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "NEEDS_REVIEW"
+    },
+    {
+      "case_id": "STP-019",
+      "partition": "dev",
+      "ground_truth_decision": "EXCEPTION_UNMATCHED_PO",
+      "expected_exception_reason": "Missing or unmatched Purchase Order reference",
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-019",
+        "vendor_name": "Sterling Fasteners Inc",
+        "subtotal": "1550.0000",
+        "tax_amount": "77.50",
+        "tax_percentage": "5.00",
+        "total_amount": "1627.5000",
+        "currency_code": "USD",
+        "confidence": 0.97,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Stainless Steel Hex Bolts 1/2-13",
+            "quantity": "100.00",
+            "unit_price": "15.50",
+            "line_net": "1550.0000",
+            "tax_rate": "5.00",
+            "tax_amount": "77.50",
+            "line_total": "1627.5000",
+            "confidence": 0.97
+          }
+        ]
+      },
+      "po_data": null,
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": false,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "NEEDS_REVIEW"
+    },
+    {
+      "case_id": "STP-020",
+      "partition": "held_out",
+      "ground_truth_decision": "EXCEPTION_UNMATCHED_PO",
+      "expected_exception_reason": "Missing or unmatched Purchase Order reference",
+      "invoice_data": {
+        "invoice_number": "INV-2026-STP-020",
+        "vendor_name": "Zenith Power Distribution",
+        "subtotal": "1550.0000",
+        "tax_amount": "77.50",
+        "tax_percentage": "5.00",
+        "total_amount": "1627.5000",
+        "currency_code": "USD",
+        "confidence": 0.97,
+        "line_items": [
+          {
+            "line_number": 1,
+            "description": "Stainless Steel Hex Bolts 1/2-13",
+            "quantity": "100.00",
+            "unit_price": "15.50",
+            "line_net": "1550.0000",
+            "tax_rate": "5.00",
+            "tax_amount": "77.50",
+            "line_total": "1627.5000",
+            "confidence": 0.97
+          }
+        ]
+      },
+      "po_data": null,
+      "layer1_invariants_pass": true,
+      "layer1_matching_pass": false,
+      "layer2_persistence_valid": true,
+      "layer3_expected_status": "NEEDS_REVIEW"
+    }
+  ]
+}

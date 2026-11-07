@@ -40,28 +40,36 @@ async def apply_tenant_rls_context(
     Apply transaction-local settings for PostgreSQL Row-Level Security.
     Uses `is_local=true` in `set_config` so settings automatically revert upon COMMIT or ROLLBACK.
     """
-    if enforce_app_role:
-        # Switch to unprivileged role inside transaction; rolbypassrls=False
-        await conn.execute(f"SET LOCAL ROLE {app_role_name}")
-
     if context is None:
-        # Fail-closed: explicitly clear or set empty transaction-local variables
-        await conn.execute("SELECT set_config('app.current_org_id', '', true)")
-        await conn.execute("SELECT set_config('app.current_user_id', '', true)")
-        await conn.execute("SELECT set_config('app.current_workspace_id', '', true)")
-        await conn.execute("SELECT set_config('app.current_user_role', '', true)")
-        await conn.execute("SELECT set_config('app.is_platform_admin', '', true)")
+        # Fail-closed: explicitly clear or set empty transaction-local variables in a single round-trip
+        sql = """
+            SELECT set_config('app.current_org_id', '', true);
+            SELECT set_config('app.current_user_id', '', true);
+            SELECT set_config('app.current_workspace_id', '', true);
+            SELECT set_config('app.current_user_role', '', true);
+            SELECT set_config('app.is_platform_admin', '', true);
+        """
+        if enforce_app_role:
+            sql = f"SET LOCAL ROLE {app_role_name};\n" + sql
+        await conn.execute(sql)
         return
 
-    # Set parameterized transaction-local variables
-    org_val = str(context.org_id) if context.org_id else ""
-    user_val = str(context.user_id) if context.user_id else ""
-    ws_val = str(context.workspace_id) if context.workspace_id else ""
-    role_val = str(context.user_role) if context.user_role else ""
+    # Set sanitized transaction-local variables in a single network round-trip
+    import re
+    org_val = re.sub(r"[^a-zA-Z0-9_\-]", "", str(context.org_id)) if context.org_id else ""
+    user_val = re.sub(r"[^a-zA-Z0-9_\-]", "", str(context.user_id)) if context.user_id else ""
+    ws_val = re.sub(r"[^a-zA-Z0-9_\-]", "", str(context.workspace_id)) if context.workspace_id else ""
+    role_val = re.sub(r"[^a-zA-Z0-9_\-]", "", str(context.user_role)) if context.user_role else ""
     admin_val = "true" if context.is_platform_admin else "false"
 
-    await conn.execute("SELECT set_config('app.current_org_id', $1, true)", org_val)
-    await conn.execute("SELECT set_config('app.current_user_id', $1, true)", user_val)
-    await conn.execute("SELECT set_config('app.current_workspace_id', $1, true)", ws_val)
-    await conn.execute("SELECT set_config('app.current_user_role', $1, true)", role_val)
-    await conn.execute("SELECT set_config('app.is_platform_admin', $1, true)", admin_val)
+    sql = f"""
+        SELECT set_config('app.current_org_id', '{org_val}', true);
+        SELECT set_config('app.current_user_id', '{user_val}', true);
+        SELECT set_config('app.current_workspace_id', '{ws_val}', true);
+        SELECT set_config('app.current_user_role', '{role_val}', true);
+        SELECT set_config('app.is_platform_admin', '{admin_val}', true);
+    """
+    if enforce_app_role:
+        sql = f"SET LOCAL ROLE {app_role_name};\n" + sql
+
+    await conn.execute(sql)

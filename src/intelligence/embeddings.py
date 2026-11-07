@@ -30,7 +30,10 @@ def get_embedding_model():
 
             device = "cuda" if torch.cuda.is_available() else "cpu"
             logger.info("Initializing SentenceTransformer on device: %s", device)
-            _global_embedding_model = SentenceTransformer(DEFAULT_MODEL_NAME, device=device)
+            try:
+                _global_embedding_model = SentenceTransformer(DEFAULT_MODEL_NAME, device=device, local_files_only=True)
+            except Exception:
+                _global_embedding_model = SentenceTransformer(DEFAULT_MODEL_NAME, device=device)
         except Exception as exc:
             logger.warning("Failed to initialize SentenceTransformer (%s); using fallback hash generator", exc)
             _global_embedding_model = "FALLBACK"

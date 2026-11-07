@@ -187,7 +187,7 @@ class GroqProvider(BaseLLMProvider):
         self.max_retries = (
             max_retries
             if max_retries is not None
-            else getattr(settings, "LLM_MAX_RETRIES", 2)
+            else getattr(settings, "LLM_MAX_RETRIES", 4)
         )
 
     @property
@@ -273,8 +273,17 @@ class GroqProvider(BaseLLMProvider):
                     break
 
                 if attempt <= self.max_retries:
+                    # Adaptive rate-limit handling for Groq ITPM quotas
                     wait_time = (2 ** attempt) * 0.5 + random.uniform(0.1, 0.3)
-                    logger.warning("Groq transient error, retrying", attempt=attempt, wait_s=wait_time, error=err_str)
+                    m_sec = re.search(r"try again in (\d+(?:\.\d+)?)s", err_str, re.IGNORECASE)
+                    if m_sec:
+                        wait_time = float(m_sec.group(1)) + 0.6
+                    else:
+                        m_ms = re.search(r"try again in (\d+(?:\.\d+)?)ms", err_str, re.IGNORECASE)
+                        if m_ms:
+                            wait_time = (float(m_ms.group(1)) / 1000.0) + 0.4
+
+                    logger.warning("Groq transient error, retrying", attempt=attempt, wait_s=round(wait_time, 2), error=err_str[:120])
                     await asyncio.sleep(wait_time)
                 else:
                     logger.error("Groq inference failed after retries, falling back to extractive engine", error=err_str)
