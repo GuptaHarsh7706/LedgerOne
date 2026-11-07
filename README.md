@@ -481,7 +481,26 @@ npm run dev
 # Application is live at http://localhost:5173
 ```
 
-### 3. Verify System Suite & Authentic End-to-End Scenarios
+### 3. Containerized Orchestration (Docker & Docker Compose)
+To launch all LedgerOne tiers with isolated networking and health checks in a single command:
+```bash
+# Build and run backend, worker daemon, redis cache, and nginx web client
+docker compose up -d --build
+
+# Inspect running containers
+docker compose ps
+
+# Follow container logs
+docker compose logs -f backend
+
+# Shutdown all services
+docker compose down
+```
+- **Web Application:** Accessible at `http://localhost:3000`
+- **FastAPI Core Engine & Swagger Docs:** Accessible at `http://localhost:8000/docs`
+- **Redis L2 Cache:** Accessible on `localhost:6379`
+
+### 4. Verify System Suite & Authentic End-to-End Scenarios
 ```bash
 # Run Master End-to-End Production Integration Suite (All 8 mandatory journeys)
 python -m pytest tests/test_e2e_production_integration.py -v
@@ -493,7 +512,14 @@ python -m pytest tests/test_rag_eval.py -v
 python tests/test_document_portfolio.py
 ```
 
-### 4. Verified RAG & Production Performance Metrics
+### 5. Automated CI/CD Pipeline (GitHub Actions)
+Continuous integration is automated via `.github/workflows/ci.yml` on every push and pull request to `main`:
+1. **`backend-lint-and-audit`:** Executes `ruff` AST linter across `src/` and `tests/`.
+2. **`backend-tests`:** Provisions Python 3.11 with system OCR (`tesseract-ocr`), installs dependencies, and runs the master E2E integration suite, RAG evaluation suite, and zero-drift invariant tests.
+3. **`frontend-build`:** Provisions Node.js 22.x, runs TypeScript strict typechecking (`tsc -b`), and compiles the Vite production bundle.
+4. **`docker-build`:** Executes parallel multi-stage Docker builds via Buildx for both `ledgerone-backend` and `ledgerone-frontend`.
+
+### 6. Verified RAG & Production Performance Metrics
 
 | Evaluation Metric | Measured Benchmark Value | Test Verification Method |
 | :--- | :---: | :--- |
@@ -505,7 +531,7 @@ python tests/test_document_portfolio.py
 | **P99 Gateway Latency** | $8.40\text{ ms}$ | High-throughput concurrent benchmark |
 | **STP Straight-Through Rate** | $89.6\%$ | Autonomous clearing across compliant institutional invoices |
 
-### 5. Production Limitations & Design Boundaries
+### 7. Production Limitations & Design Boundaries
 1. **Model Fallback:** When `OPENAI_API_KEY` and `GEMINI_API_KEY` are not configured, the system transparently utilizes the deterministic `ExtractiveFallbackProvider` and reports this in the response metadata (`model: extractive-fallback-v1`).
 2. **Worker Concurrency:** The embedded ingestion worker uses PostgreSQL `FOR UPDATE SKIP LOCKED` polling (1.0s interval). For enterprise deployments scaling beyond $10,000$ concurrent documents/min, deploy the worker as a separate horizontal Kubernetes Deployment (`Deployment/ledgerone-worker`).
 3. **Local Storage Elimination:** Browser storage is restricted strictly to transient UI preferences (e.g. sidebar collapse state). All financial documents, approval workflows, three-way matches, and assistant conversations persist directly in PostgreSQL 18.6 with Row-Level Security.

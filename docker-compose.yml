@@ -1,0 +1,99 @@
+# ==============================================================================
+# LedgerOne Multi-Container Orchestration (Docker Compose)
+# Services:
+#   1. backend: FastAPI Ingress Gateway & Document Intelligence Engine
+#   2. redis: In-Memory L2 Cache, Rate Limiting & Session Store
+#   3. worker: Dedicated Asynchronous OCR & Ingestion Daemon
+#   4. frontend: React 19 SPA served via Optimized Nginx Reverse Proxy
+# ==============================================================================
+
+services:
+  # --- 1. Redis Cache & Rate Limiting ---
+  redis:
+    image: redis:7-alpine
+    container_name: ledgerone-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - ledgerone-network
+
+  # --- 2. FastAPI Core Engine & API Gateway ---
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ledgerone-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - WORKER_ENABLED=true
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - ledgerone-network
+
+  # --- 3. Dedicated Asynchronous Ingestion Worker (Horizontal Scale) ---
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ledgerone-worker
+    restart: unless-stopped
+    command: ["python", "-m", "src.intelligence.worker_daemon"]
+    environment:
+      - WORKER_ENABLED=true
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ledgerone-network
+
+  # --- 4. Web Client (React 19 + Nginx Reverse Proxy) ---
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ledgerone-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - ledgerone-network
+
+networks:
+  ledgerone-network:
+    name: ledgerone-network
+    driver: bridge

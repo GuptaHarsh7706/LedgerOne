@@ -12,5 +12,7 @@ import uvicorn
 from src.main import app
 
 if __name__ == "__main__":
-    print("Starting uvicorn on 127.0.0.1:8000...")
-    uvicorn.run("src.main:app", host="127.0.0.1", port=8000, log_level="info")
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8000"))
+    print(f"Starting uvicorn on {host}:{port}...")
+    uvicorn.run("src.main:app", host=host, port=port, log_level="info")

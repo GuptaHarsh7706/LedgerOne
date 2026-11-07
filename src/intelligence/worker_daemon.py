@@ -225,3 +225,61 @@ class WorkerDaemon:
             except Exception as exc:
                 logger.error("Error in lease reaper loop", error=str(exc))
                 await asyncio.sleep(5.0)
+
+
+async def run_standalone_daemon() -> None:
+    """Entrypoint for standalone worker daemon execution."""
+    from src.dns import init_dns_resolver
+    from src.config import get_settings
+    from src.db.pool import db_manager
+
+    init_dns_resolver()
+    settings = get_settings()
+
+    logger.info("Initializing standalone worker daemon", concurrency=settings.WORKER_CONCURRENCY)
+    await db_manager.connect(
+        dsn=settings.DATABASE_URL,
+        min_size=settings.DB_POOL_MIN_SIZE,
+        max_size=settings.DB_POOL_MAX_SIZE,
+        timeout=settings.DB_POOL_TIMEOUT,
+    )
+
+    daemon = WorkerDaemon(
+        pool=db_manager.pool,
+        max_concurrent_jobs=settings.WORKER_CONCURRENCY,
+        poll_interval_seconds=settings.WORKER_POLL_INTERVAL,
+        lease_duration_seconds=settings.WORKER_LEASE_SECONDS,
+        reaper_interval_seconds=settings.WORKER_REAPER_INTERVAL,
+    )
+    daemon.start()
+
+    stop_event = asyncio.Event()
+
+    def _handle_shutdown() -> None:
+        logger.info("Shutdown signal received for standalone worker daemon")
+        stop_event.set()
+
+    loop = asyncio.get_running_loop()
+    try:
+        import signal
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            try:
+                loop.add_signal_handler(sig, _handle_shutdown)
+            except NotImplementedError:
+                pass
+    except Exception:
+        pass
+
+    try:
+        await stop_event.wait()
+    except (asyncio.CancelledError, KeyboardInterrupt):
+        pass
+    finally:
+        await daemon.stop()
+        await db_manager.disconnect()
+        logger.info("Standalone worker daemon shut down cleanly")
+
+
+if __name__ == "__main__":
+    asyncio.run(run_standalone_daemon())
+
