@@ -8,6 +8,7 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertTriangle,
+  ExternalLink,
 } from "lucide-react";
 import { ThreeWayMatchResult } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/tokens";
@@ -24,7 +25,10 @@ export function ThreeWayMatchMatrix({ matchResult }: ThreeWayMatchMatrixProps) {
       {/* 3-Way Graph Relationship Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {/* Document 1: PO */}
-        <div className="p-3.5 rounded-xl bg-surface-card border border-hairline shadow-subtle-card space-y-2">
+        <Link
+          href="/documents/doc-po-4412/review"
+          className="p-3.5 rounded-xl bg-surface-card border border-hairline hover:border-indigo-500/40 hover:bg-surface-hover/80 transition shadow-subtle-card space-y-2 group block"
+        >
           <div className="flex items-center justify-between text-xs">
             <span className="text-[10px] uppercase font-mono font-semibold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
               1. Purchase Order
@@ -32,8 +36,9 @@ export function ThreeWayMatchMatrix({ matchResult }: ThreeWayMatchMatrixProps) {
             <span className="font-mono text-emerald-400 text-[10px]">Contracted</span>
           </div>
           <div>
-            <div className="font-semibold text-ink-primary text-xs">
-              PO-2026-4412
+            <div className="font-semibold text-ink-primary text-xs flex items-center justify-between">
+              <span>PO-2026-4412</span>
+              <ExternalLink className="w-3 h-3 text-ink-muted group-hover:text-indigo-400 transition" />
             </div>
             <div className="text-[11px] text-ink-muted">DataCore Enterprise Inc</div>
           </div>
@@ -41,10 +46,13 @@ export function ThreeWayMatchMatrix({ matchResult }: ThreeWayMatchMatrixProps) {
             <span className="text-ink-muted">Authorized:</span>
             <span className="text-ink-primary font-semibold">$10,000.00</span>
           </div>
-        </div>
+        </Link>
 
         {/* Document 2: GRN / Receipt */}
-        <div className="p-3.5 rounded-xl bg-surface-card border border-hairline shadow-subtle-card space-y-2">
+        <Link
+          href="/documents/doc-grn-1109/review"
+          className="p-3.5 rounded-xl bg-surface-card border border-hairline hover:border-emerald-500/40 hover:bg-surface-hover/80 transition shadow-subtle-card space-y-2 group block"
+        >
           <div className="flex items-center justify-between text-xs">
             <span className="text-[10px] uppercase font-mono font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
               2. Goods Receipt (GRN)
@@ -52,8 +60,9 @@ export function ThreeWayMatchMatrix({ matchResult }: ThreeWayMatchMatrixProps) {
             <span className="font-mono text-emerald-400 text-[10px]">Verified Delivery</span>
           </div>
           <div>
-            <div className="font-semibold text-ink-primary text-xs">
-              GRN-2026-1109
+            <div className="font-semibold text-ink-primary text-xs flex items-center justify-between">
+              <span>GRN-2026-1109</span>
+              <ExternalLink className="w-3 h-3 text-ink-muted group-hover:text-emerald-400 transition" />
             </div>
             <div className="text-[11px] text-ink-muted">Warehouse Bay #4</div>
           </div>
@@ -61,10 +70,13 @@ export function ThreeWayMatchMatrix({ matchResult }: ThreeWayMatchMatrixProps) {
             <span className="text-ink-muted">Physical Qty:</span>
             <span className="text-ink-primary font-semibold">6 units total</span>
           </div>
-        </div>
+        </Link>
 
         {/* Document 3: Invoice */}
-        <div className="p-3.5 rounded-xl bg-surface-card border border-rose-500/30 shadow-subtle-card space-y-2">
+        <Link
+          href="/documents/doc-inv-9041/review"
+          className="p-3.5 rounded-xl bg-surface-card border border-rose-500/30 hover:border-rose-500/60 hover:bg-surface-hover/80 transition shadow-subtle-card space-y-2 group block"
+        >
           <div className="flex items-center justify-between text-xs">
             <span className="text-[10px] uppercase font-mono font-semibold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
               3. Supplier Invoice
@@ -72,8 +84,9 @@ export function ThreeWayMatchMatrix({ matchResult }: ThreeWayMatchMatrixProps) {
             <span className="font-mono text-rose-400 text-[10px]">Variance Found</span>
           </div>
           <div>
-            <div className="font-semibold text-ink-primary text-xs">
-              INV-2026-9041
+            <div className="font-semibold text-ink-primary text-xs flex items-center justify-between">
+              <span>INV-2026-9041</span>
+              <ExternalLink className="w-3 h-3 text-ink-muted group-hover:text-rose-400 transition" />
             </div>
             <div className="text-[11px] text-ink-muted">DataCore Enterprise Inc</div>
           </div>
@@ -81,7 +94,7 @@ export function ThreeWayMatchMatrix({ matchResult }: ThreeWayMatchMatrixProps) {
             <span className="text-ink-muted">Billed Amount:</span>
             <span className="text-rose-400 font-semibold">$11,220.00</span>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Line Item Cross-Reconciliation Table */}
@@ -145,10 +158,14 @@ export function ThreeWayMatchMatrix({ matchResult }: ThreeWayMatchMatrixProps) {
                         Aligned
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-mono text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
+                      <Link
+                        href="/documents/doc-inv-9041/review"
+                        className="inline-flex items-center gap-1 text-[10px] font-mono text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20 hover:bg-rose-500/20 transition"
+                      >
                         <AlertTriangle className="w-3 h-3" />
-                        Price Inflation (+$600/u)
-                      </span>
+                        <span>Price Inflation (+$600/u)</span>
+                        <ArrowRight className="w-2.5 h-2.5 ml-0.5" />
+                      </Link>
                     )}
                   </td>
                 </tr>

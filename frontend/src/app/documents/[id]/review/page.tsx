@@ -5,6 +5,8 @@ import { PageThumbnailStrip } from "@/components/viewer/PageThumbnailStrip";
 import { DocumentCanvas } from "@/components/viewer/DocumentCanvas";
 import { ExtractionInspector } from "@/components/viewer/ExtractionInspector";
 import { CellCorrectionModal } from "@/components/review/CellCorrectionModal";
+import { FieldCorrectionModal } from "@/components/review/FieldCorrectionModal";
+import { DocumentRejectModal } from "@/components/review/DocumentRejectModal";
 import { AuditorOverrideModal } from "@/components/review/AuditorOverrideModal";
 import {
   MOCK_REVIEW_DETAIL,
@@ -12,7 +14,7 @@ import {
   InvariantResult,
   ExtractedField,
 } from "@/lib/api-client";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 export default function DocumentReviewStudioPage() {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -25,10 +27,13 @@ export default function DocumentReviewStudioPage() {
 
   // Modals state
   const [editingLineItem, setEditingLineItem] = useState<ExtractedLineItem | null>(null);
+  const [editingScalarField, setEditingScalarField] = useState<ExtractedField | null>(null);
   const [overridingInvariant, setOverridingInvariant] = useState<InvariantResult | null>(null);
+  const [isRejectOpen, setIsRejectOpen] = useState<boolean>(false);
   const [approvedSuccess, setApprovedSuccess] = useState<boolean>(false);
+  const [rejectedMessage, setRejectedMessage] = useState<string | null>(null);
 
-  // Handle cell correction with real-time recalculation
+  // Handle line item cell correction with real-time recalculation
   const handleSaveCorrection = (updatedItem: ExtractedLineItem) => {
     const nextLines = lineItems.map((l) =>
       l.line_number === updatedItem.line_number ? updatedItem : l
@@ -82,6 +87,13 @@ export default function DocumentReviewStudioPage() {
     );
   };
 
+  // Handle scalar field correction
+  const handleSaveScalarField = (fieldName: string, newValue: string) => {
+    setFields((prev) =>
+      prev.map((f) => (f.name === fieldName ? { ...f, value: newValue } : f))
+    );
+  };
+
   const handleConfirmOverride = (invariantId: string, rationale: string) => {
     setInvariants((prev) =>
       prev.map((inv) =>
@@ -99,6 +111,12 @@ export default function DocumentReviewStudioPage() {
 
   const handleApprove = () => {
     setApprovedSuccess(true);
+    setRejectedMessage(null);
+  };
+
+  const handleConfirmReject = (reason: string) => {
+    setRejectedMessage(`Document rejected: "${reason}"`);
+    setApprovedSuccess(false);
   };
 
   return (
@@ -108,6 +126,14 @@ export default function DocumentReviewStudioPage() {
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-lg bg-emerald-500 text-black font-semibold text-xs shadow-2xl flex items-center gap-2 animate-in slide-in-from-top-4 duration-200">
           <CheckCircle2 className="w-4 h-4" />
           <span>Document INV-2026-9041 verified and committed under dual-custody audit policy!</span>
+        </div>
+      )}
+
+      {/* Toast Notification when Rejected */}
+      {rejectedMessage && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-lg bg-rose-600 text-white font-semibold text-xs shadow-2xl flex items-center gap-2 animate-in slide-in-from-top-4 duration-200">
+          <XCircle className="w-4 h-4" />
+          <span>{rejectedMessage}</span>
         </div>
       )}
 
@@ -137,17 +163,37 @@ export default function DocumentReviewStudioPage() {
         invariants={invariants}
         activeFieldKey={activeFieldKey}
         onSelectField={setActiveFieldKey}
+        onEditScalarField={(f) => setEditingScalarField(f)}
         onEditLineItem={(li) => setEditingLineItem(li)}
+        onOpenOverrideModal={(inv) => setOverridingInvariant(inv)}
         onApproveDocument={handleApprove}
-        canApprove={MOCK_REVIEW_DETAIL.sod_status.can_approve}
+        onRejectDocument={() => setIsRejectOpen(true)}
+        canApprove={MOCK_REVIEW_DETAIL.sod_status.can_approve && !rejectedMessage}
       />
 
-      {/* Modal: Human Cell Correction */}
+      {/* Modal: Line Item Cell Correction */}
       <CellCorrectionModal
         isOpen={!!editingLineItem}
         lineItem={editingLineItem}
         onClose={() => setEditingLineItem(null)}
         onSaveCorrection={handleSaveCorrection}
+      />
+
+      {/* Modal: Scalar Field Correction */}
+      <FieldCorrectionModal
+        isOpen={!!editingScalarField}
+        field={editingScalarField}
+        onClose={() => setEditingScalarField(null)}
+        onSaveField={handleSaveScalarField}
+      />
+
+      {/* Modal: Document Rejection */}
+      <DocumentRejectModal
+        isOpen={isRejectOpen}
+        documentId={MOCK_REVIEW_DETAIL.document.id}
+        filename={MOCK_REVIEW_DETAIL.document.filename}
+        onClose={() => setIsRejectOpen(false)}
+        onConfirmReject={handleConfirmReject}
       />
 
       {/* Modal: Auditor Override Gating */}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, Suspense } from "react";
+import React, { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { DocumentTable } from "@/components/documents/DocumentTable";
 import { CategoryFilterBar } from "@/components/documents/CategoryFilterBar";
@@ -16,6 +16,21 @@ function DocumentsContent() {
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isUploadOpen, setIsUploadOpen] = useState<boolean>(initialUploadOpen);
+
+  useEffect(() => {
+    const handleOpen = () => setIsUploadOpen(true);
+    window.addEventListener("open-upload-modal", handleOpen);
+    return () => window.removeEventListener("open-upload-modal", handleOpen);
+  }, []);
+
+  const handleDeleteDocument = (id: string) => {
+    setDocuments((prev) => prev.filter((d) => d.id !== id));
+  };
+
+  const handleBatchDelete = (ids: string[]) => {
+    const idSet = new Set(ids);
+    setDocuments((prev) => prev.filter((d) => !idSet.has(d.id)));
+  };
 
   // Compute category counts
   const categoryCounts = useMemo(() => {
@@ -81,7 +96,11 @@ function DocumentsContent() {
       />
 
       {/* Main Table View */}
-      <DocumentTable documents={filteredDocuments} />
+      <DocumentTable
+        documents={filteredDocuments}
+        onDeleteDocument={handleDeleteDocument}
+        onBatchDelete={handleBatchDelete}
+      />
 
       {/* Upload Modal */}
       <UploadModal

@@ -3,6 +3,7 @@ import "./globals.css";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { Header } from "@/components/shell/Header";
 import { CommandPalette } from "@/components/shell/CommandPalette";
+import { GlobalUploadModal } from "@/components/documents/GlobalUploadModal";
 
 export const metadata: Metadata = {
   title: "LedgerOne — Enterprise Document Intelligence Ecosystem",
@@ -33,6 +34,9 @@ export default function RootLayout({
 
         {/* Global Keyboard Quick Launcher */}
         <CommandPalette />
+
+        {/* Global Upload Trigger Bridge */}
+        <GlobalUploadModal />
       </body>
     </html>
   );

@@ -11,6 +11,7 @@ import {
   Lock,
   GitCompare,
   Sparkles,
+  Edit2,
 } from "lucide-react";
 import {
   ExtractedField,
@@ -29,7 +30,9 @@ interface ExtractionInspectorProps {
   invariants: InvariantResult[];
   activeFieldKey: string | null;
   onSelectField: (key: string) => void;
+  onEditScalarField?: (field: ExtractedField) => void;
   onEditLineItem?: (li: ExtractedLineItem) => void;
+  onOpenOverrideModal?: (inv: InvariantResult) => void;
   onApproveDocument?: () => void;
   onRejectDocument?: () => void;
   canApprove?: boolean;
@@ -42,7 +45,9 @@ export function ExtractionInspector({
   invariants,
   activeFieldKey,
   onSelectField,
+  onEditScalarField,
   onEditLineItem,
+  onOpenOverrideModal,
   onApproveDocument,
   onRejectDocument,
   canApprove = true,
@@ -131,8 +136,22 @@ export function ExtractionInspector({
                     </div>
                   </div>
 
-                  <div className="font-semibold text-ink-primary text-sm font-mono truncate">
-                    {f.value}
+                  <div className="flex items-center justify-between">
+                    <div className="font-semibold text-ink-primary text-sm font-mono truncate">
+                      {f.value}
+                    </div>
+                    {onEditScalarField && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditScalarField(f);
+                        }}
+                        className="p-1 rounded hover:bg-surface-elevated text-ink-muted hover:text-brand-light transition"
+                        title="Edit field value"
+                      >
+                        <Edit2 className="w-3 h-3" />
+                      </button>
+                    )}
                   </div>
 
                   <div className="text-[10px] text-ink-muted font-mono mt-1 truncate">
@@ -154,7 +173,10 @@ export function ExtractionInspector({
         )}
 
         {activeTab === "INVARIANTS" && (
-          <InvariantPanel invariants={invariants} />
+          <InvariantPanel
+            invariants={invariants}
+            onOpenOverrideModal={onOpenOverrideModal}
+          />
         )}
       </div>
 

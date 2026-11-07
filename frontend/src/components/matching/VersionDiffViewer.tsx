@@ -1,10 +1,12 @@
 "use client";
 
-import React from "react";
-import { GitCompare, Plus, Minus, RefreshCw, FileText } from "lucide-react";
+import React, { useState } from "react";
+import { GitCompare, Plus, Minus, RefreshCw, FileText, Download, CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/tokens";
 
 export function VersionDiffViewer() {
+  const [exportSuccess, setExportSuccess] = useState(false);
+
   const diffData = {
     doc_a: "INV-2026-9041-v1.pdf (Original Ingestion)",
     doc_b: "INV-2026-9041-v2.pdf (Supplier Revision)",
@@ -42,9 +44,14 @@ export function VersionDiffViewer() {
     ],
   };
 
+  const handleExport = () => {
+    setExportSuccess(true);
+    setTimeout(() => setExportSuccess(false), 2500);
+  };
+
   return (
     <div className="p-4 rounded-xl bg-surface-card border border-hairline shadow-subtle-card space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-hairline">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-hairline">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
             <GitCompare className="w-3.5 h-3.5" />
@@ -59,11 +66,30 @@ export function VersionDiffViewer() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 font-mono text-xs">
-          <span className="text-ink-muted">Net Financial Variance:</span>
-          <span className="text-amber-400 font-bold">
-            +{formatCurrency(diffData.net_variance)}
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 font-mono text-xs">
+            <span className="text-ink-muted">Net Variance:</span>
+            <span className="text-amber-400 font-bold">
+              +{formatCurrency(diffData.net_variance)}
+            </span>
+          </div>
+
+          <button
+            onClick={handleExport}
+            className="px-3 py-1.5 rounded-md bg-surface-elevated hover:bg-surface-hover border border-hairline text-ink-secondary hover:text-ink-primary text-xs font-medium transition flex items-center gap-1.5"
+          >
+            {exportSuccess ? (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400">Exported</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-3.5 h-3.5 text-brand-light" />
+                <span>Export Redline</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
