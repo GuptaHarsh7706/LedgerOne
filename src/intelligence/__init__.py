@@ -163,6 +163,9 @@ from src.intelligence.verification_schemas import (
 )
 from src.intelligence.chunking import (
     DocumentChunk,
+    StructuredTableRow,
+    StructuredTable,
+    chunk_structured_document,
     chunk_scalar_fields,
     chunk_tabular_rows,
     chunk_document_text,
@@ -331,6 +334,9 @@ __all__ = [
     "InvariantReviewItem",
     # Phase 6: Retrieval & Assistant
     "DocumentChunk",
+    "StructuredTableRow",
+    "StructuredTable",
+    "chunk_structured_document",
     "chunk_scalar_fields",
     "chunk_tabular_rows",
     "chunk_document_text",

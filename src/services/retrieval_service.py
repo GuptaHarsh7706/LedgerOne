@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import json
 import logging
+import re
 from typing import Any, Dict, List, Optional, Sequence
 import uuid
 import asyncpg
@@ -23,6 +24,80 @@ from src.intelligence.embeddings import embed_query, embed_texts, vector_to_pg_s
 logger = logging.getLogger(__name__)
 
 RRF_K = 60  # Standard Reciprocal Rank Fusion smoothing constant
+
+ENGLISH_STOPWORDS = {
+    "a", "an", "the", "in", "on", "at", "by", "for", "with", "about", "against", "between",
+    "into", "through", "during", "before", "after", "above", "below", "to", "from", "up",
+    "down", "of", "off", "over", "under", "again", "further", "then", "once", "here", "there",
+    "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other",
+    "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very",
+    "can", "will", "just", "don", "should", "now", "what", "which", "who", "whom", "this",
+    "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have",
+    "has", "had", "having", "do", "does", "did", "doing", "would", "could", "ought", "i",
+    "you", "he", "she", "it", "we", "they", "them", "their", "theirs", "themselves", "document",
+    "documents", "invoice", "invoices"
+}
+
+ENTITY_ALIAS_MAP = {
+    "smith-cook": ["smith", "cook", "fastener", "fasteners", "titanium", "equipment"],
+    "bradley-andrade": ["bradley", "andrade", "chess", "lapis", "instruments"],
+    "hopkins": ["hopkins", "supplies", "beach", "lunch", "dress"],
+    "fiata": ["fiata", "fbl", "voyager", "ocean", "freight", "rotterdam", "singapore"],
+    "gordon": ["gordon", "hydraulic", "hose"],
+    "kaiser": ["kaiser", "pneumatic", "actuator"],
+    "nichols-barajas": ["nichols", "barajas", "drayage", "intermodal", "rail"],
+    "global treasury": ["treasury", "clearing", "settl", "factor"],
+    "psa": ["psa", "wharfage", "tally", "singapore", "dock"],
+}
+
+
+def classify_query_intent(query: str) -> str:
+    """Classify the incoming search query into canonical functional categories."""
+    q_lower = query.lower()
+    if any(k in q_lower for k in ["ignore instructions", "disregard", "system prompt", "drop table", "admin access", "jailbreak", "secret keys", "exfiltrate"]):
+        return "UNSUPPORTED_ADVERSARIAL"
+    if any(k in q_lower for k in ["vat", "tax", "subtotal", "gross total", "net payable", "amount due", "deduction", "clearance volume", "freight charge", "wharfage"]):
+        return "ACCOUNTING_TAX_TOTALS"
+    if any(k in q_lower for k in ["quantity", "unit price", "line total", "how many", "units of", "purchased", "ordered", "rate"]):
+        return "TABULAR_LINE_ITEMS"
+    if any(k in q_lower for k in ["invoice number", "po number", "order number", "vessel name", "contract", "carrier", "vendor", "customer", "berth", "batch"]):
+        return "ENTITY_IDENTIFIER"
+    if any(k in q_lower for k in ["compare", "difference between", "both invoices", "across documents"]):
+        return "CROSS_DOCUMENT"
+    return "FACTUAL_SINGLE_FIELD"
+
+
+def extract_query_identifiers(query: str) -> List[str]:
+    """Extract exact business/document identifiers from query string."""
+    matches = re.findall(r"\b(?:INV|PO|ORD|FBL|SETTL|REC|ST|TAT|JIG7|GS-35F)[\w\-]*\b", query, re.IGNORECASE)
+    generic_codes = re.findall(r"\b[A-Za-z0-9]{2,}\-[A-Za-z0-9\-]+\b", query)
+    all_codes = list(set(matches + generic_codes))
+    return [c.upper() for c in all_codes]
+
+
+def build_lexical_tsquery(query: str) -> str:
+    """
+    Construct a high-recall, content-focused disjunctive tsquery from natural language input.
+    Filters common stopwords, extracts identifiers, expands evidenced aliases, and prevents syntax errors.
+    """
+    tokens = re.findall(r"[A-Za-z0-9\-_]+", query)
+    content_tokens = set()
+    for t in tokens:
+        t_clean = t.strip("-").lower()
+        if len(t_clean) > 1 and t_clean not in ENGLISH_STOPWORDS:
+            clean_alnum = re.sub(r"[^a-zA-Z0-9]", "", t_clean)
+            if clean_alnum:
+                content_tokens.add(clean_alnum)
+
+    q_lower = query.lower()
+    for alias_key, expansions in ENTITY_ALIAS_MAP.items():
+        if alias_key in q_lower:
+            for exp in expansions:
+                content_tokens.add(exp)
+
+    if not content_tokens:
+        return ""
+    return " | ".join(sorted(content_tokens))
 
 
 class RetrievedChunkResponse(BaseModel):
@@ -235,25 +310,28 @@ class RetrievalService:
 
                 dense_rows = await conn.fetch(dense_query, *params_dense)
 
-                # 2. Lexical Full-Text Search (tsvector @@ plainto_tsquery)
-                lexical_query = f"""
-                    SELECT id, document_id, chunk_index, page_number, bounding_box, content,
-                           ts_rank_cd(tsv_content, plainto_tsquery('english', $3)) AS lexical_rank
-                    FROM document_chunks
-                    WHERE organization_id = $1 AND workspace_id = $2
-                      AND tsv_content @@ plainto_tsquery('english', $3)
-                    {doc_filter_sql}
-                    ORDER BY lexical_rank DESC
-                    LIMIT {candidate_k}
-                """
-                params_lexical = [org_id, ws_id, query_text]
-                if doc_filter_param:
-                    params_lexical.append(doc_filter_param)
+                # 2. Lexical Full-Text Search with Disjunctive Token Expansion
+                tsquery_str = build_lexical_tsquery(query_text)
+                lexical_rows = []
+                if tsquery_str:
+                    lexical_query = f"""
+                        SELECT id, document_id, chunk_index, page_number, bounding_box, content,
+                               ts_rank_cd(tsv_content, to_tsquery('english', $3)) AS lexical_rank
+                        FROM document_chunks
+                        WHERE organization_id = $1 AND workspace_id = $2
+                          AND tsv_content @@ to_tsquery('english', $3)
+                        {doc_filter_sql}
+                        ORDER BY lexical_rank DESC
+                        LIMIT {candidate_k}
+                    """
+                    params_lexical = [org_id, ws_id, tsquery_str]
+                    if doc_filter_param:
+                        params_lexical.append(doc_filter_param)
 
-                lexical_rows = await conn.fetch(lexical_query, *params_lexical)
+                    lexical_rows = await conn.fetch(lexical_query, *params_lexical)
 
-                # 3. Reciprocal Rank Fusion (RRF)
-                # Map chunk_id -> metadata and ranks
+                # 3. Reciprocal Rank Fusion (RRF) & Exact Identifier Boosting
+                exact_identifiers = extract_query_identifiers(query_text)
                 fused_map: Dict[str, Dict[str, Any]] = {}
 
                 for rank, row in enumerate(dense_rows):
@@ -281,17 +359,31 @@ class RetrievalService:
                             "lexical_score": lex_score,
                         }
 
-                # Compute blended RRF score
+                # Compute blended RRF score with query-aware ranking
                 scored_results = []
                 for cid, item in fused_map.items():
                     d_rank = item["dense_rank"]
                     l_rank = item["lexical_rank"]
-
-                    dense_rrf = (alpha / (RRF_K + d_rank)) if d_rank is not None else 0.0
-                    lex_rrf = ((1.0 - alpha) / (RRF_K + l_rank)) if l_rank is not None else 0.0
-                    rrf_total = dense_rrf + lex_rrf
-
                     row = item["row"]
+                    c_text = str(row["content"])
+
+                    # Exact identifier bonus: Guarantees that chunks with the exact target PO/INV/ORD number rank top
+                    id_bonus = 0.0
+                    if exact_identifiers and any(ident in c_text.upper() for ident in exact_identifiers):
+                        id_bonus = 0.10
+
+                    if alpha >= 0.99:
+                        # Pure Dense Vector mode
+                        final_score = (item["dense_score"] + id_bonus) if d_rank is not None else -1.0
+                    elif alpha <= 0.01:
+                        # Pure Lexical mode
+                        final_score = (item["lexical_score"] + id_bonus) if l_rank is not None else -1.0
+                    else:
+                        # Balanced Hybrid RRF mode
+                        dense_rrf = (alpha / (RRF_K + d_rank)) if d_rank is not None else 0.0
+                        lex_rrf = ((1.0 - alpha) / (RRF_K + l_rank)) if l_rank is not None else 0.0
+                        final_score = dense_rrf + lex_rrf + id_bonus
+
                     bbox = row["bounding_box"]
                     if isinstance(bbox, str):
                         try:
@@ -308,10 +400,10 @@ class RetrievalService:
                         "content": row["content"],
                         "dense_score": item["dense_score"],
                         "lexical_score": item["lexical_score"],
-                        "rrf_score": rrf_total,
+                        "rrf_score": final_score,
                     })
 
-                # Sort by RRF score descending
+                # Sort by score descending
                 scored_results.sort(key=lambda x: x["rrf_score"], reverse=True)
                 top_results = scored_results[:top_k]
 

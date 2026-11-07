@@ -50,3 +50,6 @@ frontend/node_modules/
 frontend/dist/
 frontend/dist-ssr/
 frontend/tsconfig.tsbuildinfo
+
+# Local Scratch Directory
+scratch/

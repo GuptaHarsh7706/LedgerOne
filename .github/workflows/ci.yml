@@ -79,6 +79,10 @@ jobs:
         run: |
           python -m pytest tests/test_financial_normalizer.py tests/test_document_validation.py -v
 
+      - name: Run Benchmark Evidence & Anti-Cheating Invariant Suite
+        run: |
+          python -m pytest tests/test_benchmark_evidence.py -v
+
   # ============================================================================
   # JOB 3: Frontend TypeScript Strict Compilation & Asset Bundling
   # ============================================================================
@@ -97,7 +101,7 @@ jobs:
         with:
           node-version: 22
           cache: "npm"
-          cache-dependency-path: frontend/package.json
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install NPM Dependencies
         run: |

@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 import json
 import re
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 
 @dataclass(frozen=True)
@@ -33,6 +33,92 @@ class DocumentChunk:
             "bounding_box": self.bounding_box,
             "metadata": self.metadata,
         }
+
+
+@dataclass(frozen=True)
+class StructuredTableRow:
+    """Atomic table line-item row with exact cell relationships and source geometry."""
+
+    row_id: str
+    table_id: str
+    description: str
+    quantity: Optional[str] = None
+    unit_price: Optional[str] = None
+    subtotal: Optional[str] = None
+    tax: Optional[str] = None
+    total: Optional[str] = None
+    sku: Optional[str] = None
+    additional_columns: Dict[str, str] = field(default_factory=dict)
+    page_number: int = 1
+    bounding_box: Optional[Dict[str, float]] = None
+
+
+@dataclass(frozen=True)
+class StructuredTable:
+    """
+    Strongly typed table representation preserving table identity, column headers,
+    multi-page relationships, and source geometry.
+    """
+
+    table_id: str
+    document_id: str
+    document_name: Optional[str] = None
+    headers: List[str] = field(default_factory=list)
+    rows: List[StructuredTableRow] = field(default_factory=list)
+    page_range: Tuple[int, int] = (1, 1)
+    continuation_metadata: Dict[str, Any] = field(default_factory=dict)
+    source_geometry: Optional[Dict[str, float]] = None
+
+    def to_chunks(self, start_index: int = 0) -> List[DocumentChunk]:
+        """Convert table into cohesive, self-contained row chunks preserving column headers and table identity."""
+        chunks: List[DocumentChunk] = []
+        idx = start_index
+        header_str = " | ".join(self.headers) if self.headers else ""
+        doc_prefix = f"[{self.document_name} | " if self.document_name else "["
+
+        for row in self.rows:
+            parts = [f"{doc_prefix}Table: {self.table_id} | Row #{row.row_id} P.{row.page_number}]"]
+            if header_str:
+                parts.append(f"Columns: ({header_str})")
+            parts.append(f"Description: {row.description}")
+            if row.sku:
+                parts.append(f"SKU: {row.sku}")
+            if row.quantity is not None:
+                parts.append(f"Quantity: {row.quantity}")
+            if row.unit_price is not None:
+                parts.append(f"Unit Price: {row.unit_price}")
+            if row.subtotal is not None:
+                parts.append(f"Subtotal: {row.subtotal}")
+            if row.tax is not None:
+                parts.append(f"Tax: {row.tax}")
+            if row.total is not None:
+                parts.append(f"Total: {row.total}")
+            for col_name, col_val in row.additional_columns.items():
+                parts.append(f"{col_name}: {col_val}")
+
+            content = " | ".join(parts)
+            bbox = row.bounding_box or self.source_geometry
+
+            chunks.append(
+                DocumentChunk(
+                    chunk_index=idx,
+                    page_number=row.page_number,
+                    content=content,
+                    chunk_type="TABLE_ROW",
+                    bounding_box=bbox,
+                    metadata={
+                        "table_id": self.table_id,
+                        "document_id": self.document_id,
+                        "row_id": row.row_id,
+                        "description": row.description,
+                        "quantity": row.quantity,
+                        "unit_price": row.unit_price,
+                        "total": row.total,
+                    },
+                )
+            )
+            idx += 1
+        return chunks
 
 
 def _merge_bounding_boxes(boxes: Sequence[Optional[Dict[str, float]]]) -> Optional[Dict[str, float]]:
@@ -248,39 +334,204 @@ def chunk_document_text(
     return chunks
 
 
+def chunk_structured_document(
+    name: str,
+    content: str,
+    document_id: Optional[str] = None,
+    bounding_box: Optional[Dict[str, float]] = None,
+    page_number: int = 1,
+    start_index: int = 0,
+) -> List[DocumentChunk]:
+    """
+    Table-aware and layout-preserving chunker for structured financial documents.
+    Preserves:
+    1. Document identity and header metadata across all chunks.
+    2. Atomic table line items: Keeps item description and corresponding quantities/prices together in the SAME chunk.
+    3. Accounting and tax summaries: Preserves VAT, subtotal, gross totals, and payment terms.
+    4. Exact bounding box geometry across all child chunks so spatial provenance is never lost.
+    """
+    lines = [l.strip() for l in content.split("\n") if l.strip()]
+    if not lines:
+        return []
+
+    chunks: List[DocumentChunk] = []
+    idx = start_index
+
+    # Identify document header line
+    header_line = lines[0]
+
+    # Extract order / invoice / PO identifier from header or content
+    id_match = re.search(
+        r"(INV-[\w\-]+|PO-[\w\-]+|ORD-[\w\-]+|FBL-[\w\-]+|GS-[\w\-]+|FCC-[\w\-]+|JIG7-[\w\-]+|SETTL-[\w\-]+|REC-[\w\-]+|ST-[\w\-]+)",
+        content,
+    )
+    doc_ref = id_match.group(1) if id_match else name
+
+    # Classify lines
+    item_lines = []
+    qty_lines = []
+    summary_lines = []
+    terms_lines = []
+    other_lines = []
+
+    for l in lines[1:]:
+        l_lower = l.lower()
+        if l_lower.startswith("item:"):
+            item_lines.append(l)
+        elif "quantity:" in l_lower or "unit price:" in l_lower:
+            qty_lines.append(l)
+        elif any(
+            k in l_lower
+            for k in [
+                "vat",
+                "tax",
+                "gross total",
+                "total amount due",
+                "total due",
+                "subtotal",
+                "total freight",
+                "total wharfage",
+                "total paid",
+                "clearance volume",
+                "regulatory contribution",
+                "total value",
+            ]
+        ):
+            summary_lines.append(l)
+        elif any(k in l_lower for k in ["payment terms", "signatory", "exemption", "stamp", "berth"]):
+            terms_lines.append(l)
+        else:
+            other_lines.append(l)
+
+    # 1. Document Header Chunk
+    hdr_parts = [f"[{name} | Document Header P.{page_number}]", header_line]
+    if terms_lines:
+        hdr_parts.extend(terms_lines)
+    chunks.append(
+        DocumentChunk(
+            chunk_index=idx,
+            page_number=page_number,
+            content=" | ".join(hdr_parts),
+            chunk_type="HEADER",
+            bounding_box=bounding_box,
+            metadata={"document_id": document_id, "doc_ref": doc_ref, "type": "header"},
+        )
+    )
+    idx += 1
+
+    # 2. Table Line Item Chunks (Pairing Item descriptions with quantities/prices)
+    if item_lines or qty_lines:
+        max_rows = max(len(item_lines), len(qty_lines), 1)
+        for r_i in range(max_rows):
+            row_parts = [f"[{name} | {doc_ref} | Line Item #{r_i + 1} P.{page_number}]"]
+            if r_i < len(item_lines):
+                row_parts.append(item_lines[r_i])
+            if r_i < len(qty_lines):
+                row_parts.append(qty_lines[r_i])
+            chunks.append(
+                DocumentChunk(
+                    chunk_index=idx,
+                    page_number=page_number,
+                    content=" | ".join(row_parts),
+                    chunk_type="TABLE_ROW",
+                    bounding_box=bounding_box,
+                    metadata={"document_id": document_id, "doc_ref": doc_ref, "line_number": r_i + 1},
+                )
+            )
+            idx += 1
+
+    # 3. Other narrative or line items (e.g. freight, services)
+    if other_lines:
+        for o_i, ol in enumerate(other_lines):
+            chunks.append(
+                DocumentChunk(
+                    chunk_index=idx,
+                    page_number=page_number,
+                    content=f"[{name} | {doc_ref} | Line #{o_i + 1} P.{page_number}] {ol}",
+                    chunk_type="TEXT",
+                    bounding_box=bounding_box,
+                    metadata={"document_id": document_id, "doc_ref": doc_ref},
+                )
+            )
+            idx += 1
+
+    # 4. Financial Summary & Tax Chunk
+    if summary_lines:
+        sum_parts = [f"[{name} | {doc_ref} | Financial Summary & Tax P.{page_number}]"]
+        sum_parts.extend(summary_lines)
+        if terms_lines:
+            sum_parts.extend(terms_lines)
+        chunks.append(
+            DocumentChunk(
+                chunk_index=idx,
+                page_number=page_number,
+                content=" | ".join(sum_parts),
+                chunk_type="SUMMARY",
+                bounding_box=bounding_box,
+                metadata={"document_id": document_id, "doc_ref": doc_ref, "type": "summary"},
+            )
+        )
+        idx += 1
+
+    return chunks
+
+
 def build_document_chunks_hierarchy(
     raw_text: Optional[str] = None,
     scalar_fields: Optional[Dict[str, Any]] = None,
     line_items: Optional[List[Dict[str, Any]]] = None,
+    document_name: Optional[str] = None,
+    document_id: Optional[str] = None,
+    bounding_box: Optional[Dict[str, float]] = None,
+    structured_table: Optional[StructuredTable] = None,
     page_count: int = 1,
 ) -> List[DocumentChunk]:
     """
     Comprehensive document chunking orchestrator.
     Consolidates:
     1. Header & scalar financial fields
-    2. Structured tabular line item rows
-    3. Narrative / unstructured body text
+    2. Structured tabular line item rows (or StructuredTable)
+    3. Layout-aware structured or narrative body text
     Produces a unified sequence of searchable chunks with strictly monotonic indices.
     """
     all_chunks: List[DocumentChunk] = []
     current_index = 0
 
-    # 1. Scalar Header Chunks
+    # 1. Structured Table Chunks (if provided)
+    if structured_table:
+        table_chunks = structured_table.to_chunks(start_index=current_index)
+        all_chunks.extend(table_chunks)
+        current_index += len(table_chunks)
+
+    # 2. Scalar Header Chunks
     if scalar_fields:
         header_chunks = chunk_scalar_fields(scalar_fields, page_number=1, start_index=current_index)
         all_chunks.extend(header_chunks)
         current_index += len(header_chunks)
 
-    # 2. Structured Tabular Row Chunks
+    # 3. Structured Tabular Row Chunks
     if line_items:
         table_chunks = chunk_tabular_rows(line_items, page_number=1, start_index=current_index)
         all_chunks.extend(table_chunks)
         current_index += len(table_chunks)
 
-    # 3. Unstructured Page Text Chunks
+    # 4. Structured or Unstructured Page Text Chunks
     if raw_text:
-        text_chunks = chunk_document_text(raw_text, page_number=1, start_index=current_index)
-        all_chunks.extend(text_chunks)
-        current_index += len(text_chunks)
+        # Check if text is structured invoice/document text with lines
+        if "\n" in raw_text and any(k in raw_text.lower() for k in ["item:", "quantity:", "invoice:", "order:", "vat", "subtotal", "total"]):
+            struct_chunks = chunk_structured_document(
+                name=document_name or "Document",
+                content=raw_text,
+                document_id=document_id,
+                bounding_box=bounding_box,
+                page_number=1,
+                start_index=current_index,
+            )
+            all_chunks.extend(struct_chunks)
+            current_index += len(struct_chunks)
+        else:
+            text_chunks = chunk_document_text(raw_text, page_number=1, start_index=current_index, bounding_box=bounding_box)
+            all_chunks.extend(text_chunks)
+            current_index += len(text_chunks)
 
     return all_chunks

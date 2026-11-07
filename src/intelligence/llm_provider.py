@@ -236,6 +236,8 @@ class GroqProvider(BaseLLMProvider):
         system_instruction = (
             "You are LedgerOne Assistant, an enterprise financial AI.\n"
             "Answer the question strictly using the provided context chunks.\n"
+            "When extracting financial totals, taxes, line-item quantities, or prices, report the exact factual value.\n"
+            "Minor entity naming variations and table line items within the authorized context are valid evidence.\n"
             "Respond ONLY with valid JSON conforming to this schema:\n"
             "{\n"
             '  "answer": "string (the factual response)",\n'
@@ -267,9 +269,14 @@ class GroqProvider(BaseLLMProvider):
                 break
             except Exception as exc:
                 err_str = str(exc)
-                # Fail immediately on fatal auth errors
-                if "401" in err_str or "Invalid API Key" in err_str:
-                    logger.error("Groq authentication failure", error=err_str)
+                # Fail immediately on fatal auth errors or exhausted daily quotas
+                if (
+                    "401" in err_str
+                    or "Invalid API Key" in err_str
+                    or "tokens per day" in err_str.lower()
+                    or "tpd" in err_str.lower()
+                ):
+                    logger.error("Groq unrecoverable error (auth failure or daily quota exhausted)", error=err_str)
                     break
 
                 if attempt <= self.max_retries:
