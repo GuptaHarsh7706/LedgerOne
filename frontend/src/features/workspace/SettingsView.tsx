@@ -48,11 +48,11 @@ interface WorkspaceMember {
 }
 
 const SEED_WORKSPACE_MEMBERS: WorkspaceMember[] = [
-  { id: 'm-1', name: 'Sarah Lin', email: 'ws_admin@apexcapital.internal', role: 'WORKSPACE_ADMIN', joined: '2024-01-15', status: 'ACTIVE' },
-  { id: 'm-2', name: 'Dr. Rachel Sterling', email: 'reviewer@apexcapital.internal', role: 'REVIEWER', joined: '2024-02-01', status: 'ACTIVE' },
-  { id: 'm-3', name: 'Marcus Thorne', email: 'doc_manager@apexcapital.internal', role: 'DOCUMENT_MANAGER', joined: '2024-02-10', status: 'ACTIVE' },
-  { id: 'm-4', name: 'David Chen', email: 'analyst@apexcapital.internal', role: 'ANALYST', joined: '2024-03-05', status: 'ACTIVE' },
-  { id: 'm-5', name: 'Jonathan Miller', email: 'viewer@apexcapital.internal', role: 'VIEWER', joined: '2024-04-12', status: 'ACTIVE' },
+  { id: 'm-1', name: 'Workspace Controller', email: 'ws_admin@enterprise.internal', role: 'WORKSPACE_ADMIN', joined: '2024-01-15', status: 'ACTIVE' },
+  { id: 'm-2', name: 'Lead Forensic Reviewer', email: 'reviewer@enterprise.internal', role: 'REVIEWER', joined: '2024-02-01', status: 'ACTIVE' },
+  { id: 'm-3', name: 'Document Operations Manager', email: 'doc_manager@enterprise.internal', role: 'DOCUMENT_MANAGER', joined: '2024-02-10', status: 'ACTIVE' },
+  { id: 'm-4', name: 'Quantitative Spend Analyst', email: 'analyst@enterprise.internal', role: 'ANALYST', joined: '2024-03-05', status: 'ACTIVE' },
+  { id: 'm-5', name: 'Compliance Observer', email: 'viewer@enterprise.internal', role: 'VIEWER', joined: '2024-04-12', status: 'ACTIVE' },
 ];
 
 export const SettingsView: React.FC = () => {
@@ -122,14 +122,14 @@ export const SettingsView: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-4 rounded-xl bg-[#141524] border border-white/[0.06]">
-            <div className="text-[11px] font-mono text-white/40 mb-1">AUTHENTICATED USER</div>
-            <div className="text-sm font-bold text-white truncate">{user?.full_name || 'Sarah Lin'}</div>
-            <div className="text-xs font-mono text-ops-cyan truncate mt-0.5">{user?.email}</div>
+            <div className="text-[11px] font-mono text-white/40 mb-1">AUTHENTICATED ROLE</div>
+            <div className="text-sm font-bold text-white truncate">{activeRole.replace(/_/g, ' ')}</div>
+            <div className="text-xs font-mono text-ops-cyan truncate mt-0.5">{user?.role}</div>
           </div>
 
           <div className="p-4 rounded-xl bg-[#141524] border border-white/[0.06]">
             <div className="text-[11px] font-mono text-white/40 mb-1">TENANT ORGANIZATION</div>
-            <div className="text-sm font-bold text-white truncate">{user?.org_name || 'Apex Global Capital'}</div>
+            <div className="text-sm font-bold text-white truncate">{user?.org_name || 'Enterprise Financial Core'}</div>
             <div className="text-[10px] font-mono text-white/40 truncate mt-0.5">{user?.org_id}</div>
           </div>
 
@@ -329,7 +329,7 @@ export const SettingsView: React.FC = () => {
                     required
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
-                    placeholder="analyst@apexcapital.internal"
+                    placeholder="analyst@enterprise.internal"
                     className="w-full px-3.5 py-2.5 rounded-xl bg-[#0E0F1A] border border-white/10 text-white text-xs font-mono focus:border-ops-cyan focus:outline-none"
                   />
                 </div>

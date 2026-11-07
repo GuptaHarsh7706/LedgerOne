@@ -7,13 +7,11 @@ import {
   Cpu, 
   ChevronDown, 
   Check, 
-  User, 
   Lock, 
   LogOut, 
   Users, 
-  Building2,
-  RefreshCw,
-  ExternalLink
+  ArrowRight,
+  Sparkles
 } from 'lucide-react';
 
 interface AppHeaderProps {
@@ -28,27 +26,26 @@ export const AppHeader: React.FC<AppHeaderProps> = () => {
   const activeRole = user?.role || 'VIEWER';
   const roleMeta = ROLE_LABELS[activeRole] || { label: activeRole, badge: 'Standard', description: '' };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .substring(0, 2)
-      .toUpperCase();
+  const getRoleInitials = (role: string) => {
+    const parts = role.split('_');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return role.substring(0, 2).toUpperCase();
   };
 
   return (
     <>
       <header className="h-16 border-b border-white/[0.08] bg-[#0E0F1A]/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between">
-        {/* Left: Real Multi-Tenant Organization & Workspace Context */}
+        {/* Left: Real Multi-Tenant Workspace Context */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#141524] border border-white/[0.08] text-xs font-mono">
             <span className="w-2 h-2 rounded-full bg-ops-cyan animate-pulse" />
-            <span className="text-white/40">TENANT:</span>
-            <span className="text-white font-semibold">{user?.org_name || 'Apex Global Capital'}</span>
+            <span className="text-white/40">WORKSPACE:</span>
+            <span className="text-white font-semibold">{user?.ws_name || 'Production Financial Core'}</span>
             <span className="text-white/20">/</span>
             <span className="text-ops-cyan truncate max-w-[140px] sm:max-w-none">
-              {user?.ws_name || 'Production Financial Core'}
+              ENTERPRISE CORE
             </span>
           </div>
         </div>
@@ -67,7 +64,7 @@ export const AppHeader: React.FC<AppHeaderProps> = () => {
             </div>
           </div>
 
-          {/* Real RBAC Security Badge (Enforced by Backend, strictly read-only) */}
+          {/* Real RBAC Security Badge */}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-ops-blue/15 border border-ops-blue/40 text-xs font-mono text-white shadow-[0_0_15px_rgba(12,113,255,0.15)]">
             <Lock className="w-3.5 h-3.5 text-ops-cyan" />
             <span className="hidden sm:inline text-white/60">ROLE:</span>
@@ -77,22 +74,22 @@ export const AppHeader: React.FC<AppHeaderProps> = () => {
             </span>
           </div>
 
-          {/* User Profile & Persona Switcher */}
+          {/* User Profile & Role Switcher */}
           <div className="relative">
             <button
               onClick={() => setUserDropdownOpen(!userDropdownOpen)}
               className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-white/[0.04] transition-colors focus:outline-none"
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-ops-blue via-ops-cyan to-ops-yellow p-[1px]">
-                <div className="w-full h-full rounded-full bg-[#0E0F1A] flex items-center justify-center text-xs font-mono font-bold text-white">
-                  {user ? getInitials(user.full_name) : 'L1'}
+                <div className="w-full h-full rounded-full bg-[#0E0F1A] flex items-center justify-center text-[11px] font-mono font-bold text-ops-cyan">
+                  {getRoleInitials(activeRole)}
                 </div>
               </div>
               <div className="hidden md:flex flex-col text-left">
-                <span className="text-xs font-medium text-white truncate max-w-[120px]">
-                  {user?.full_name || 'Authenticated User'}
+                <span className="text-xs font-bold font-mono text-white truncate max-w-[140px]">
+                  {activeRole.replace(/_/g, ' ')}
                 </span>
-                <span className="text-[10px] font-mono text-white/40 truncate max-w-[120px]">
+                <span className="text-[10px] font-mono text-ops-cyan/70 truncate max-w-[140px]">
                   {roleMeta.badge}
                 </span>
               </div>
@@ -102,12 +99,17 @@ export const AppHeader: React.FC<AppHeaderProps> = () => {
             {userDropdownOpen && (
               <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-[#141524] border border-white/[0.12] shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
                 <div className="px-4 py-3 border-b border-white/[0.08]">
-                  <div className="text-xs font-bold text-white">{user?.full_name}</div>
-                  <div className="text-[11px] font-mono text-ops-cyan truncate mt-0.5">{user?.email}</div>
-                  <div className="flex items-center gap-1.5 mt-2 text-[10px] font-mono text-white/50">
-                    <Building2 className="w-3 h-3 text-ops-blue" />
-                    <span className="truncate">{user?.org_name}</span>
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <span className="text-xs font-bold font-mono text-white tracking-wide">
+                      {activeRole.replace(/_/g, ' ')}
+                    </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-ops-cyan/10 text-ops-cyan border border-ops-cyan/20">
+                      {roleMeta.badge}
+                    </span>
                   </div>
+                  <p className="text-[11px] text-white/50 leading-relaxed mt-1">
+                    {roleMeta.description}
+                  </p>
                 </div>
 
                 <div className="p-1">
@@ -120,10 +122,10 @@ export const AppHeader: React.FC<AppHeaderProps> = () => {
                   >
                     <div className="flex items-center gap-2.5">
                       <Users className="w-4 h-4 text-ops-cyan" />
-                      <span>Switch Verified Persona...</span>
+                      <span>Switch Enterprise Role...</span>
                     </div>
                     <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-ops-cyan/15 text-ops-cyan">
-                      8 SAAS
+                      8 ROLES
                     </span>
                   </button>
 
@@ -145,7 +147,7 @@ export const AppHeader: React.FC<AppHeaderProps> = () => {
         </div>
       </header>
 
-      {/* Verified SaaS Persona Switcher Modal */}
+      {/* Verified SaaS Role Switcher Modal (Identical to Login Page Layout) */}
       {personaModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
           <div className="relative w-full max-w-2xl rounded-2xl bg-[#111220] border border-white/[0.15] shadow-2xl p-6 sm:p-7 max-h-[90vh] overflow-y-auto">
@@ -154,14 +156,14 @@ export const AppHeader: React.FC<AppHeaderProps> = () => {
                 <div className="flex items-center gap-2 mb-1">
                   <Shield className="w-4 h-4 text-ops-cyan" />
                   <span className="text-xs font-mono uppercase tracking-widest text-ops-cyan">
-                    AUTHENTIC SAAS IDENTITIES
+                    ENTERPRISE ROLES & SOD POLICIES
                   </span>
                 </div>
                 <h2 className="text-lg font-bold text-white">
-                  Switch Enterprise Test Persona
+                  Switch Enterprise Role
                 </h2>
                 <p className="text-xs text-white/60 mt-1">
-                  Authenticate as a real provisioned user in Neon PostgreSQL 18.6 Cloud. Issues an authentic JWT signed with the platform master key.
+                  Select any verified enterprise role to test full RBAC permissions and Segregation of Duties.
                 </p>
               </div>
               <button
@@ -174,7 +176,7 @@ export const AppHeader: React.FC<AppHeaderProps> = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
               {PERSONA_PRESETS.map((p) => {
-                const isCurrent = user?.email === p.email;
+                const isCurrent = user?.role === p.role;
                 return (
                   <button
                     key={p.key}
@@ -183,27 +185,40 @@ export const AppHeader: React.FC<AppHeaderProps> = () => {
                       await switchPersona(p.key);
                       setPersonaModalOpen(false);
                     }}
-                    className={`p-3.5 rounded-xl border text-left transition-all relative ${
+                    className={`p-3.5 rounded-xl border text-left transition-all duration-200 group flex flex-col justify-between ${
                       isCurrent
                         ? 'bg-ops-cyan/15 border-ops-cyan text-white shadow-[0_0_20px_rgba(0,255,204,0.15)] ring-1 ring-ops-cyan'
-                        : 'bg-[#161729] border-white/[0.08] text-white/70 hover:border-white/25 hover:text-white'
+                        : 'bg-[#141526] border-white/[0.08] hover:border-ops-cyan/40 hover:bg-[#181930] text-left'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs font-bold text-white font-mono">{p.name}</span>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.08] text-ops-cyan">
-                        {p.role}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="text-xs font-bold font-mono uppercase tracking-wide text-white group-hover:text-ops-cyan transition-colors">
+                          {p.role.replace(/_/g, ' ')}
+                        </span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-ops-cyan/10 text-ops-cyan border border-ops-cyan/20 shrink-0">
+                          {p.badge || p.role}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-white/60 leading-relaxed">
+                        {p.description}
+                      </p>
+                    </div>
+
+                    <div className="mt-3.5 pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-mono">
+                      {isCurrent ? (
+                        <span className="text-ops-cyan font-bold flex items-center gap-1">
+                          <Check className="w-3.5 h-3.5" /> ACTIVE ROLE
+                        </span>
+                      ) : (
+                        <span className="text-white/40 group-hover:text-white transition-colors">
+                          Verified Role
+                        </span>
+                      )}
+                      <span className="text-ops-cyan font-semibold flex items-center gap-1">
+                        Select <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                       </span>
                     </div>
-                    <div className="text-[11px] font-medium text-white/90 mb-1">{p.title}</div>
-                    <div className="text-[10px] font-mono text-white/40 mb-2 truncate">{p.email}</div>
-                    <p className="text-[11px] text-white/50 leading-relaxed line-clamp-2">{p.description}</p>
-                    {isCurrent && (
-                      <div className="mt-2.5 flex items-center gap-1.5 text-[10px] font-mono text-ops-cyan">
-                        <Check className="w-3.5 h-3.5" />
-                        <span>ACTIVE SESSION</span>
-                      </div>
-                    )}
                   </button>
                 );
               })}
@@ -214,7 +229,7 @@ export const AppHeader: React.FC<AppHeaderProps> = () => {
                 <Lock className="w-4 h-4 text-ops-blue" />
                 <span>Backend Segregation: Dual custody & cross-tenant RLS are fully active.</span>
               </div>
-              <span className="text-[10px] text-ops-cyan">PGVECTOR + NEON</span>
+              <span className="text-[10px] text-ops-cyan font-mono">PGVECTOR + NEON</span>
             </div>
           </div>
         </div>

@@ -112,7 +112,7 @@ export const LoginPage: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="controller@apexcapital.internal"
+                  placeholder="controller@enterprise.internal"
                   className="w-full px-4 py-3 rounded-xl bg-[#0E0F1A] border border-white/10 text-white text-xs font-mono focus:border-ops-cyan focus:outline-none transition-colors"
                 />
               </div>
@@ -192,7 +192,7 @@ export const LoginPage: React.FC = () => {
                 </div>
 
                 <div className="mt-3.5 pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-mono text-white/40 group-hover:text-white transition-colors">
-                  <span className="truncate">{p.orgName}</span>
+                  <span className="text-white/40">Verified Tenant</span>
                   <span className="text-ops-cyan font-semibold flex items-center gap-1">
                     Select Role <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                   </span>
